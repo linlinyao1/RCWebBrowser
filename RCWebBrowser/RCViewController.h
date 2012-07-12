@@ -7,7 +7,16 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "RCTabView.h"
+#import "RCSearchBar.h"
+#import "RCToolBar.h"
+#import "RCWebView.h"
 
 @interface RCViewController : UIViewController
+@property (retain, nonatomic) IBOutlet RCTabView *tabView;
+@property (retain, nonatomic) IBOutlet RCSearchBar *searchBar;
+@property (retain, nonatomic) IBOutlet UIView *broswerView;
+@property (retain, nonatomic) IBOutlet RCToolBar *bottomToolBar;
 
+-(void)loadURLWithCurrentTab:(NSURL*)url;
 @end

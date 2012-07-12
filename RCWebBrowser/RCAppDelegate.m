@@ -9,6 +9,7 @@
 #import "RCAppDelegate.h"
 
 #import "RCViewController.h"
+#import "PPRevealSideViewController.h"
 
 @implementation RCAppDelegate
 
@@ -20,7 +21,14 @@
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     // Override point for customization after application launch.
     self.viewController = [[RCViewController alloc] initWithNibName:@"RCViewController" bundle:nil];
-    self.window.rootViewController = self.viewController;
+//    UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:self.viewController];
+    
+    PPRevealSideViewController *revealSideViewController = [[PPRevealSideViewController alloc] initWithRootViewController:self.viewController];
+    
+//    revealSideViewController.delegate = self;
+    
+//    [nav setNavigationBarHidden:YES];
+    self.window.rootViewController = revealSideViewController;//self.viewController;
     [self.window makeKeyAndVisible];
     return YES;
 }
