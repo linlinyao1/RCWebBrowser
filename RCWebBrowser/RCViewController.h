@@ -11,8 +11,9 @@
 #import "RCSearchBar.h"
 #import "RCToolBar.h"
 #import "RCWebView.h"
+#import "PPRevealSideViewController.h"
 
-@interface RCViewController : UIViewController
+@interface RCViewController : UIViewController<PPRevealSideViewControllerDelegate>
 @property (retain, nonatomic) IBOutlet RCTabView *tabView;
 @property (retain, nonatomic) IBOutlet RCSearchBar *searchBar;
 @property (retain, nonatomic) IBOutlet UIView *broswerView;

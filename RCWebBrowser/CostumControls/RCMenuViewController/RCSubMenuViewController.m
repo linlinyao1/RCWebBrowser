@@ -31,27 +31,12 @@
 {
     [super viewWillAppear:animated];
     [self.navigationController setNavigationBarHidden:NO];
-//    
-//    CGRect frame = self.view.frame;
-//    frame.size.width = frame.size.width - self.tableView.revealSideInset.right;
-//    self.view.frame = frame;
-//    
-//    CGRect frame2 = self.navigationController.navigationBar.frame;
-//    frame.size.width = frame2.size.width - self.tableView.revealSideInset.right;
-//    self.navigationController.navigationBar.frame = frame2;
 }
 
 -(void)viewDidAppear:(BOOL)animated
 {
     [super viewDidAppear:animated];
     self.tableView.frame = CGRectMake(0, 0, 260, self.tableView.frame.size.height);
-
-//    self.navigationController.navigationBar.frame = CGRectMake(0, 0, 260, 44);
-//    NSLog(@"nav frame: %@",NSStringFromCGRect(self.navigationController.navigationBar.frame));
-//    NSLog(@"tableView frame: %@",NSStringFromCGRect(self.tableView.frame));
-
-//    [self.navigationController.navigationBar s]
-
 }
 
 -(void)makeRightBarButtonItemWithButton:(UIBarButtonItem*)button
@@ -97,8 +82,7 @@
                     bookmarksArray = [[NSMutableArray alloc] initWithCapacity:1];
                 }
                 self.submenuItems = [NSMutableArray arrayWithArray:bookmarksArray];
-                
-                [self makeRightBarButtonItemWithButton:self.editButtonItem];
+//                [self makeRightBarButtonItemWithButton:self.editButtonItem];
 //                UIBarButtonItem *button = [[UIBarButtonItem alloc] initWithTitle:@"edit" style:<#(UIBarButtonItemStyle)#> target:<#(id)#> action:<#(SEL)#>]
 //                self.navigationItem.titleView = self.editButtonItem;
             }
@@ -112,13 +96,31 @@
                     historyArray = [[NSMutableArray alloc] initWithArray:[NSKeyedUnarchiver unarchiveObjectWithData:history]];
                 }else {
                     historyArray = [[NSMutableArray alloc] initWithCapacity:1];
+                    [historyArray sortUsingComparator:^NSComparisonResult(BookmarkObject *obj1, BookmarkObject *obj2) {
+                        return  [obj2.date compare:obj1.date];
+                    }];
                 }
                 self.submenuItems = [NSMutableArray arrayWithArray:historyArray];
             }
                 break;
             case RCSubMenuMostViewed:
+            {
+                NSData * history = [defaults objectForKey:@"history"];
+                NSMutableArray *historyArray;
+                
+                if (history) {
+                    historyArray = [[NSMutableArray alloc] initWithArray:[NSKeyedUnarchiver unarchiveObjectWithData:history]];
+                    [historyArray sortUsingComparator:^NSComparisonResult(BookmarkObject *obj1, BookmarkObject *obj2) {
+                        return  [obj2.count compare:obj1.count];
+                    }];
+                }else {
+                    historyArray = [[NSMutableArray alloc] initWithCapacity:1];
+                }
+                self.submenuItems = [NSMutableArray arrayWithArray:historyArray];
+            }
                 break;
-            case RCSubMenuSetting:
+            case RCSubMenuSetting:                
+                
                 break;
             default:
                 NSLog(@"error");
@@ -177,7 +179,7 @@
         cell.accessoryType = UITableViewCellAccessoryDetailDisclosureButton;
     }
     BookmarkObject *obj = [self.submenuItems objectAtIndex:indexPath.row];
-//    NSLog(@"name:%@,url:%@",obj.name,obj.url);
+    NSLog(@"count:%@",obj.count);
     cell.textLabel.text = obj.name;
     cell.detailTextLabel.text = obj.url.absoluteString;
     return cell;

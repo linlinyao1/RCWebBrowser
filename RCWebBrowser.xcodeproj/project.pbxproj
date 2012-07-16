@@ -22,6 +22,7 @@
 		883C7C1815A19B99003104AC /* RCTab.m in Sources */ = {isa = PBXBuildFile; fileRef = 883C7C1715A19B99003104AC /* RCTab.m */; };
 		883C7C1F15A1A636003104AC /* button_close_tab_on_1_press.png in Resources */ = {isa = PBXBuildFile; fileRef = 883C7C1D15A1A635003104AC /* button_close_tab_on_1_press.png */; };
 		883C7C2015A1A636003104AC /* button_close_tab_on_1.png in Resources */ = {isa = PBXBuildFile; fileRef = 883C7C1E15A1A636003104AC /* button_close_tab_on_1.png */; };
+		8878277415B3A36D0046A309 /* JSONKit.m in Sources */ = {isa = PBXBuildFile; fileRef = 8878277315B3A36D0046A309 /* JSONKit.m */; };
 		8878EA2315A3E5660074D984 /* Icon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 8878EA2115A3E5660074D984 /* Icon@2x.png */; };
 		8878EA2415A3E5660074D984 /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 8878EA2215A3E5660074D984 /* Icon.png */; };
 		8879790E1592BF46008B9609 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8879790D1592BF46008B9609 /* UIKit.framework */; };
@@ -32,6 +33,7 @@
 		8879791E1592BF46008B9609 /* RCAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 8879791D1592BF46008B9609 /* RCAppDelegate.m */; };
 		887979211592BF46008B9609 /* RCViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 887979201592BF46008B9609 /* RCViewController.m */; };
 		887979241592BF46008B9609 /* RCViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 887979221592BF46008B9609 /* RCViewController.xib */; };
+		8879E41F15B00DC8006FF295 /* RCSettingMenuViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8879E41E15B00DC8006FF295 /* RCSettingMenuViewController.m */; };
 		887D6BDE15A6839B00400244 /* AddBookmarkViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 887D6BCE15A6839B00400244 /* AddBookmarkViewController.m */; };
 		887D6BDF15A6839B00400244 /* BookmarkObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 887D6BD015A6839B00400244 /* BookmarkObject.m */; };
 		887D6BE015A6839B00400244 /* CIALBrowser.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 887D6BD115A6839B00400244 /* CIALBrowser.bundle */; };
@@ -61,6 +63,9 @@
 		88B086E215AD44680099A999 /* RCSearchResultViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 88B086E115AD44680099A999 /* RCSearchResultViewController.m */; };
 		88B086E515AD47E50099A999 /* RCSearchResultBar.m in Sources */ = {isa = PBXBuildFile; fileRef = 88B086E415AD47E50099A999 /* RCSearchResultBar.m */; };
 		88B086E915AD5BE40099A999 /* RCKeyBoardAccessory.xib in Resources */ = {isa = PBXBuildFile; fileRef = 88B086E815AD5BE40099A999 /* RCKeyBoardAccessory.xib */; };
+		88B8BA0515B3DBDD00813853 /* RCFastLinkObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 88B8BA0415B3DBDD00813853 /* RCFastLinkObject.m */; };
+		88B8BA1015B3EC6500813853 /* EGOCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 88B8BA0F15B3EC6500813853 /* EGOCache.m */; };
+		88B8BA1515B3F45300813853 /* UIView+ScreenShot.m in Sources */ = {isa = PBXBuildFile; fileRef = 88B8BA1415B3F45300813853 /* UIView+ScreenShot.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -82,6 +87,8 @@
 		883C7C1715A19B99003104AC /* RCTab.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCTab.m; sourceTree = "<group>"; };
 		883C7C1D15A1A635003104AC /* button_close_tab_on_1_press.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = button_close_tab_on_1_press.png; sourceTree = "<group>"; };
 		883C7C1E15A1A636003104AC /* button_close_tab_on_1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = button_close_tab_on_1.png; sourceTree = "<group>"; };
+		8878277215B3A36D0046A309 /* JSONKit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JSONKit.h; sourceTree = "<group>"; };
+		8878277315B3A36D0046A309 /* JSONKit.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JSONKit.m; sourceTree = "<group>"; };
 		8878EA2115A3E5660074D984 /* Icon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon@2x.png"; sourceTree = "<group>"; };
 		8878EA2215A3E5660074D984 /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Icon.png; sourceTree = "<group>"; };
 		887979091592BF46008B9609 /* RCWebBrowser.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RCWebBrowser.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -97,6 +104,8 @@
 		8879791F1592BF46008B9609 /* RCViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RCViewController.h; sourceTree = "<group>"; };
 		887979201592BF46008B9609 /* RCViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RCViewController.m; sourceTree = "<group>"; };
 		887979231592BF46008B9609 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/RCViewController.xib; sourceTree = "<group>"; };
+		8879E41D15B00DC8006FF295 /* RCSettingMenuViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCSettingMenuViewController.h; path = RCMenuViewController/RCSettingMenuViewController.h; sourceTree = "<group>"; };
+		8879E41E15B00DC8006FF295 /* RCSettingMenuViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCSettingMenuViewController.m; path = RCMenuViewController/RCSettingMenuViewController.m; sourceTree = "<group>"; };
 		887D6BCD15A6839B00400244 /* AddBookmarkViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AddBookmarkViewController.h; sourceTree = "<group>"; };
 		887D6BCE15A6839B00400244 /* AddBookmarkViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AddBookmarkViewController.m; sourceTree = "<group>"; };
 		887D6BCF15A6839B00400244 /* BookmarkObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BookmarkObject.h; sourceTree = "<group>"; };
@@ -147,6 +156,12 @@
 		88B086E315AD47E50099A999 /* RCSearchResultBar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCSearchResultBar.h; path = RCSearchDisplay/RCSearchResultBar.h; sourceTree = "<group>"; };
 		88B086E415AD47E50099A999 /* RCSearchResultBar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCSearchResultBar.m; path = RCSearchDisplay/RCSearchResultBar.m; sourceTree = "<group>"; };
 		88B086E815AD5BE40099A999 /* RCKeyBoardAccessory.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = RCKeyBoardAccessory.xib; path = RCWebBrowser/CostumControls/RCSearchDisplay/RCKeyBoardAccessory.xib; sourceTree = "<group>"; };
+		88B8BA0315B3DBDD00813853 /* RCFastLinkObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCFastLinkObject.h; path = RCFastLinkView/RCFastLinkObject.h; sourceTree = "<group>"; };
+		88B8BA0415B3DBDD00813853 /* RCFastLinkObject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCFastLinkObject.m; path = RCFastLinkView/RCFastLinkObject.m; sourceTree = "<group>"; };
+		88B8BA0E15B3EC6500813853 /* EGOCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EGOCache.h; sourceTree = "<group>"; };
+		88B8BA0F15B3EC6500813853 /* EGOCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EGOCache.m; sourceTree = "<group>"; };
+		88B8BA1315B3F45300813853 /* UIView+ScreenShot.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIView+ScreenShot.h"; sourceTree = "<group>"; };
+		88B8BA1415B3F45300813853 /* UIView+ScreenShot.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+ScreenShot.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -219,6 +234,15 @@
 				883C7C1E15A1A636003104AC /* button_close_tab_on_1.png */,
 			);
 			path = RCTabViewImage;
+			sourceTree = "<group>";
+		};
+		8878277615B3A3710046A309 /* JSONKit */ = {
+			isa = PBXGroup;
+			children = (
+				8878277215B3A36D0046A309 /* JSONKit.h */,
+				8878277315B3A36D0046A309 /* JSONKit.m */,
+			);
+			name = JSONKit;
 			sourceTree = "<group>";
 		};
 		887978FE1592BF46008B9609 = {
@@ -342,6 +366,8 @@
 			children = (
 				887D6C0015A6E08C00400244 /* RCFastLinkView.h */,
 				887D6C0115A6E08C00400244 /* RCFastLinkView.m */,
+				88B8BA0315B3DBDD00813853 /* RCFastLinkObject.h */,
+				88B8BA0415B3DBDD00813853 /* RCFastLinkObject.m */,
 			);
 			name = RCFastLinkView;
 			sourceTree = "<group>";
@@ -384,6 +410,8 @@
 				88807CCF15ABD5B700FC8773 /* RCMenuViewController.m */,
 				88807CDC15ABF0A500FC8773 /* RCSubMenuViewController.h */,
 				88807CDD15ABF0A500FC8773 /* RCSubMenuViewController.m */,
+				8879E41D15B00DC8006FF295 /* RCSettingMenuViewController.h */,
+				8879E41E15B00DC8006FF295 /* RCSettingMenuViewController.m */,
 			);
 			name = RCMenuViewController;
 			sourceTree = "<group>";
@@ -391,9 +419,12 @@
 		88807CE415ABF63B00FC8773 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
-				88807CFA15AC0F9200FC8773 /* CMPopTipView.h */,
-				88807CFB15AC0F9200FC8773 /* CMPopTipView.m */,
+				88B8BA1115B3EC6900813853 /* EGOCache */,
+				8878277615B3A3710046A309 /* JSONKit */,
+				88B8BA1215B3F3D000813853 /* CMPopTipView */,
 				88807CE515ABF63B00FC8773 /* RCRecordData */,
+				88B8BA1315B3F45300813853 /* UIView+ScreenShot.h */,
+				88B8BA1415B3F45300813853 /* UIView+ScreenShot.m */,
 			);
 			path = Classes;
 			sourceTree = "<group>";
@@ -405,6 +436,24 @@
 				88807CE715ABF63B00FC8773 /* RCRecordData.m */,
 			);
 			path = RCRecordData;
+			sourceTree = "<group>";
+		};
+		88B8BA1115B3EC6900813853 /* EGOCache */ = {
+			isa = PBXGroup;
+			children = (
+				88B8BA0E15B3EC6500813853 /* EGOCache.h */,
+				88B8BA0F15B3EC6500813853 /* EGOCache.m */,
+			);
+			name = EGOCache;
+			sourceTree = "<group>";
+		};
+		88B8BA1215B3F3D000813853 /* CMPopTipView */ = {
+			isa = PBXGroup;
+			children = (
+				88807CFA15AC0F9200FC8773 /* CMPopTipView.h */,
+				88807CFB15AC0F9200FC8773 /* CMPopTipView.m */,
+			);
+			name = CMPopTipView;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -517,6 +566,11 @@
 				88B086E215AD44680099A999 /* RCSearchResultViewController.m in Sources */,
 				88B086E515AD47E50099A999 /* RCSearchResultBar.m in Sources */,
 				88391BDD15AE806100960943 /* RCNavigationBar.m in Sources */,
+				8879E41F15B00DC8006FF295 /* RCSettingMenuViewController.m in Sources */,
+				8878277415B3A36D0046A309 /* JSONKit.m in Sources */,
+				88B8BA0515B3DBDD00813853 /* RCFastLinkObject.m in Sources */,
+				88B8BA1015B3EC6500813853 /* EGOCache.m in Sources */,
+				88B8BA1515B3F45300813853 /* UIView+ScreenShot.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

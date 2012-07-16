@@ -24,8 +24,8 @@
 //    UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:self.viewController];
     
     PPRevealSideViewController *revealSideViewController = [[PPRevealSideViewController alloc] initWithRootViewController:self.viewController];
-    
-//    revealSideViewController.delegate = self;
+    revealSideViewController.panInteractionsWhenClosed = PPRevealSideInteractionNone|PPRevealSideInteractionNavigationBar | PPRevealSideInteractionContentView;
+    revealSideViewController.delegate = self.viewController;
     
 //    [nav setNavigationBarHidden:YES];
     self.window.rootViewController = revealSideViewController;//self.viewController;

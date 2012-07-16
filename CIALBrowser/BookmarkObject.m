@@ -8,16 +8,22 @@
 
 #import "BookmarkObject.h"
 
+@interface BookmarkObject ()
+@end
 
 @implementation BookmarkObject
 
 @synthesize name = _name;
 @synthesize url = _url;
+@synthesize date = _date;
+@synthesize count = _count;
 
 - (id) initWithName:(NSString *)aName andURL:(NSURL *)aUrl {
     if (self = [super init]) {
         self.name = aName;
         self.url = aUrl;
+        self.date = [NSDate date];
+        self.count = [NSNumber numberWithInt:1];
     }
     return self;
 }
@@ -28,6 +34,8 @@
     {
         self.name = [coder decodeObjectForKey: @"name"];
         self.url = [coder decodeObjectForKey: @"url"];
+        self.date = [coder decodeObjectForKey:@"date"];
+        self.count = [coder decodeObjectForKey:@"count"];
     }
     return self;
 }
@@ -35,11 +43,16 @@
 - (void) encodeWithCoder: (NSCoder *)coder {
     [coder encodeObject:_name forKey:@"name"];
     [coder encodeObject:_url forKey:@"url"];
+    [coder encodeObject:_date forKey:@"date"];
+    [coder encodeObject:_count forKey:@"count"];
+
 }
 
 - (void) dealloc {
     self.name = nil;
     self.url = nil;
+    self.date = nil;
+    self.count = nil;
     [super dealloc];
 }
 

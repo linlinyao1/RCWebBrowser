@@ -12,7 +12,7 @@
 @protocol RCBookMarkPopDelegate <NSObject>
 
 -(BookmarkObject*)currentWebInfo;
-
+-(UIWebView*)currentWeb;
 @end
 @interface RCBookMarkPop : UIView
 @property (nonatomic,assign) NSObject<RCBookMarkPopDelegate> *delegate;

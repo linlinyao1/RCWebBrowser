@@ -7,10 +7,13 @@
 //
 
 #import "RCFastLinkView.h"
+#import "RCFastLinkObject.h"
+
+
+static RCFastLinkView *_fastLinkView;
 
 @implementation RCFastLinkView
 
-static RCFastLinkView *_fastLinkView;
 
 - (id)initWithFrame:(CGRect)frame
 {
@@ -18,6 +21,21 @@ static RCFastLinkView *_fastLinkView;
     if (self) {
         // Initialization code
         self.backgroundColor = [UIColor blueColor];
+        
+        NSUserDefaults * defaults = [NSUserDefaults standardUserDefaults];
+        NSData * fastlinks = [defaults objectForKey:@"fastlinks"];
+        NSMutableArray *fastlinksArray;
+        
+        if (fastlinks) {
+            fastlinksArray = [[NSMutableArray alloc] initWithArray:[NSKeyedUnarchiver unarchiveObjectWithData:fastlinks]];
+            RCFastLinkObject *flObj = [fastlinksArray objectAtIndex:[fastlinksArray count]-1];        
+            UIImage *image = flObj.icon;
+            UIImageView *imageView = [[[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 100, 100)] autorelease];
+            imageView.backgroundColor = [UIColor whiteColor];
+            imageView.image = image;
+            [self addSubview:imageView];
+        } 
+ 
     }
     return self;
 }
@@ -29,5 +47,9 @@ static RCFastLinkView *_fastLinkView;
     }
     return _fastLinkView;
 }
+
+
+
+
 
 @end

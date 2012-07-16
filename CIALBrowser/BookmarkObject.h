@@ -15,6 +15,8 @@
 }
 @property (nonatomic, retain) NSString *name;
 @property (nonatomic, retain) NSURL *url;
+@property (nonatomic, retain) NSDate *date;
+@property (nonatomic, retain) NSNumber *count;
 
 - (id) initWithName:(NSString *)name andURL:(NSURL *)url;
 

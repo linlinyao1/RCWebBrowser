@@ -10,9 +10,21 @@
 #import "CMPopTipView.h"
 #import "RCBookMarkPop.h"
 
+enum {
+    RCKeyBoardTypeNone=0,
+    RCKeyBoardTypePrefix=1,
+    RCkeyBoardTypeSuffix=2
+};
+
+typedef NSInteger RCKeyBoardAccessoryType ;
+
 @protocol RCSearchBarDelegate <NSObject>
 
--(BOOL)searchBarShouldReturn:(UITextField*)textField;
+-(void)searchModeOn;
+-(void)searchModeOff;
+
+-(void)searchCompleteWithUrl:(NSURL*)url;
+//-(BOOL)searchBarShouldReturn:(UITextField*)textField;
 @end
 
 @interface RCSearchBar : UIView
@@ -20,9 +32,18 @@
 @property (nonatomic,assign) IBOutlet NSObject<RCSearchBarDelegate,RCBookMarkPopDelegate> *delegate;
 @property (nonatomic,retain) UIButton *bookMarkButton;
 @property (nonatomic,retain) CMPopTipView *bookMarkPop;
+@property (nonatomic) RCKeyBoardAccessoryType KBAType;
 
--(id)initForSearchDisplayWithFrame:(CGRect)frame ;
 -(void)restoreDefaultState;
+
+//-(void)preTurnOnSearchMode;
+-(void)turnOnSearchMode;
+//-(void)preTurnOffSearchMode;
+-(void)turnOffSearchMode;
+
+
+-(void)makeKeyBoardAccessoryWithType:(RCKeyBoardAccessoryType)type;
+
 
 -(void)hideViewWithOffset:(CGFloat)offset;
 -(void)showView;

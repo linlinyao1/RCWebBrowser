@@ -16,7 +16,7 @@
 
 
 
-@interface RCViewController ()<UITextFieldDelegate,RCTabViewDelegate,UIWebViewDelegate,RCBookMarkPopDelegate>
+@interface RCViewController ()<UITextFieldDelegate,RCTabViewDelegate,UIWebViewDelegate,RCBookMarkPopDelegate,RCSearchBarDelegate>
 @property (nonatomic,retain) NSMutableArray *openedWebs; //arrary of UIWebView, corresponding to tabs
 @property (nonatomic,retain) CMPopTipView *bookMarkPop;
 
@@ -40,44 +40,39 @@
     }
     return _openedWebs;
 }
+
+
+
+- (void) preloadLeft {
+    RCMenuViewController *menuVC = [[RCMenuViewController alloc] initWithStyle:UITableViewStylePlain];
+    UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:menuVC];
+    [menuVC release];
+    [nav setNavigationBarHidden:YES];  
+    
+    [self.revealSideViewController preloadViewController:nav
+                                                 forSide:PPRevealSideDirectionLeft
+                                              withOffset:60];
+    [nav release];
+    
+}
 -(void)viewWillAppear:(BOOL)animated
 {
     if ([self.openedWebs count] == 1) {
         [self.tabView.tabTable selectRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0] animated:NO scrollPosition:UITableViewScrollPositionNone];
         [self didSelectedTabAtIndex:0];
     }
-    [self updateBackForwordState:[self.openedWebs objectAtIndex:[self.tabView.tabTable indexPathForSelectedRow].row]];
-    
-
-    
+    [self updateBackForwordState:[self.openedWebs objectAtIndex:[self.tabView.tabTable indexPathForSelectedRow].row]];    
 }
+
+-(void)viewDidAppear:(BOOL)animated
+{
+    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(preloadLeft) object:nil];
+    [self performSelector:@selector(preloadLeft) withObject:nil afterDelay:0.3];
+}
+
 - (void)viewDidLoad
 {
-    [super viewDidLoad];    
-    self.searchBar.locationField.delegate = self;
-    
-//    [self.searchBar.bookMarkButton addTarget:self action:@selector(bookMarkButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
-    
-    
-//    [self.bottomToolBar.backButtonItem setTarget:self];
-//    [self.bottomToolBar.backButtonItem setAction:@selector(goBack:)];
-//    
-//    [self.bottomToolBar.forwardButtonItem setTarget:self];
-//    [self.bottomToolBar.forwardButtonItem setAction:@selector(goForward:)];
-//    
-//    [self.bottomToolBar.menuButtonItem setTarget:self];
-//    [self.bottomToolBar.menuButtonItem setAction:@selector(goMenu:)];
-//    
-//    [self.bottomToolBar.fullScreenButtonItem setTarget:self];
-//    [self.bottomToolBar.fullScreenButtonItem setAction:@selector(goFullScreen:)];
-
-    
-//    [self.revealSideViewController changeOffset:60
-//                                   forDirection:PPRevealSideDirectionLeft];
-//    RCNavigationBar* navBar = [[RCNavigationBar alloc] initWithFrame:CGRectMake(0, 0, 320, 88)];
-//    [self.navigationController.navigationBar addSubview:self.tabView];
-//    [self.navigationController.navigationBar addSubview:self.searchBar];
-//    self.navigationController.navigationBar.frame = CGRectMake(0, 0, 320, 88);
+    [super viewDidLoad];  
 }
 
 - (void)viewDidUnload
@@ -109,6 +104,27 @@
     [super dealloc];
 }
 
+#pragma mark - PPRevealSideViewControllerDelegate
+
+- (PPRevealSideDirection)pprevealSideViewController:(PPRevealSideViewController*)controller directionsAllowedForPanningOnView:(UIView*)view {
+    
+//    if ([view isKindOfClass:NSClassFromString(@"UIWebBrowserView")]) return PPRevealSideDirectionLeft | PPRevealSideDirectionRight;
+    
+//    return PPRevealSideDirectionLeft | PPRevealSideDirectionRight | PPRevealSideDirectionTop | PPRevealSideDirectionBottom;
+    return PPRevealSideDirectionLeft;
+}
+//- (BOOL) pprevealSideViewController:(PPRevealSideViewController *)controller shouldDeactivateGesture:(UIGestureRecognizer*)gesture forView:(UIView*)view;
+//{
+//    return YES;
+//}
+//- (UIViewController*) controllerForGesturesOnPPRevealSideViewController:(PPRevealSideViewController*)controller
+//{
+//    return self;
+//}
+- (void) pprevealSideViewController:(PPRevealSideViewController *)controller willPushController:(UIViewController *)pushedController
+{
+
+}
 #pragma mark - Search Bar
 
 
@@ -138,12 +154,12 @@
     return YES;
 }
 
--(BOOL)textFieldShouldBeginEditing:(UITextField *)textField
-{
-    RCSearchResultViewController *aVC = [[RCSearchResultViewController alloc] initWithStyle:UITableViewStylePlain];
-    [self presentModalViewController:aVC animated:YES];
-    return NO;
-}
+//-(BOOL)textFieldShouldBeginEditing:(UITextField *)textField
+//{
+//    RCSearchResultViewController *aVC = [[RCSearchResultViewController alloc] initWithStyle:UITableViewStylePlain];
+//    [self presentModalViewController:aVC animated:YES];
+//    return NO;
+//}
 //-(void)bookMarkButtonPressed:(UIButton*)sender
 //{
 //
@@ -164,22 +180,26 @@
 //    }	
 //    
 //}
+
+-(void)searchCompleteWithUrl:(NSURL *)url
+{
+    [self loadURLWithCurrentTab:url];
+}
 -(BookmarkObject *)currentWebInfo
 {
     NSIndexPath *index = [self.tabView.tabTable indexPathForSelectedRow];
     
     NSString *name = [self.tabView.tabTable cellForRowAtIndexPath:index].textLabel.text;
-    NSLog(@"cell name:%@",name);
     NSURL *url = ((UIWebView*)[self.openedWebs objectAtIndex:index.row]).request.URL;
     
-    BookmarkObject *object = [[BookmarkObject alloc] initWithName:name andURL:url];
+    BookmarkObject *object = [[[BookmarkObject alloc] initWithName:name andURL:url] autorelease];
     return object;
 }
-
-//-(void)popTipViewWasDismissedByUser:(CMPopTipView *)popTipView
-//{
-//    self.bookMarkPop = nil;
-//}
+-(UIWebView *)currentWeb
+{
+    NSIndexPath *index = [self.tabView.tabTable indexPathForSelectedRow];
+    return [self.openedWebs objectAtIndex:index.row];
+}
 
 -(void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
@@ -237,23 +257,22 @@
                              if (!web.isDefaultPage) {
                                  [self.tabView hideViewWithOffset:self.tabView.frame.size.height];
                                  [self.searchBar hideViewWithOffset:self.tabView.frame.size.height+self.searchBar.frame.size.height];
-                                 self.broswerView.transform = CGAffineTransformMakeTranslation(0, -self.tabView.frame.size.height-self.searchBar.frame.size.height);
-                                 self.broswerView.frame = CGRectMake(self.broswerView.frame.origin.x,
-                                                                     self.broswerView.frame.origin.y,
+//                                 self.broswerView.transform = CGAffineTransformMakeTranslation(0, -self.tabView.frame.size.height-self.searchBar.frame.size.height);
+                                 self.broswerView.frame = CGRectMake(0,
+                                                                     0,
                                                                      self.broswerView.frame.size.width,
-                                                                     480);
+                                                                     460);
                                  web.frame = self.broswerView.bounds;
                              }
-
                              //hide nav
                              //shorten web size
                          }else {
                              [self.bottomToolBar showBar];
                              [self.tabView showView];
                              [self.searchBar showView];
-                             self.broswerView.transform = CGAffineTransformIdentity;
-                             self.broswerView.frame = CGRectMake(self.broswerView.frame.origin.x,
-                                                                 self.broswerView.frame.origin.y,
+//                             self.broswerView.transform = CGAffineTransformIdentity;
+                             self.broswerView.frame = CGRectMake(0,
+                                                                 88,
                                                                  self.broswerView.frame.size.width,
                                                                  328);
                              web.frame = self.broswerView.bounds;
@@ -353,7 +372,9 @@
     
     [web loadRequest:[NSURLRequest requestWithURL:url]];
     [self.broswerView addSubview:web];
-    [web loadRequest:[NSURLRequest requestWithURL:url]];
+//    [web loadRequest:[NSURLRequest requestWithURL:url]];
+    
+    
 }
 
 -(void)addToHistory:(BookmarkObject*)record
@@ -372,6 +393,8 @@
     // Check that the URL is not already in the bookmark list
     for (BookmarkObject * bookmark in bookmarksArray) {
         if ([bookmark.url.absoluteString isEqual:record.url.absoluteString]) {
+            bookmark.date = [NSDate date];
+            bookmark.count = [NSNumber numberWithInt: bookmark.count.intValue+1];
             saveURL = NO;
             break;
         }
@@ -390,6 +413,7 @@
 
 -(void)webViewDidFinishLoad:(UIWebView *)webView
 {
+    NSLog(@"finished url:%@",webView.request.URL);
     self.searchBar.locationField.text = webView.request.URL.absoluteString;
     NSIndexPath *index = [self.tabView.tabTable indexPathForSelectedRow];
     [self.tabView.tabTable reloadData];
@@ -398,6 +422,8 @@
     BookmarkObject *record = [[[BookmarkObject alloc] initWithName:[webView stringByEvaluatingJavaScriptFromString:@"document.title"] andURL:webView.request.URL.absoluteURL] autorelease];
     [self addToHistory:record];
     
+    [self updateBackForwordState:(RCWebView*)webView];
+    
 }
 -(void)webViewDidStartLoad:(UIWebView *)webView
 {
@@ -405,6 +431,8 @@
 }
 -(BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType
 {
+    NSLog(@"request url:%@",request.URL);
+    NSLog(@"main request url :%@",request.mainDocumentURL);
     if (![request.URL.absoluteString isEqualToString:@"about:blank"]) {
         self.searchBar.locationField.text = request.URL.absoluteString;
     }
@@ -472,4 +500,14 @@
     return YES;
 }
 
+
+#pragma mark - RCSearchBar delegate
+-(void)searchModeOn
+{
+    self.view.transform = CGAffineTransformMakeTranslation(0, -44);
+}
+-(void)searchModeOff
+{
+    self.view.transform = CGAffineTransformIdentity;
+}
 @end
