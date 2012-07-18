@@ -10,6 +10,10 @@
 
 @interface RCFastLinkView : UIView
 
+@property (nonatomic,retain) UIScrollView *scrollBoard;
+
 +(id)defaultPage;
+
+-(void)reloadIcons;
 
 @end

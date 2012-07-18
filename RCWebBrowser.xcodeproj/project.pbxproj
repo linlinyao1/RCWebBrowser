@@ -33,7 +33,14 @@
 		8879791E1592BF46008B9609 /* RCAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 8879791D1592BF46008B9609 /* RCAppDelegate.m */; };
 		887979211592BF46008B9609 /* RCViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 887979201592BF46008B9609 /* RCViewController.m */; };
 		887979241592BF46008B9609 /* RCViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 887979221592BF46008B9609 /* RCViewController.xib */; };
+		88797CEF15B648F700736FE5 /* RCSearchEnginePop.m in Sources */ = {isa = PBXBuildFile; fileRef = 88797CEE15B648F700736FE5 /* RCSearchEnginePop.m */; };
+		88797CFD15B64FDD00736FE5 /* icon_search_baidu.png in Resources */ = {isa = PBXBuildFile; fileRef = 88797CF915B64FDD00736FE5 /* icon_search_baidu.png */; };
+		88797CFE15B64FDD00736FE5 /* icon_search_baidu@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88797CFA15B64FDD00736FE5 /* icon_search_baidu@2x.png */; };
+		88797CFF15B64FDD00736FE5 /* icon_search_google.png in Resources */ = {isa = PBXBuildFile; fileRef = 88797CFB15B64FDD00736FE5 /* icon_search_google.png */; };
+		88797D0015B64FDD00736FE5 /* icon_search_google@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88797CFC15B64FDD00736FE5 /* icon_search_google@2x.png */; };
+		88797D0E15B67D7800736FE5 /* YLProgressBar.m in Sources */ = {isa = PBXBuildFile; fileRef = 88797D0C15B67D7800736FE5 /* YLProgressBar.m */; };
 		8879E41F15B00DC8006FF295 /* RCSettingMenuViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8879E41E15B00DC8006FF295 /* RCSettingMenuViewController.m */; };
+		887A79F615B4F8D300ED2E0B /* RCFastLinkButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 887A79F515B4F8D300ED2E0B /* RCFastLinkButton.m */; };
 		887D6BDE15A6839B00400244 /* AddBookmarkViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 887D6BCE15A6839B00400244 /* AddBookmarkViewController.m */; };
 		887D6BDF15A6839B00400244 /* BookmarkObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 887D6BD015A6839B00400244 /* BookmarkObject.m */; };
 		887D6BE015A6839B00400244 /* CIALBrowser.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 887D6BD115A6839B00400244 /* CIALBrowser.bundle */; };
@@ -62,7 +69,6 @@
 		88B086DE15AD17C60099A999 /* CustomCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 88B086DD15AD17C60099A999 /* CustomCell.m */; };
 		88B086E215AD44680099A999 /* RCSearchResultViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 88B086E115AD44680099A999 /* RCSearchResultViewController.m */; };
 		88B086E515AD47E50099A999 /* RCSearchResultBar.m in Sources */ = {isa = PBXBuildFile; fileRef = 88B086E415AD47E50099A999 /* RCSearchResultBar.m */; };
-		88B086E915AD5BE40099A999 /* RCKeyBoardAccessory.xib in Resources */ = {isa = PBXBuildFile; fileRef = 88B086E815AD5BE40099A999 /* RCKeyBoardAccessory.xib */; };
 		88B8BA0515B3DBDD00813853 /* RCFastLinkObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 88B8BA0415B3DBDD00813853 /* RCFastLinkObject.m */; };
 		88B8BA1015B3EC6500813853 /* EGOCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 88B8BA0F15B3EC6500813853 /* EGOCache.m */; };
 		88B8BA1515B3F45300813853 /* UIView+ScreenShot.m in Sources */ = {isa = PBXBuildFile; fileRef = 88B8BA1415B3F45300813853 /* UIView+ScreenShot.m */; };
@@ -104,8 +110,19 @@
 		8879791F1592BF46008B9609 /* RCViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RCViewController.h; sourceTree = "<group>"; };
 		887979201592BF46008B9609 /* RCViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RCViewController.m; sourceTree = "<group>"; };
 		887979231592BF46008B9609 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/RCViewController.xib; sourceTree = "<group>"; };
+		88797CED15B648F700736FE5 /* RCSearchEnginePop.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCSearchEnginePop.h; path = RCSearchBar/RCSearchEnginePop.h; sourceTree = "<group>"; };
+		88797CEE15B648F700736FE5 /* RCSearchEnginePop.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCSearchEnginePop.m; path = RCSearchBar/RCSearchEnginePop.m; sourceTree = "<group>"; };
+		88797CF915B64FDD00736FE5 /* icon_search_baidu.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon_search_baidu.png; sourceTree = "<group>"; };
+		88797CFA15B64FDD00736FE5 /* icon_search_baidu@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon_search_baidu@2x.png"; sourceTree = "<group>"; };
+		88797CFB15B64FDD00736FE5 /* icon_search_google.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon_search_google.png; sourceTree = "<group>"; };
+		88797CFC15B64FDD00736FE5 /* icon_search_google@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon_search_google@2x.png"; sourceTree = "<group>"; };
+		88797D0B15B67D7800736FE5 /* YLProgressBar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YLProgressBar.h; sourceTree = "<group>"; };
+		88797D0C15B67D7800736FE5 /* YLProgressBar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YLProgressBar.m; sourceTree = "<group>"; };
+		88797D0F15B67D8100736FE5 /* ARCMacro.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ARCMacro.h; sourceTree = "<group>"; };
 		8879E41D15B00DC8006FF295 /* RCSettingMenuViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCSettingMenuViewController.h; path = RCMenuViewController/RCSettingMenuViewController.h; sourceTree = "<group>"; };
 		8879E41E15B00DC8006FF295 /* RCSettingMenuViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCSettingMenuViewController.m; path = RCMenuViewController/RCSettingMenuViewController.m; sourceTree = "<group>"; };
+		887A79F415B4F8D300ED2E0B /* RCFastLinkButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCFastLinkButton.h; path = RCFastLinkView/RCFastLinkButton.h; sourceTree = "<group>"; };
+		887A79F515B4F8D300ED2E0B /* RCFastLinkButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCFastLinkButton.m; path = RCFastLinkView/RCFastLinkButton.m; sourceTree = "<group>"; };
 		887D6BCD15A6839B00400244 /* AddBookmarkViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AddBookmarkViewController.h; sourceTree = "<group>"; };
 		887D6BCE15A6839B00400244 /* AddBookmarkViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AddBookmarkViewController.m; sourceTree = "<group>"; };
 		887D6BCF15A6839B00400244 /* BookmarkObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BookmarkObject.h; sourceTree = "<group>"; };
@@ -155,7 +172,6 @@
 		88B086E115AD44680099A999 /* RCSearchResultViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCSearchResultViewController.m; path = RCSearchDisplay/RCSearchResultViewController.m; sourceTree = "<group>"; };
 		88B086E315AD47E50099A999 /* RCSearchResultBar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCSearchResultBar.h; path = RCSearchDisplay/RCSearchResultBar.h; sourceTree = "<group>"; };
 		88B086E415AD47E50099A999 /* RCSearchResultBar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCSearchResultBar.m; path = RCSearchDisplay/RCSearchResultBar.m; sourceTree = "<group>"; };
-		88B086E815AD5BE40099A999 /* RCKeyBoardAccessory.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = RCKeyBoardAccessory.xib; path = RCWebBrowser/CostumControls/RCSearchDisplay/RCKeyBoardAccessory.xib; sourceTree = "<group>"; };
 		88B8BA0315B3DBDD00813853 /* RCFastLinkObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCFastLinkObject.h; path = RCFastLinkView/RCFastLinkObject.h; sourceTree = "<group>"; };
 		88B8BA0415B3DBDD00813853 /* RCFastLinkObject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCFastLinkObject.m; path = RCFastLinkView/RCFastLinkObject.m; sourceTree = "<group>"; };
 		88B8BA0E15B3EC6500813853 /* EGOCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EGOCache.h; sourceTree = "<group>"; };
@@ -248,7 +264,6 @@
 		887978FE1592BF46008B9609 = {
 			isa = PBXGroup;
 			children = (
-				88B086E815AD5BE40099A999 /* RCKeyBoardAccessory.xib */,
 				88807CE415ABF63B00FC8773 /* Classes */,
 				88807CCA15ABD51100FC8773 /* PPRevealSideViewController */,
 				887D6BCC15A6839B00400244 /* CIALBrowser */,
@@ -337,6 +352,8 @@
 				887D6BEA15A6891C00400244 /* RCSearchBar.m */,
 				88807CFF15AC1E2900FC8773 /* RCBookMarkPop.h */,
 				88807D0015AC1E2900FC8773 /* RCBookMarkPop.m */,
+				88797CED15B648F700736FE5 /* RCSearchEnginePop.h */,
+				88797CEE15B648F700736FE5 /* RCSearchEnginePop.m */,
 			);
 			name = RCSearchBar;
 			sourceTree = "<group>";
@@ -344,6 +361,10 @@
 		887D6BF115A690B400400244 /* RCSearchBarImage */ = {
 			isa = PBXGroup;
 			children = (
+				88797CF915B64FDD00736FE5 /* icon_search_baidu.png */,
+				88797CFA15B64FDD00736FE5 /* icon_search_baidu@2x.png */,
+				88797CFB15B64FDD00736FE5 /* icon_search_google.png */,
+				88797CFC15B64FDD00736FE5 /* icon_search_google@2x.png */,
 				887D6BF615A6AADB00400244 /* add_fov.png */,
 				887D6BF715A6AADB00400244 /* add_fov@2x.png */,
 			);
@@ -368,6 +389,8 @@
 				887D6C0115A6E08C00400244 /* RCFastLinkView.m */,
 				88B8BA0315B3DBDD00813853 /* RCFastLinkObject.h */,
 				88B8BA0415B3DBDD00813853 /* RCFastLinkObject.m */,
+				887A79F415B4F8D300ED2E0B /* RCFastLinkButton.h */,
+				887A79F515B4F8D300ED2E0B /* RCFastLinkButton.m */,
 			);
 			name = RCFastLinkView;
 			sourceTree = "<group>";
@@ -419,6 +442,9 @@
 		88807CE415ABF63B00FC8773 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				88797D0F15B67D8100736FE5 /* ARCMacro.h */,
+				88797D0B15B67D7800736FE5 /* YLProgressBar.h */,
+				88797D0C15B67D7800736FE5 /* YLProgressBar.m */,
 				88B8BA1115B3EC6900813853 /* EGOCache */,
 				8878277615B3A3710046A309 /* JSONKit */,
 				88B8BA1215B3F3D000813853 /* CMPopTipView */,
@@ -528,7 +554,10 @@
 				887D6BF915A6AADB00400244 /* add_fov@2x.png in Resources */,
 				887D6BFE15A6B9EA00400244 /* search_nav_bg.png in Resources */,
 				887D6BFF15A6B9EA00400244 /* search_nav_bg@2x.png in Resources */,
-				88B086E915AD5BE40099A999 /* RCKeyBoardAccessory.xib in Resources */,
+				88797CFD15B64FDD00736FE5 /* icon_search_baidu.png in Resources */,
+				88797CFE15B64FDD00736FE5 /* icon_search_baidu@2x.png in Resources */,
+				88797CFF15B64FDD00736FE5 /* icon_search_google.png in Resources */,
+				88797D0015B64FDD00736FE5 /* icon_search_google@2x.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -571,6 +600,9 @@
 				88B8BA0515B3DBDD00813853 /* RCFastLinkObject.m in Sources */,
 				88B8BA1015B3EC6500813853 /* EGOCache.m in Sources */,
 				88B8BA1515B3F45300813853 /* UIView+ScreenShot.m in Sources */,
+				887A79F615B4F8D300ED2E0B /* RCFastLinkButton.m in Sources */,
+				88797CEF15B648F700736FE5 /* RCSearchEnginePop.m in Sources */,
+				88797D0E15B67D7800736FE5 /* YLProgressBar.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

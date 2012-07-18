@@ -8,6 +8,16 @@
 
 #import <Foundation/Foundation.h>
 
+#define RCRD_BOOKMARK @"bookmark"
+#define RCRD_HISTORY @"history"
+#define RCRD_FASTLINK @"fastlink"
+
+
 @interface RCRecordData : NSObject
+
++(NSMutableArray*)recordDataWithKey:(NSString*)key;
+
+//+(void)addRecord:(id)record ForKey:(NSString*)key;
++(void)updateRecord:(NSMutableArray*)record ForKey:(NSString*)key;
 
 @end

@@ -9,73 +9,95 @@
 #import "RCBookMarkPop.h"
 #import "RCFastLinkObject.h"
 #import "UIView+ScreenShot.h"
+#import "RCRecordData.h"
+
+@interface RCBookMarkPop ()
+@property (nonatomic,retain) NSMutableArray *bookmarksArray;
+@property (nonatomic,retain) NSMutableArray *fastlinksArray;
+@property (nonatomic,retain) UIButton *addToFav;
+@property (nonatomic,retain) UIButton *addToFastLink;
+@end
 
 @implementation RCBookMarkPop
 @synthesize delegate = _delegate;
+@synthesize bookmarksArray = _bookmarksArray;
+@synthesize fastlinksArray = _fastlinksArray;
+@synthesize addToFav = _addToFav;
+@synthesize addToFastLink = _addToFastLink;
+
 
 -(void)addToFav:(UIButton*)sender
 {
-    NSUserDefaults * defaults = [NSUserDefaults standardUserDefaults];
-    NSData * bookmarks = [defaults objectForKey:@"bookmarks"];
-    NSMutableArray *bookmarksArray;
-    
-    if (bookmarks) {
-        bookmarksArray = [[NSMutableArray alloc] initWithArray:[NSKeyedUnarchiver unarchiveObjectWithData:bookmarks]];
-    } else {
-        bookmarksArray = [[NSMutableArray alloc] initWithCapacity:1];        
-    } 
-    
     BookmarkObject *curObj = [self.delegate currentWebInfo];
-    BOOL saveURL = YES;
-    // Check that the URL is not already in the bookmark list
-    for (BookmarkObject * bookmark in bookmarksArray) {
-        if ([bookmark.url.absoluteString isEqual:curObj.url.absoluteString]) {
-            saveURL = NO;
-            break;
-        }
+    BookmarkObject *existObj = [self checkBookMarkExist];
+    if (!existObj) {
+        [self.bookmarksArray addObject:curObj];
+        [sender setTitle:@"从收藏夹移除" forState:UIControlStateNormal];
+    }else {
+        [self.bookmarksArray removeObject:existObj];
+        [sender setTitle:@"添加到收藏" forState:UIControlStateNormal];
     }
-    
-    // Add the new URL in the list
-    if (saveURL) {
-        [bookmarksArray addObject:curObj];
-    }
-    
-    [defaults setObject:[NSKeyedArchiver archivedDataWithRootObject:bookmarksArray] forKey:@"bookmarks"];
-    [[NSUserDefaults standardUserDefaults] synchronize];
+    [RCRecordData updateRecord:self.bookmarksArray ForKey:RCRD_BOOKMARK];
+
 }
 
 -(void)addToFastLink:(UIButton*)sender
 {
-    NSUserDefaults * defaults = [NSUserDefaults standardUserDefaults];
-    NSData * fastlinks = [defaults objectForKey:@"fastlinks"];
-    NSMutableArray *fastlinksArray;
-    
-    if (fastlinks) {
-        fastlinksArray = [[NSMutableArray alloc] initWithArray:[NSKeyedUnarchiver unarchiveObjectWithData:fastlinks]];
-    } else {
-        fastlinksArray = [[NSMutableArray alloc] initWithCapacity:1];        
-    } 
-    
+//    NSMutableArray *fastlinksArray = [RCRecordData recordDataWithKey:RCRD_FASTLINK];
     BookmarkObject *curObj = [self.delegate currentWebInfo];
-    RCFastLinkObject *flObj = [[RCFastLinkObject alloc] initWithName:curObj.name andURL:curObj.url andIcon:[UIView captureView:[self.delegate currentWeb]]];
-//    BOOL saveURL = YES;
-//    // Check that the URL is not already in the bookmark list
-//    for (BookmarkObject * bookmark in bookmarksArray) {
-//        if ([bookmark.url.absoluteString isEqual:curObj.url.absoluteString]) {
-//            saveURL = NO;
-//            break;
-//        }
-//    }
-    
-    // Add the new URL in the list
-//    if (saveURL) {
-        [fastlinksArray addObject:flObj];
-//    }
-    
-    [defaults setObject:[NSKeyedArchiver archivedDataWithRootObject:fastlinksArray] forKey:@"fastlinks"];
-    [[NSUserDefaults standardUserDefaults] synchronize];
+    RCFastLinkObject *existObj = [self checkFastLinkExist];
+    if (!existObj) {
+        RCFastLinkObject *flObj = [[RCFastLinkObject alloc] initWithName:curObj.name andURL:curObj.url andIcon:[UIView captureView:[self.delegate currentWeb]]];
+        [self.fastlinksArray addObject:flObj];
+        [sender setTitle:@"从快速启动移除" forState:UIControlStateNormal];
+    }else {
+        [self.fastlinksArray removeObject:existObj];
+        [sender setTitle:@"添加快速启动" forState:UIControlStateNormal];
+    }
+    [RCRecordData updateRecord:self.fastlinksArray ForKey:RCRD_FASTLINK];
 }
 
+
+-(BookmarkObject*)checkBookMarkExist
+{
+    NSMutableArray *bookmarksArray = self.bookmarksArray;
+    BookmarkObject *curObj = [self.delegate currentWebInfo];
+    for (BookmarkObject * bookmark in bookmarksArray) {
+        if ([bookmark.url.absoluteString isEqual:curObj.url.absoluteString]) {
+            return bookmark;
+            break;
+        }
+    }
+    return nil;
+}
+
+-(RCFastLinkObject*)checkFastLinkExist
+{
+    NSMutableArray *fastlinksArray = self.fastlinksArray;
+    BookmarkObject *curObj = [self.delegate currentWebInfo];
+    for (RCFastLinkObject * fastlink in fastlinksArray) {
+        if ([fastlink.url.absoluteString isEqual:curObj.url.absoluteString]) {
+            return fastlink;
+        }
+    }
+    return nil;
+}
+
+-(void)updateBttonState
+{
+    if (![self checkBookMarkExist]) {
+        [self.addToFav setTitle:@"添加到收藏" forState:UIControlStateNormal];
+    }else {
+        [self.addToFav setTitle:@"从收藏夹移除" forState:UIControlStateNormal];
+    }
+    
+    if (![self checkFastLinkExist]) {
+        [self.addToFastLink setTitle:@"添加快速启动" forState:UIControlStateNormal];
+    }else {
+        [self.addToFastLink setTitle:@"从快速启动移除" forState:UIControlStateNormal];
+    }        
+
+}
 
 - (id)initWithFrame:(CGRect)frame
 {
@@ -84,19 +106,22 @@
         // Initialization code
         self.backgroundColor = [UIColor clearColor];
         
+        self.bookmarksArray = [RCRecordData recordDataWithKey:RCRD_BOOKMARK];
+        self.fastlinksArray = [RCRecordData recordDataWithKey:RCRD_FASTLINK];
+        
         UIButton* addToFav = [UIButton buttonWithType:UIButtonTypeRoundedRect];
         addToFav.frame = CGRectMake(0, 0, frame.size.width, frame.size.height/2);
-        [addToFav setTitle:@"添加到收藏" forState:UIControlStateNormal];
         addToFav.titleLabel.textAlignment = UITextAlignmentCenter;
         [addToFav addTarget:self action:@selector(addToFav:) forControlEvents:UIControlEventTouchUpInside];
+        self.addToFav = addToFav;
         [self addSubview:addToFav];
-        
+
         UIButton* addToFastLink = [UIButton buttonWithType:UIButtonTypeRoundedRect];
         addToFastLink.frame = CGRectMake(0, frame.size.height/2, frame.size.width, frame.size.height/2);
-        [addToFastLink setTitle:@"添加快速启动" forState:UIControlStateNormal];
         [addToFastLink addTarget:self action:@selector(addToFastLink:) forControlEvents:UIControlEventTouchUpInside];
         addToFastLink.titleLabel.textAlignment = UITextAlignmentCenter;
-        [self addSubview:addToFastLink];
+        self.addToFastLink = addToFastLink;
+        [self addSubview:addToFastLink];        
     }
     return self;
 }

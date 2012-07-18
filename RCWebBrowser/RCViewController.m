@@ -13,7 +13,9 @@
 #import "RCBookMarkPop.h"
 #import "RCSearchResultViewController.h"
 #import "RCNavigationBar.h"
-
+#import "RCRecordData.h"
+#import "RCFastLinkObject.h"
+#import "UIView+ScreenShot.h"
 
 
 @interface RCViewController ()<UITextFieldDelegate,RCTabViewDelegate,UIWebViewDelegate,RCBookMarkPopDelegate,RCSearchBarDelegate>
@@ -115,6 +117,11 @@
 }
 //- (BOOL) pprevealSideViewController:(PPRevealSideViewController *)controller shouldDeactivateGesture:(UIGestureRecognizer*)gesture forView:(UIView*)view;
 //{
+////    NSIndexPath *index = [self.tabView.tabTable indexPathForSelectedRow];
+////    RCWebView *web = [self.openedWebs objectAtIndex:index.row];
+////    if (web.isDefaultPage) {
+////        <#statements#>
+////    }
 //    return YES;
 //}
 //- (UIViewController*) controllerForGesturesOnPPRevealSideViewController:(PPRevealSideViewController*)controller
@@ -123,91 +130,9 @@
 //}
 - (void) pprevealSideViewController:(PPRevealSideViewController *)controller willPushController:(UIViewController *)pushedController
 {
-
-}
-#pragma mark - Search Bar
-
-
--(BOOL)textFieldShouldReturn:(UITextField *)textField
-{
-    NSURL *url = [NSURL URLWithString:textField.text];
-    // if user didn't enter "http", add it the the url
-    if (!url.scheme.length) {
-        url = [NSURL URLWithString:[@"http://" stringByAppendingString:textField.text]];
-    }
-    NSLog(@"last : %@",[url lastPathComponent]);
-    textField.text = [url absoluteString];
-
-    NSInteger index = [self.tabView.tabTable indexPathForSelectedRow].row;
-    RCWebView *web = [self.openedWebs objectAtIndex:index];
     
-    if (web.isDefaultPage) {
-        [web turnOffDefaultPage];
-    }
-
-    [web loadRequest:[NSURLRequest requestWithURL:url]];
-    [self.broswerView addSubview:web];
-    
-    [textField resignFirstResponder];
-    
-    [self updateBackForwordState:web];
-    return YES;
 }
 
-//-(BOOL)textFieldShouldBeginEditing:(UITextField *)textField
-//{
-//    RCSearchResultViewController *aVC = [[RCSearchResultViewController alloc] initWithStyle:UITableViewStylePlain];
-//    [self presentModalViewController:aVC animated:YES];
-//    return NO;
-//}
-//-(void)bookMarkButtonPressed:(UIButton*)sender
-//{
-//
-//    // Toggle popTipView when a standard UIButton is pressed
-//    if (nil == self.bookMarkPop) {
-//        RCBookMarkPop *testView = [[[RCBookMarkPop alloc] initWithFrame:CGRectMake(0, 0, 100, 50)] autorelease];
-////        testView.backgroundColor = [UIColor whiteColor];
-//        self.bookMarkPop = [[[CMPopTipView alloc] initWithCustomView:testView] autorelease];
-//        
-////        [self.bookMarkPop setDisableTapToDismiss:YES];
-//        self.bookMarkPop.delegate = self;
-//        [self.bookMarkPop presentPointingAtView:sender inView:self.view animated:NO];
-//    }
-//    else {
-//        // Dismiss
-//        [self.bookMarkPop dismissAnimated:YES];
-//        self.bookMarkPop = nil;
-//    }	
-//    
-//}
-
--(void)searchCompleteWithUrl:(NSURL *)url
-{
-    [self loadURLWithCurrentTab:url];
-}
--(BookmarkObject *)currentWebInfo
-{
-    NSIndexPath *index = [self.tabView.tabTable indexPathForSelectedRow];
-    
-    NSString *name = [self.tabView.tabTable cellForRowAtIndexPath:index].textLabel.text;
-    NSURL *url = ((UIWebView*)[self.openedWebs objectAtIndex:index.row]).request.URL;
-    
-    BookmarkObject *object = [[[BookmarkObject alloc] initWithName:name andURL:url] autorelease];
-    return object;
-}
--(UIWebView *)currentWeb
-{
-    NSIndexPath *index = [self.tabView.tabTable indexPathForSelectedRow];
-    return [self.openedWebs objectAtIndex:index.row];
-}
-
--(void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
-{
-    if (self.searchBar.bookMarkPop) {
-        [self.searchBar.bookMarkPop dismissAnimated:YES];
-        self.searchBar.bookMarkPop = nil;
-    }
-}
 
 
 #pragma mark - Bottom Bar
@@ -291,6 +216,19 @@
 
 -(void)updateBackForwordState:(RCWebView *)web
 {
+    
+    UIImage *image = nil;
+    if (web.loading) {
+        image = [UIImage imageNamed:@"CIALBrowser.bundle/images/AddressViewStop.png"];
+        
+        [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
+    } else {
+        image = [UIImage imageNamed:@"CIALBrowser.bundle/images/AddressViewReload.png"];
+        
+        [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
+    }
+    
+    [self.searchBar.stopReloadButton setImage:image forState:UIControlStateNormal];
     
     [self.bottomToolBar enableBackOrNot:[web canGoBack]];
     [self.bottomToolBar enableForwardOrNot:[web canGoForward]];
@@ -377,21 +315,13 @@
     
 }
 
+
 -(void)addToHistory:(BookmarkObject*)record
 {
-    NSUserDefaults * defaults = [NSUserDefaults standardUserDefaults];
-    NSData * bookmarks = [defaults objectForKey:@"history"];
-    NSMutableArray *bookmarksArray;
-    
-    if (bookmarks) {
-        bookmarksArray = [[NSMutableArray alloc] initWithArray:[NSKeyedUnarchiver unarchiveObjectWithData:bookmarks]];
-    } else {
-        bookmarksArray = [[NSMutableArray alloc] initWithCapacity:1];        
-    } 
-    
+    NSMutableArray *historyArray = [RCRecordData recordDataWithKey:RCRD_BOOKMARK];    
     BOOL saveURL = YES;
     // Check that the URL is not already in the bookmark list
-    for (BookmarkObject * bookmark in bookmarksArray) {
+    for (BookmarkObject * bookmark in historyArray) {
         if ([bookmark.url.absoluteString isEqual:record.url.absoluteString]) {
             bookmark.date = [NSDate date];
             bookmark.count = [NSNumber numberWithInt: bookmark.count.intValue+1];
@@ -399,14 +329,25 @@
             break;
         }
     }
-    
     // Add the new URL in the list
     if (saveURL) {
-        [bookmarksArray addObject:record];
+        [historyArray addObject:record];
     }
+    [RCRecordData updateRecord:historyArray ForKey:RCRD_HISTORY];
     
-    [defaults setObject:[NSKeyedArchiver archivedDataWithRootObject:bookmarksArray] forKey:@"history"];
-    [[NSUserDefaults standardUserDefaults] synchronize];
+    
+    NSMutableArray *fastlinksArray = [RCRecordData recordDataWithKey:RCRD_FASTLINK]; 
+    // Check that the URL is not already in the bookmark list
+    for (RCFastLinkObject * flObj in fastlinksArray) {
+        if ([flObj.url.absoluteString isEqual:record.url.absoluteString]) {
+            flObj.icon = [UIView captureView:[self currentWeb]];
+            flObj.date = [NSDate date];
+            [RCRecordData updateRecord:fastlinksArray ForKey:RCRD_FASTLINK];
+            break;
+        }
+    }
+
+
 }
 
 
@@ -422,12 +363,16 @@
     BookmarkObject *record = [[[BookmarkObject alloc] initWithName:[webView stringByEvaluatingJavaScriptFromString:@"document.title"] andURL:webView.request.URL.absoluteURL] autorelease];
     [self addToHistory:record];
     
-    [self updateBackForwordState:(RCWebView*)webView];
+    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(updateBackForwordState:) object:webView];
+    [self performSelector:@selector(updateBackForwordState:) withObject:webView afterDelay:1.];
+//    [self updateBackForwordState:(RCWebView*)webView];
     
 }
 -(void)webViewDidStartLoad:(UIWebView *)webView
 {
     NSLog(@"start url: %@",webView.request.URL);
+    [self updateBackForwordState:(RCWebView*)webView];
+//    [self.searchBar setLoadingProgress:0.15];
 }
 -(BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType
 {
@@ -446,6 +391,8 @@
 {
     if([error code] == NSURLErrorCancelled) return; 
     NSLog(@"fail to load, error: %@",error);
+    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(updateBackForwordState:) object:webView];
+    [self performSelector:@selector(updateBackForwordState:) withObject:webView afterDelay:1.];
 }
 
 #pragma mark - RCTabViewDelegate
@@ -510,4 +457,98 @@
 {
     self.view.transform = CGAffineTransformIdentity;
 }
+
+-(void)reloadOrStop:(UIButton *)sender
+{
+    UIWebView *webView = [self currentWeb];
+    if (webView.loading)
+        [webView stopLoading];
+    else [webView reload];    
+}
+
+-(BOOL)textFieldShouldReturn:(UITextField *)textField
+{
+    NSURL *url = [NSURL URLWithString:textField.text];
+    // if user didn't enter "http", add it the the url
+    if (!url.scheme.length) {
+        url = [NSURL URLWithString:[@"http://" stringByAppendingString:textField.text]];
+    }
+    NSLog(@"last : %@",[url lastPathComponent]);
+    textField.text = [url absoluteString];
+    
+    NSInteger index = [self.tabView.tabTable indexPathForSelectedRow].row;
+    RCWebView *web = [self.openedWebs objectAtIndex:index];
+    
+    if (web.isDefaultPage) {
+        [web turnOffDefaultPage];
+    }
+    
+    [web loadRequest:[NSURLRequest requestWithURL:url]];
+    [self.broswerView addSubview:web];
+    
+    [textField resignFirstResponder];
+    
+    [self updateBackForwordState:web];
+    return YES;
+}
+
+//-(BOOL)textFieldShouldBeginEditing:(UITextField *)textField
+//{
+//    RCSearchResultViewController *aVC = [[RCSearchResultViewController alloc] initWithStyle:UITableViewStylePlain];
+//    [self presentModalViewController:aVC animated:YES];
+//    return NO;
+//}
+//-(void)bookMarkButtonPressed:(UIButton*)sender
+//{
+//
+//    // Toggle popTipView when a standard UIButton is pressed
+//    if (nil == self.bookMarkPop) {
+//        RCBookMarkPop *testView = [[[RCBookMarkPop alloc] initWithFrame:CGRectMake(0, 0, 100, 50)] autorelease];
+////        testView.backgroundColor = [UIColor whiteColor];
+//        self.bookMarkPop = [[[CMPopTipView alloc] initWithCustomView:testView] autorelease];
+//        
+////        [self.bookMarkPop setDisableTapToDismiss:YES];
+//        self.bookMarkPop.delegate = self;
+//        [self.bookMarkPop presentPointingAtView:sender inView:self.view animated:NO];
+//    }
+//    else {
+//        // Dismiss
+//        [self.bookMarkPop dismissAnimated:YES];
+//        self.bookMarkPop = nil;
+//    }	
+//    
+//}
+
+-(void)searchCompleteWithUrl:(NSURL *)url
+{
+    [self loadURLWithCurrentTab:url];
+}
+-(BookmarkObject *)currentWebInfo
+{
+    NSIndexPath *index = [self.tabView.tabTable indexPathForSelectedRow];
+    
+    NSString *name = [self.tabView.tabTable cellForRowAtIndexPath:index].textLabel.text;
+    NSURL *url = ((UIWebView*)[self.openedWebs objectAtIndex:index.row]).request.URL;
+    
+    BookmarkObject *object = [[[BookmarkObject alloc] initWithName:name andURL:url] autorelease];
+    return object;
+}
+-(UIWebView *)currentWeb
+{
+    NSIndexPath *index = [self.tabView.tabTable indexPathForSelectedRow];
+    return [self.openedWebs objectAtIndex:index.row];
+}
+
+-(void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    if (self.searchBar.bookMarkPop) {
+        [self.searchBar.bookMarkPop dismissAnimated:YES];
+        self.searchBar.bookMarkPop = nil;
+    }
+    if (self.searchBar.searchEnginePop) {
+        [self.searchBar.searchEnginePop dismissAnimated:YES];
+        self.searchBar.searchEnginePop = nil;
+    }
+}
+
 @end

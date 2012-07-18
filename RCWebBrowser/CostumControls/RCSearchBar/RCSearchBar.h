@@ -10,6 +10,7 @@
 #import "CMPopTipView.h"
 #import "RCBookMarkPop.h"
 
+
 enum {
     RCKeyBoardTypeNone=0,
     RCKeyBoardTypePrefix=1,
@@ -24,7 +25,9 @@ typedef NSInteger RCKeyBoardAccessoryType ;
 -(void)searchModeOff;
 
 -(void)searchCompleteWithUrl:(NSURL*)url;
-//-(BOOL)searchBarShouldReturn:(UITextField*)textField;
+
+-(void)reloadOrStop:(UIButton*)sender;
+
 @end
 
 @interface RCSearchBar : UIView
@@ -32,7 +35,9 @@ typedef NSInteger RCKeyBoardAccessoryType ;
 @property (nonatomic,assign) IBOutlet NSObject<RCSearchBarDelegate,RCBookMarkPopDelegate> *delegate;
 @property (nonatomic,retain) UIButton *bookMarkButton;
 @property (nonatomic,retain) CMPopTipView *bookMarkPop;
+@property (nonatomic,retain) CMPopTipView *searchEnginePop;
 @property (nonatomic) RCKeyBoardAccessoryType KBAType;
+@property (nonatomic,retain) UIButton *stopReloadButton;
 
 -(void)restoreDefaultState;
 
@@ -47,4 +52,8 @@ typedef NSInteger RCKeyBoardAccessoryType ;
 
 -(void)hideViewWithOffset:(CGFloat)offset;
 -(void)showView;
+
+
+-(void)setLoadingProgress:(CGFloat)progress; // 0-1
+
 @end

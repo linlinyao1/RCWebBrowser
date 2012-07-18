@@ -9,6 +9,8 @@
 #import "RCSubMenuViewController.h"
 #import "BookmarkObject.h"
 #import "PPRevealSideViewController.h"
+#import "RCRecordData.h"
+
 
 @interface RCSubMenuViewController ()
 @property (nonatomic,retain) NSMutableArray* submenuItems;
@@ -73,34 +75,27 @@
         switch (type) {
             case RCSubMenuFavorite:
             {
-                NSData * bookmarks = [defaults objectForKey:@"bookmarks"];
-                NSMutableArray *bookmarksArray;
-                
-                if (bookmarks) {
-                    bookmarksArray = [[NSMutableArray alloc] initWithArray:[NSKeyedUnarchiver unarchiveObjectWithData:bookmarks]];
-                }else {
-                    bookmarksArray = [[NSMutableArray alloc] initWithCapacity:1];
-                }
+                NSMutableArray *bookmarksArray = [RCRecordData recordDataWithKey:RCRD_BOOKMARK];
                 self.submenuItems = [NSMutableArray arrayWithArray:bookmarksArray];
-//                [self makeRightBarButtonItemWithButton:self.editButtonItem];
-//                UIBarButtonItem *button = [[UIBarButtonItem alloc] initWithTitle:@"edit" style:<#(UIBarButtonItemStyle)#> target:<#(id)#> action:<#(SEL)#>]
-//                self.navigationItem.titleView = self.editButtonItem;
             }
                 break;
             case RCSubMenuHistory:
             {
-                NSData * history = [defaults objectForKey:@"history"];
-                NSMutableArray *historyArray;
-                
-                if (history) {
-                    historyArray = [[NSMutableArray alloc] initWithArray:[NSKeyedUnarchiver unarchiveObjectWithData:history]];
-                }else {
-                    historyArray = [[NSMutableArray alloc] initWithCapacity:1];
-                    [historyArray sortUsingComparator:^NSComparisonResult(BookmarkObject *obj1, BookmarkObject *obj2) {
-                        return  [obj2.date compare:obj1.date];
-                    }];
-                }
+                NSMutableArray *historyArray = [RCRecordData recordDataWithKey:RCRD_HISTORY];
                 self.submenuItems = [NSMutableArray arrayWithArray:historyArray];
+                
+//                NSData * history = [defaults objectForKey:@"history"];
+//                NSMutableArray *historyArray;
+//                
+//                if (history) {
+//                    historyArray = [[NSMutableArray alloc] initWithArray:[NSKeyedUnarchiver unarchiveObjectWithData:history]];
+//                }else {
+//                    historyArray = [[NSMutableArray alloc] initWithCapacity:1];
+//                    [historyArray sortUsingComparator:^NSComparisonResult(BookmarkObject *obj1, BookmarkObject *obj2) {
+//                        return  [obj2.date compare:obj1.date];
+//                    }];
+//                }
+//                self.submenuItems = [NSMutableArray arrayWithArray:historyArray];
             }
                 break;
             case RCSubMenuMostViewed:

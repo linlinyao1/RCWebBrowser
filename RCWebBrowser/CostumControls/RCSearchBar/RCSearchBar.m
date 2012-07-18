@@ -8,9 +8,12 @@
 
 #import "RCSearchBar.h"
 #import "JSONKit.h"
+#import "RCRecordData.h"
+#import "RCSearchEnginePop.h"
 
-@interface RCSearchBar ()<UITextFieldDelegate,UITableViewDataSource,UITableViewDelegate>
-@property (nonatomic,retain) UIButton *stopReloadButton;
+#import "YLProgressBar.h"
+
+@interface RCSearchBar ()<UITextFieldDelegate,UITableViewDataSource,UITableViewDelegate,RCSearchEnginePopDelegate>
 @property (nonatomic,retain) UIButton *searchEngineButton;
 @property (nonatomic,retain) UIButton *cancelButton;
 @property (nonatomic,retain) UIToolbar *keyBoardAccessory;
@@ -18,6 +21,7 @@
 @property (nonatomic,retain) UITableView *searchResultTable;
 @property (nonatomic,retain) NSMutableArray *listContent;			// The master content.
 @property (nonatomic,retain) NSMutableArray *historys;
+@property (nonatomic,retain) YLProgressBar *progressBar;
 @end
 
 @implementation RCSearchBar
@@ -26,6 +30,7 @@
 @synthesize stopReloadButton = _stopReloadButton;
 @synthesize bookMarkButton = _bookMarkButton;
 @synthesize bookMarkPop = _bookMarkPop;
+@synthesize searchEnginePop = _searchEnginePop;
 @synthesize searchEngineButton = _searchEngineButton;
 @synthesize cancelButton = _cancelButton;
 @synthesize keyBoardAccessory = _keyBoardAccessory;
@@ -34,7 +39,7 @@
 @synthesize searchResultTable = _searchResultTable;
 @synthesize listContent = _listContent;
 @synthesize historys = _historys;
-
+@synthesize progressBar = _progressBar;
 
 
 -(NSMutableArray *)listContent
@@ -42,24 +47,14 @@
     if (!_listContent) {
         _listContent = [[NSMutableArray alloc] initWithCapacity:1];
         
-        NSUserDefaults * defaults = [NSUserDefaults standardUserDefaults];
-        NSData * history = [defaults objectForKey:@"history"];
-        NSMutableArray *historyArray;
-        if (history) {
-            historyArray = [[NSMutableArray alloc] initWithArray:[NSKeyedUnarchiver unarchiveObjectWithData:history]];
-            [historyArray sortUsingComparator:^NSComparisonResult(BookmarkObject *obj1, BookmarkObject *obj2) {
-                return  [obj2.date compare:obj1.date];
-            }];
-        }else {
-            historyArray = [[NSMutableArray alloc] initWithCapacity:1];
-        } 
+        NSMutableArray *historyArray = [RCRecordData recordDataWithKey:RCRD_HISTORY];
+        [historyArray sortUsingComparator:^NSComparisonResult(BookmarkObject *obj1, BookmarkObject *obj2) {
+            return  [obj2.date compare:obj1.date];
+        }];
         self.historys = historyArray;
-        
     }
     return _listContent;
 }
-
-
 
 
 
@@ -73,6 +68,30 @@
 }
 
 
+- (void)reloadOrStop:(id) sender {
+    [self.delegate reloadOrStop:sender];
+}
+
+
+-(void)setLoadingProgress:(CGFloat)progress
+{
+    if (progress>=1) {
+        [UIView animateWithDuration:.2 animations:^{
+            self.progressBar.progress = 1;
+        }completion:^(BOOL finished) {
+            [self.progressBar removeFromSuperview];
+        }];
+    }else if (progress<=0) {
+        [self.progressBar removeFromSuperview];
+    }else {
+        if (![[self.locationField subviews] containsObject:self.progressBar]) {
+            [self.locationField addSubview:self.progressBar];
+        }
+        self.progressBar.progress = progress;
+    }
+}
+
+
 -(void)bookMarkButtonPressed:(UIButton*)sender
 {
     
@@ -80,6 +99,7 @@
     if (nil == self.bookMarkPop) {
         RCBookMarkPop *pop = [[[RCBookMarkPop alloc] initWithFrame:CGRectMake(0, 0, 100, 50)] autorelease];
         pop.delegate = self.delegate;
+        [pop updateBttonState];
         self.bookMarkPop = [[[CMPopTipView alloc] initWithCustomView:pop] autorelease];
         self.bookMarkPop.backgroundColor = [UIColor whiteColor];        
         [self.bookMarkPop presentPointingAtView:sender inView:self.superview animated:NO];
@@ -90,7 +110,24 @@
         self.bookMarkPop = nil;
     }	
 }
-
+-(void)searchEngineButtonPressed:(UIButton*)sender
+{
+    // Toggle popTipView when a standard UIButton is pressed
+    if (nil == self.searchEnginePop) {
+        [self.locationField resignFirstResponder];
+        RCSearchEnginePop *pop = [[[RCSearchEnginePop alloc] initWithFrame:CGRectMake(0, 0, 100, 150) style:UITableViewStylePlain] autorelease];
+        pop.notification = self;
+        self.searchEnginePop = [[[CMPopTipView alloc] initWithCustomView:pop] autorelease];
+        self.searchEnginePop.backgroundColor = [UIColor whiteColor];      
+        
+        [self.searchEnginePop presentPointingAtView:sender inView:self.superview animated:NO];
+    }
+    else {
+        // Dismiss
+        [self.searchEnginePop dismissAnimated:YES];
+        self.searchEnginePop = nil;
+    }
+}
 
 
 -(void)loadView
@@ -125,20 +162,30 @@
     self.locationField = locationField;
     [locationField release];
     
+    // progressBar
+    YLProgressBar *progressBar = [[YLProgressBar alloc] initWithFrame:locationField.bounds];
+    progressBar.userInteractionEnabled = NO;
+    self.progressBar = progressBar;
+    
+    
     //reload/stop button
     UIButton *stopReloadButton = [UIButton buttonWithType:UIButtonTypeCustom];
     stopReloadButton.bounds = CGRectMake(0, 0, 26, 30);
     [stopReloadButton setImage:[UIImage imageNamed:@"CIALBrowser.bundle/images/AddressViewReload.png"] forState:UIControlStateNormal];
     [stopReloadButton setImage:[UIImage imageNamed:@"CIALBrowser.bundle/images/AddressViewReload.png"] forState:UIControlStateHighlighted];
     stopReloadButton.showsTouchWhenHighlighted = NO;
-    //        [stopReloadButton addTarget:self action:@selector(reloadOrStop:) forControlEvents:UIControlEventTouchUpInside];
+    [stopReloadButton addTarget:self action:@selector(reloadOrStop:) forControlEvents:UIControlEventTouchUpInside];
     locationField.rightView = stopReloadButton;
     locationField.rightViewMode = UITextFieldViewModeUnlessEditing;
     self.stopReloadButton = stopReloadButton;
     
     // searchEngineButton
     UIButton *searchEngineButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
-    searchEngineButton.bounds = CGRectMake(0, 0, 26, 30);
+    searchEngineButton.bounds = CGRectMake(0, 0, 16, 16);
+    [searchEngineButton addTarget:self action:@selector(searchEngineButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
+    NSNumber *setype = [[NSUserDefaults standardUserDefaults]objectForKey:SE_UDKEY];
+    UIImage *image = [RCSearchEnginePop imageForSEType:setype.intValue];
+    [searchEngineButton setBackgroundImage:image forState:UIControlStateNormal];
     self.locationField.leftView = searchEngineButton;
     self.locationField.leftViewMode = UITextFieldViewModeNever;
     self.searchEngineButton = searchEngineButton;
@@ -313,11 +360,15 @@
 }
 
 
-#pragma mark - searchResultTableDelegate
-//-(void)tableIsTouched
-//{
-//    [self.locationField resignFirstResponder];
-//}
+#pragma mark - RCSearchEnginePopDelegate
+-(void)searchNeedUpdate
+{
+    NSNumber *setype = [[NSUserDefaults standardUserDefaults]objectForKey:SE_UDKEY];
+    UIImage *image = [RCSearchEnginePop imageForSEType:setype.intValue];
+    [self.searchEngineButton setBackgroundImage:image forState:UIControlStateNormal];
+    [self.searchEnginePop dismissAnimated:YES];
+    self.searchEnginePop = nil;
+}
 
 #pragma mark - uitextfield delegate
 
@@ -452,6 +503,7 @@
     }else{
         NSString *obj = [self.listContent objectAtIndex:indexPath.row];
         cell.textLabel.text = obj;
+        cell.detailTextLabel.text = nil;
     }
 
     return cell;
@@ -460,8 +512,16 @@
 -(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     UITableViewCell *cell = [tableView cellForRowAtIndexPath:indexPath];
+    NSURL *url;
+    if ([[self.listContent objectAtIndex:indexPath.row] isKindOfClass:[BookmarkObject class]]) {
+        url = [NSURL URLWithString:cell.detailTextLabel.text];
+    }else{
+        NSString *obj = [self.listContent objectAtIndex:indexPath.row];
+        NSNumber *setype = [[NSUserDefaults standardUserDefaults]objectForKey:SE_UDKEY];
+        url = [RCSearchEnginePop urlForSEType:setype.intValue WithKeyWords:obj];
+    }
     
-    [self.delegate searchCompleteWithUrl:[NSURL URLWithString:cell.detailTextLabel.text]];
+    [self.delegate searchCompleteWithUrl:url];
     [self.locationField resignFirstResponder];
     [self turnOffSearchMode];
 }

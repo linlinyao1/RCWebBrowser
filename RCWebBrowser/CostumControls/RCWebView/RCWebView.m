@@ -12,6 +12,9 @@
 @implementation RCWebView
 @synthesize isDefaultPage = _isDefaultPage;
 
+
+
+
 - (id)initWithFrame:(CGRect)frame
 {
     self = [super initWithFrame:frame];
@@ -26,6 +29,7 @@
 
 -(void)turnOnDefaultPage
 {
+    [[RCFastLinkView defaultPage] reloadIcons];
     [self addSubview:[RCFastLinkView defaultPage]];
     self.isDefaultPage = YES;
 }

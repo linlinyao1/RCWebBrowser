@@ -16,4 +16,6 @@
 @end
 @interface RCBookMarkPop : UIView
 @property (nonatomic,assign) NSObject<RCBookMarkPopDelegate> *delegate;
+
+-(void)updateBttonState;
 @end
