@@ -133,7 +133,7 @@
         cell.selectionStyle = UITableViewCellSelectionStyleNone;
     }
     cell.textLabel.text = [self.delegate titleForTabAtIndex:indexPath.row];
-
+    cell.imageView.image = [self.delegate faviconForTabAtIndex:indexPath.row];
     return cell;
 }
 

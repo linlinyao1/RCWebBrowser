@@ -412,6 +412,22 @@
     return title;
 }
 
+-(UIImage *)faviconForTabAtIndex:(NSInteger)index
+{
+    RCWebView *web = [self.openedWebs objectAtIndex:index];
+    if (web.isDefaultPage) {
+        return nil;
+    }
+    NSURL *url = [[[NSURL alloc] initWithScheme:[web.request.URL scheme] host:[web.request.URL host] path:@"/favicon.ico"] autorelease];
+    NSData *data = [NSData dataWithContentsOfURL:url];
+    if (data) {
+        UIImage *image = [UIImage imageWithData:data];
+        return image;
+    }else {
+        return nil;
+    }
+}
+
 -(void)didSelectedTabAtIndex:(NSInteger)index
 {
     RCWebView *web = [self.openedWebs objectAtIndex:index];

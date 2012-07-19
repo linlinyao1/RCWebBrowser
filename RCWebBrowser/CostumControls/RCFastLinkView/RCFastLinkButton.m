@@ -8,12 +8,44 @@
 
 #import "RCFastLinkButton.h"
 
+@interface RCFastLinkButton ()
+@property (nonatomic,retain) UIButton *closeButton;
+@end
+
 @implementation RCFastLinkButton
 @synthesize delegate = _delegate;
+@synthesize closeButton = _closeButton;
+@synthesize url = _url;
+
+-(void)closeButtonPressed:(UIButton*)sender
+{
+    NSLog(@"button at %@ need to be closed",NSStringFromCGRect(self.frame));
+    [self.delegate buttonNeedToBeRemoved:self];
+}
+
+
+-(void)enterEditMode
+{
+    if (!self.closeButton) {
+        self.closeButton = [UIButton buttonWithType:UIButtonTypeInfoDark];
+        [self.closeButton addTarget:self action:@selector(closeButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
+    }
+    [self addSubview:self.closeButton];
+    self.transform = CGAffineTransformMakeScale(0.8, 0.8);
+}
+
+-(void)exitEditMode
+{
+    if (self.closeButton) {
+        [self.closeButton removeFromSuperview];
+    }
+    self.transform = CGAffineTransformIdentity;
+}
 
 
 -(void)longPress:(UILongPressGestureRecognizer*)gesture
-{    
+{   
+
     [self.delegate editModeEnter];
 }
 
@@ -37,9 +69,9 @@
 -(void)buttonTapped:(UIButton*)sender
 {
     if ([self.delegate isEditMode]) {
+        [self.closeButton removeFromSuperview];
         [self.delegate editModeExit];
     }else {
-        //
     }
 }
 

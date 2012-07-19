@@ -13,9 +13,12 @@
 
 @interface RCFastLinkButton : UIButton
 @property (nonatomic,assign) NSObject<RCFastLinkButtonDelegate> *delegate;
+@property (nonatomic,retain) NSURL *url;
 
 -(id)initWithFrame:(CGRect)frame Icon:(UIImage*)icon Name:(NSString*)name;
 
+-(void)enterEditMode;
+-(void)exitEditMode;
 @end
 
 
@@ -29,4 +32,5 @@
 -(void)button:(RCFastLinkButton*)button MovedToLocation:(CGPoint)location;
 -(void)button:(RCFastLinkButton*)button DidEndMovingAtCenter:(CGPoint)center;
 
+-(void)buttonNeedToBeRemoved:(RCFastLinkButton*)button;
 @end

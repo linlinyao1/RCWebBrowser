@@ -12,6 +12,7 @@
 
 - (NSInteger)numberOfTabs;
 - (NSString*)titleForTabAtIndex:(NSInteger)index;
+- (UIImage*)faviconForTabAtIndex:(NSInteger)index;
 - (void)didSelectedTabAtIndex:(NSInteger)index;
 - (void)didDeselectedTabAtIndex:(NSInteger)index;
 - (BOOL)tabShouldAdd;// always add new tab at last,return the index for last item
