@@ -14,4 +14,7 @@
 @property (nonatomic) BOOL isDefaultPage;
 -(void)turnOnDefaultPage;
 -(void)turnOffDefaultPage;
+
+-(BOOL) canBeSlided;
+
 @end

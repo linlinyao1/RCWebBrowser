@@ -94,6 +94,8 @@ typedef enum
 - (void)swapObjectAtIndex:(NSInteger)index1 withObjectAtIndex:(NSInteger)index2;
 - (void)scrollToObjectAtIndex:(NSInteger)index animated:(BOOL)animated;
 
+//- (void) hideLastObject;
+//- (void) showLastObject;
 @end
 
 

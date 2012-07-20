@@ -14,6 +14,9 @@
 
 +(id)defaultPage;
 
--(void)reloadIcons;
+-(void)refresh;
 
+-(BOOL)isEditing;
+
+-(BOOL)canBeSlided;
 @end

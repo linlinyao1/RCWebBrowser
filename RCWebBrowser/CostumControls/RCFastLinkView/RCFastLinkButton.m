@@ -13,67 +13,9 @@
 @end
 
 @implementation RCFastLinkButton
-@synthesize delegate = _delegate;
 @synthesize closeButton = _closeButton;
 @synthesize url = _url;
 
--(void)closeButtonPressed:(UIButton*)sender
-{
-    NSLog(@"button at %@ need to be closed",NSStringFromCGRect(self.frame));
-    [self.delegate buttonNeedToBeRemoved:self];
-}
-
-
--(void)enterEditMode
-{
-    if (!self.closeButton) {
-        self.closeButton = [UIButton buttonWithType:UIButtonTypeInfoDark];
-        [self.closeButton addTarget:self action:@selector(closeButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
-    }
-    [self addSubview:self.closeButton];
-    self.transform = CGAffineTransformMakeScale(0.8, 0.8);
-}
-
--(void)exitEditMode
-{
-    if (self.closeButton) {
-        [self.closeButton removeFromSuperview];
-    }
-    self.transform = CGAffineTransformIdentity;
-}
-
-
--(void)longPress:(UILongPressGestureRecognizer*)gesture
-{   
-
-    [self.delegate editModeEnter];
-}
-
--(void)pan:(UIPanGestureRecognizer*)gesture
-{
-    if (![self.delegate isEditMode]) {
-        return;
-    }
-    if (gesture.state == UIGestureRecognizerStateBegan) {
-        [self.delegate button:self WillBeginMovingAtCenter:self.center];    
-    }else if (gesture.state == UIGestureRecognizerStateEnded){
-        [self.delegate button:self DidEndMovingAtCenter:self.center];
-    }else {
-        CGPoint location = [gesture locationInView:[self superview]];
-        self.center = location;
-        [self.delegate button:self MovedToLocation:location];
-    }
-
-}
-
--(void)buttonTapped:(UIButton*)sender
-{
-    if ([self.delegate isEditMode]) {
-        [self.closeButton removeFromSuperview];
-        [self.delegate editModeExit];
-    }else {
-    }
-}
 
 -(id)initWithFrame:(CGRect)frame Icon:(UIImage *)icon Name:(NSString *)name
 {
@@ -111,15 +53,6 @@
     if (self) {
         // Initialization code
         self.backgroundColor = [UIColor whiteColor];
-        
-        UILongPressGestureRecognizer *longPress = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(longPress:)];
-        [self addGestureRecognizer:longPress];
-        
-        UIPanGestureRecognizer *pan = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(pan:)];
-        [self addGestureRecognizer:pan];
-        
-        [self addTarget:self action:@selector(buttonTapped:) forControlEvents:UIControlEventTouchUpInside];
-
     }
     return self;
 }

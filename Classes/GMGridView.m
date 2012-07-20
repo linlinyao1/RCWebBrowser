@@ -414,7 +414,10 @@ static const UIViewAnimationOptions kDefaultAnimationOptions = UIViewAnimationOp
     }
     else if (gestureRecognizer == _sortingLongPressGesture)
     {
-        valid = !isScrolling && !self.isEditing && (self.sortingDelegate != nil);
+        // edit by linlipeng
+//        valid = !isScrolling && !self.isEditing && (self.sortingDelegate != nil);
+        valid = !isScrolling && (self.sortingDelegate != nil);
+
     }
     else if (gestureRecognizer == _sortingPanGesture) 
     {

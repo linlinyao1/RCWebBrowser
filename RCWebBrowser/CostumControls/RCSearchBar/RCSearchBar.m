@@ -355,6 +355,7 @@
                      }completion:^(BOOL completed){
                          [self.searchResultTable removeFromSuperview];
                          self.searchResultTable = nil;
+                         self.listContent = nil;
                          
                      }];
 }
@@ -494,7 +495,6 @@
 	if (cell == nil)
 	{
 		cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:CellIdentifier] autorelease];
-		cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
 	}
     if ([[self.listContent objectAtIndex:indexPath.row] isKindOfClass:[BookmarkObject class]]) {
         BookmarkObject *obj = [self.listContent objectAtIndex:indexPath.row];

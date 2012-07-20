@@ -102,5 +102,9 @@
     [super dealloc];
 }
 
+-(NSString *)description
+{
+    return [NSString stringWithFormat:@"name:%@,url:%@",self.name,self.url];
+}
 
 @end

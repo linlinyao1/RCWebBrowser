@@ -41,6 +41,8 @@
     self.tableView.frame = CGRectMake(0, 0, 260, self.tableView.frame.size.height);
 }
 
+
+
 -(void)makeRightBarButtonItemWithButton:(UIBarButtonItem*)button
 {
     UIToolbar *tools = [[UIToolbar alloc]
@@ -83,19 +85,6 @@
             {
                 NSMutableArray *historyArray = [RCRecordData recordDataWithKey:RCRD_HISTORY];
                 self.submenuItems = [NSMutableArray arrayWithArray:historyArray];
-                
-//                NSData * history = [defaults objectForKey:@"history"];
-//                NSMutableArray *historyArray;
-//                
-//                if (history) {
-//                    historyArray = [[NSMutableArray alloc] initWithArray:[NSKeyedUnarchiver unarchiveObjectWithData:history]];
-//                }else {
-//                    historyArray = [[NSMutableArray alloc] initWithCapacity:1];
-//                    [historyArray sortUsingComparator:^NSComparisonResult(BookmarkObject *obj1, BookmarkObject *obj2) {
-//                        return  [obj2.date compare:obj1.date];
-//                    }];
-//                }
-//                self.submenuItems = [NSMutableArray arrayWithArray:historyArray];
             }
                 break;
             case RCSubMenuMostViewed:

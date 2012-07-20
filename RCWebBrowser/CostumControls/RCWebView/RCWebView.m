@@ -29,7 +29,7 @@
 
 -(void)turnOnDefaultPage
 {
-    [[RCFastLinkView defaultPage] reloadIcons];
+    [[RCFastLinkView defaultPage] refresh];
     [self addSubview:[RCFastLinkView defaultPage]];
     self.isDefaultPage = YES;
 }
@@ -93,7 +93,13 @@
 }
 
 
-
+-(BOOL)canBeSlided
+{
+    if (self.isDefaultPage && [[RCFastLinkView defaultPage] canBeSlided]) {//[[RCFastLinkView defaultPage] isEditing]
+        return YES;
+    }
+    return NO;
+}
 
 
 @end

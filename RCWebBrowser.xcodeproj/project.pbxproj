@@ -47,6 +47,8 @@
 		887A3C9915B7A3D200BCF193 /* UIView+GMGridViewAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 887A3C9415B7A3D200BCF193 /* UIView+GMGridViewAdditions.m */; };
 		887A3C9C15B7A83E00BCF193 /* close_x.png in Resources */ = {isa = PBXBuildFile; fileRef = 887A3C9B15B7A83E00BCF193 /* close_x.png */; };
 		887A79F615B4F8D300ED2E0B /* RCFastLinkButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 887A79F515B4F8D300ED2E0B /* RCFastLinkButton.m */; };
+		887BF1F415B8FD85004366D1 /* navigation.html in Resources */ = {isa = PBXBuildFile; fileRef = 887BF1F315B8FD85004366D1 /* navigation.html */; };
+		887BF1F815B906B1004366D1 /* RCAddNewViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 887BF1F715B906B1004366D1 /* RCAddNewViewController.m */; };
 		887D6BDE15A6839B00400244 /* AddBookmarkViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 887D6BCE15A6839B00400244 /* AddBookmarkViewController.m */; };
 		887D6BDF15A6839B00400244 /* BookmarkObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 887D6BD015A6839B00400244 /* BookmarkObject.m */; };
 		887D6BE015A6839B00400244 /* CIALBrowser.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 887D6BD115A6839B00400244 /* CIALBrowser.bundle */; };
@@ -142,6 +144,9 @@
 		887A3C9B15B7A83E00BCF193 /* close_x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = close_x.png; sourceTree = "<group>"; };
 		887A79F415B4F8D300ED2E0B /* RCFastLinkButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCFastLinkButton.h; path = RCFastLinkView/RCFastLinkButton.h; sourceTree = "<group>"; };
 		887A79F515B4F8D300ED2E0B /* RCFastLinkButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCFastLinkButton.m; path = RCFastLinkView/RCFastLinkButton.m; sourceTree = "<group>"; };
+		887BF1F315B8FD85004366D1 /* navigation.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = navigation.html; sourceTree = "<group>"; };
+		887BF1F615B906B1004366D1 /* RCAddNewViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCAddNewViewController.h; path = RCAddNewViewController/RCAddNewViewController.h; sourceTree = "<group>"; };
+		887BF1F715B906B1004366D1 /* RCAddNewViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCAddNewViewController.m; path = RCAddNewViewController/RCAddNewViewController.m; sourceTree = "<group>"; };
 		887D6BCD15A6839B00400244 /* AddBookmarkViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AddBookmarkViewController.h; sourceTree = "<group>"; };
 		887D6BCE15A6839B00400244 /* AddBookmarkViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AddBookmarkViewController.m; sourceTree = "<group>"; };
 		887D6BCF15A6839B00400244 /* BookmarkObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BookmarkObject.h; sourceTree = "<group>"; };
@@ -235,6 +240,7 @@
 				887F222B15AAB6C40007EE92 /* RCSearchDisplayController */,
 				88807CD115ABD5BA00FC8773 /* RCMenuViewController */,
 				88391BDF15AE806700960943 /* RCNavigationBar */,
+				887BF1F915B906BA004366D1 /* RCAddNewViewController */,
 			);
 			name = CostumControls;
 			path = RCWebBrowser/CostumControls;
@@ -329,6 +335,7 @@
 		887979141592BF46008B9609 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				887BF1F315B8FD85004366D1 /* navigation.html */,
 				8878EA2115A3E5660074D984 /* Icon@2x.png */,
 				8878EA2215A3E5660074D984 /* Icon.png */,
 				887979151592BF46008B9609 /* RCWebBrowser-Info.plist */,
@@ -376,6 +383,15 @@
 				887A3C9415B7A3D200BCF193 /* UIView+GMGridViewAdditions.m */,
 			);
 			name = GMGridView;
+			sourceTree = "<group>";
+		};
+		887BF1F915B906BA004366D1 /* RCAddNewViewController */ = {
+			isa = PBXGroup;
+			children = (
+				887BF1F615B906B1004366D1 /* RCAddNewViewController.h */,
+				887BF1F715B906B1004366D1 /* RCAddNewViewController.m */,
+			);
+			name = RCAddNewViewController;
 			sourceTree = "<group>";
 		};
 		887D6BCC15A6839B00400244 /* CIALBrowser */ = {
@@ -615,6 +631,7 @@
 				88797CFF15B64FDD00736FE5 /* icon_search_google.png in Resources */,
 				88797D0015B64FDD00736FE5 /* icon_search_google@2x.png in Resources */,
 				887A3C9C15B7A83E00BCF193 /* close_x.png in Resources */,
+				887BF1F415B8FD85004366D1 /* navigation.html in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -665,6 +682,7 @@
 				887A3C9715B7A3D200BCF193 /* GMGridViewLayoutStrategies.m in Sources */,
 				887A3C9815B7A3D200BCF193 /* UIGestureRecognizer+GMGridViewAdditions.m in Sources */,
 				887A3C9915B7A3D200BCF193 /* UIView+GMGridViewAdditions.m in Sources */,
+				887BF1F815B906B1004366D1 /* RCAddNewViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

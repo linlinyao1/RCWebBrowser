@@ -11,7 +11,7 @@
 #import "RCFastLinkButton.h"
 #import "RCRecordData.h"
 #import "GMGridView.h"
-
+#import "RCAddNewViewController.h"
 
 #define FL_MARGIN  17
 #define FL_GAP 10
@@ -24,7 +24,10 @@ static RCFastLinkView *_fastLinkView;
 @property (nonatomic) BOOL isInEditMode;
 @property (nonatomic) CGPoint movingPosition;
 @property (nonatomic,retain) UIButton *addNew;
+@property (nonatomic,retain) GMGridView* gridView;
+@property (nonatomic,retain) UIScrollView* scrollView;
 @end
+
 
 @implementation RCFastLinkView
 @synthesize objectList = _objectList;
@@ -32,39 +35,58 @@ static RCFastLinkView *_fastLinkView;
 @synthesize isInEditMode = _isInEditMode;
 @synthesize movingPosition = _movingPosition;
 @synthesize addNew = _addNew;
+@synthesize gridView = _gridView;
+@synthesize scrollView = _scrollView;
 
--(void)reloadIcons//:(NSArray*)items
+
+-(BOOL)isEditing
 {
-    self.objectList = [RCRecordData recordDataWithKey:RCRD_FASTLINK];
-    NSArray *items = self.objectList;
-    [[self.scrollBoard subviews] makeObjectsPerformSelector:@selector(removeFromSuperview)];
-    
-    CGRect rect = CGRectMake(FL_MARGIN, FL_MARGIN, FL_ICON_SIZE, FL_ICON_SIZE);
-    
-    for (RCFastLinkObject *obj in items) {
-        NSLog(@"origin positoin : %@",NSStringFromCGRect(rect));
-        RCFastLinkButton *iconButton = [[[RCFastLinkButton alloc] initWithFrame:rect Icon:obj.icon Name:obj.name] autorelease];
-        iconButton.frame = rect;
-//        iconButton.delegate = self;
-
-        [self.scrollBoard addSubview:iconButton];
-        
+    return self.gridView.isEditing;
+}
+-(void)repositionAddNewButton
+{
+    CGRect rect;
+    UIView *cell = [self.gridView cellForItemAtIndex:self.objectList.count-1];
+    if (cell) {
+        rect = cell.frame;
         rect = CGRectOffset(rect, FL_ICON_SIZE+FL_GAP, 0);
-        if (CGRectGetMaxX(rect)>(320-FL_MARGIN)) {
-            rect = CGRectOffset(rect, FL_MARGIN-rect.origin.x, FL_MARGIN+FL_ICON_SIZE);
+        if (CGRectGetMaxX(rect)>(self.gridView.frame.size.width-FL_MARGIN)) {
+            rect = CGRectOffset(rect, -rect.origin.x, FL_ICON_SIZE+FL_GAP);
         }
+    }else {
+        rect = CGRectMake(FL_MARGIN, FL_MARGIN, FL_ICON_SIZE, FL_ICON_SIZE);
     }
-    
-    UIButton *addNew = [UIButton buttonWithType:UIButtonTypeRoundedRect];
-    addNew.frame = rect;
-    [addNew setTitle:@"添加" forState:UIControlStateNormal];
-    [self.scrollBoard addSubview:addNew];
-    self.addNew = addNew;
-    
-    self.scrollBoard.contentSize = CGSizeMake(320, CGRectGetMaxY(rect));
-    
+
+    self.addNew.frame = rect;
+    self.addNew.hidden = NO;
+    [self.gridView addSubview:self.addNew];
 }
 
+-(void)refresh
+{
+    NSMutableArray *array = [RCRecordData recordDataWithKey:RCRD_FASTLINK];
+    self.objectList = [NSMutableArray arrayWithArray:array];
+//    [self.objectList addObject:@"addNew"];
+    [self.gridView reloadData];
+    
+    [self repositionAddNewButton];
+
+}
+
+
+-(BOOL)canBeSlided
+{
+    if (self.scrollView.contentOffset.x<self.frame.size.width) {
+        return YES;
+    }
+    
+    return NO;
+}
+
+-(void)addNewTapped
+{
+    RCAddNewViewController *addnewVC = [[[RCAddNewViewController alloc] init] autorelease];
+}
 
 
 - (id)initWithFrame:(CGRect)frame
@@ -72,30 +94,44 @@ static RCFastLinkView *_fastLinkView;
     self = [super initWithFrame:frame];
     if (self) {
         // Initialization code
-//        self.backgroundColor = [UIColor blueColor];
-//        self.scrollBoard = [[UIScrollView alloc] initWithFrame:frame];
-////        self.scrollBoard.showsVerticalScrollIndicator = no
-//        self.objectList = [NSMutableArray arrayWithCapacity:20];
-//        [self addSubview:self.scrollBoard];
-//        
-//        [self reloadIcons];       
         
-        self.objectList = [RCRecordData recordDataWithKey:RCRD_FASTLINK];
-
-        GMGridView *gmGridView = [[[GMGridView alloc] initWithFrame:self.bounds] autorelease];
+//        addNew button currently disabled
+        self.addNew = [UIButton buttonWithType:UIButtonTypeRoundedRect];
+        [self.addNew addTarget:self action:@selector(addNewTapped) forControlEvents:UIControlEventTouchUpInside];
+        
+        
+        UIScrollView *scrollView = [[[UIScrollView alloc] initWithFrame:self.bounds] autorelease];
+        scrollView.pagingEnabled = YES;
+        scrollView.bounces = NO;
+        [self addSubview:scrollView];
+        self.scrollView = scrollView;
+        
+        UIWebView *html = [[UIWebView alloc]initWithFrame:scrollView.bounds];
+        NSString *path = [[NSBundle mainBundle] pathForResource:@"navigation" ofType:@"html"];
+        [html loadHTMLString:[NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:nil] baseURL:nil];
+        [scrollView addSubview:html];
+        
+        CGRect rect = CGRectOffset(html.frame, frame.size.width, 0);
+        
+    
+        GMGridView *gmGridView = [[[GMGridView alloc] initWithFrame:rect] autorelease]; //self.bounds
         gmGridView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
         gmGridView.backgroundColor = [UIColor clearColor];
         gmGridView.style = GMGridViewStylePush;
         gmGridView.itemSpacing = FL_GAP;
         gmGridView.minEdgeInsets = UIEdgeInsetsMake(FL_MARGIN, FL_MARGIN, FL_MARGIN, FL_MARGIN);
-//        gmGridView.centerGrid = YES;
         gmGridView.actionDelegate = self;
         gmGridView.sortingDelegate = self;
 //        gmGridView.transformDelegate = self;
         gmGridView.dataSource = self;
-        [self addSubview:gmGridView];
-
+//        [self addSubview:gmGridView];
+        [scrollView addSubview:gmGridView];
+        self.gridView = gmGridView;
+        gmGridView.backgroundColor = [UIColor blackColor];
         
+        
+        scrollView.contentSize = CGSizeMake(CGRectGetMaxX(gmGridView.frame), frame.size.height);
+        scrollView.contentOffset = CGPointMake(gmGridView.frame.origin.x, 0);
     }
     return self;
 }
@@ -122,7 +158,7 @@ static RCFastLinkView *_fastLinkView;
 
 - (NSInteger)numberOfItemsInGMGridView:(GMGridView *)gridView
 {
-    return [self.objectList count];
+    return self.objectList.count;
 }
 
 - (CGSize)sizeForItemsInGMGridView:(GMGridView *)gridView
@@ -130,54 +166,61 @@ static RCFastLinkView *_fastLinkView;
     return CGSizeMake(FL_ICON_SIZE, FL_ICON_SIZE);
 }
 
-- (GMGridViewCell *)GMGridView:(GMGridView *)gridView cellForItemAtIndex:(NSInteger)index
+-(void)testButtonTap
 {
-    //NSLog(@"Creating view indx %d", index);
-    
+    if (self.gridView.isEditing) {
+        self.gridView.editing = NO;
+    }
+    [self repositionAddNewButton];
+}
+
+- (GMGridViewCell *)GMGridView:(GMGridView *)gridView cellForItemAtIndex:(NSInteger)index
+{    
     CGSize size = [self sizeForItemsInGMGridView:gridView];
-    
-    GMGridViewCell *cell = [gridView dequeueReusableCell];
-    
+
+    GMGridViewCell *cell = [gridView dequeueReusableCell];  
+//    if (index == self.objectList.count-1) {
+//        if (!cell) {
+//            cell = [[GMGridViewCell alloc] init];
+//            cell.contentView = [[[UIView alloc] initWithFrame:CGRectMake(0, 0, size.width, size.height)] autorelease];
+//            cell.contentView.backgroundColor = [UIColor blueColor];
+//        }
+//        return cell;
+//    }    
     if (!cell) 
     {
         cell = [[GMGridViewCell alloc] init];
         cell.deleteButtonIcon = [UIImage imageNamed:@"close_x.png"];
         cell.deleteButtonOffset = CGPointMake(-15, -15);
-        
-        UIView *view = [[UIView alloc] initWithFrame:CGRectMake(0, 0, size.width, size.height)];
-        view.backgroundColor = [UIColor redColor];
-//        view.layer.masksToBounds = NO;
-//        view.layer.cornerRadius = 8;
-//        view.layer.shadowColor = [UIColor grayColor].CGColor;
-//        view.layer.shadowOffset = CGSizeMake(5, 5);
-//        view.layer.shadowPath = [UIBezierPath bezierPathWithRect:view.bounds].CGPath;
-//        view.layer.shadowRadius = 8;
-        
-        cell.contentView = view;
-    }
-    
+        cell.contentView = [[[UIView alloc] initWithFrame:CGRectMake(0, 0, size.width, size.height)] autorelease];
+    }    
     [[cell.contentView subviews] makeObjectsPerformSelector:@selector(removeFromSuperview)];
-    
-//    UILabel *label = [[UILabel alloc] initWithFrame:cell.contentView.bounds];
-//    label.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-//    label.text = (NSString *)[_data objectAtIndex:index];
-//    label.textAlignment = UITextAlignmentCenter;
-//    label.backgroundColor = [UIColor clearColor];
-//    label.textColor = [UIColor blackColor];
-//    label.font = [UIFont boldSystemFontOfSize:20];
-//    [cell.contentView addSubview:label];
-    
+    RCFastLinkObject* obj = [self.objectList objectAtIndex:index];
+    RCFastLinkButton *iconButton = [[[RCFastLinkButton alloc] initWithFrame:CGRectMake(0, 0, size.width, size.height) Icon:obj.icon Name:obj.name] autorelease];
+    [iconButton addTarget:self action:@selector(testButtonTap) forControlEvents:UIControlEventTouchUpInside];
+    [cell.contentView addSubview:iconButton];
+
     return cell;
 }
 
 - (void)GMGridView:(GMGridView *)gridView deleteItemAtIndex:(NSInteger)index
 {
     [self.objectList removeObjectAtIndex:index];
+//    NSMutableArray *array = self.objectList;
+//    [array removeLastObject];
+    [RCRecordData updateRecord:self.objectList ForKey:RCRD_FASTLINK];
+    if (self.objectList.count == 0) {
+        self.gridView.editing = NO;
+        [self performSelector:@selector(repositionAddNewButton) withObject:nil afterDelay:.5];
+//        [self repositionAddNewButton];
+    }
 }
 
 #pragma mark GMGridViewSortingDelegate
 - (void)GMGridView:(GMGridView *)gridView didStartMovingCell:(GMGridViewCell *)cell
-{
+{    
+    self.addNew.hidden = YES;
+    gridView.editing = YES;
     [UIView animateWithDuration:0.3 
                           delay:0 
                         options:UIViewAnimationOptionAllowUserInteraction 
@@ -185,7 +228,8 @@ static RCFastLinkView *_fastLinkView;
                          cell.contentView.backgroundColor = [UIColor orangeColor];
 //                         cell.contentView.layer.shadowOpacity = 0.7;
                      } 
-                     completion:nil
+                     completion:^(BOOL finished) {
+                     }
      ];
 }
 
@@ -198,7 +242,9 @@ static RCFastLinkView *_fastLinkView;
                          cell.contentView.backgroundColor = [UIColor redColor];
 //                         cell.contentView.layer.shadowOpacity = 0;
                      }
-                     completion:nil
+                     completion:^(BOOL finished) {    
+                         
+                     }
      ];
 }
 
@@ -209,8 +255,9 @@ static RCFastLinkView *_fastLinkView;
 
 - (void)GMGridView:(GMGridView *)gridView moveItemAtIndex:(NSInteger)oldIndex toIndex:(NSInteger)newIndex
 {
-    NSObject *object = [self.objectList objectAtIndex:oldIndex];
-    [self.objectList removeObject:object];
+    id object = [self.objectList objectAtIndex:oldIndex];
+    [self.objectList removeObjectAtIndex:oldIndex];
+//        [self.objectList removeObject:object];
     [self.objectList insertObject:object atIndex:newIndex];
 }
 
@@ -220,112 +267,6 @@ static RCFastLinkView *_fastLinkView;
 }
 
 
-
-
-
-
-
-
-#pragma mark - RCFastLinkButtonDelegate
-
--(void)buttonNeedToBeRemoved:(RCFastLinkButton *)button
-{
-    
-
-//    for (RCFastLinkButton* obj in self.objectList) {
-//        if ([obj.url.absoluteString isEqualToString:button.url.absoluteString]) {
-//            [self.objectList removeObject:obj];
-//            break;
-//        }
-//    }
-//    [RCRecordData updateRecord:self.objectList ForKey:RCRD_FASTLINK];    
-//    [UIView animateWithDuration:.5 animations:^{
-//        CGRect rect = button.frame;
-//        [button removeFromSuperview];
-//            for (RCFastLinkButton* flButton in [self.scrollBoard subviews])
-//            {
-//                NSLog(@"new positoin : %@",NSStringFromCGRect(rect));
-//                if ([flButton isKindOfClass:[UIButton class]]) {
-//                    CGRect tempRect = flButton.frame;
-//                    flButton.frame = rect;
-//                    rect = CGRectOffset(tempRect, -(FL_ICON_SIZE+FL_GAP), 0);
-//                    if (rect.origin.x<(0+FL_MARGIN)) {
-//                        rect = CGRectOffset(rect, 320 - FL_MARGIN, -(FL_MARGIN+FL_ICON_SIZE));
-//                    }
-//                    //            NSLog(@"buton : %@, position : %@",NSStringFromClass([flButton class]), NSStringFromCGRect(flButton.frame));
-//                }
-//            }        
-//    }];
-}
-
-
--(void)button:(RCFastLinkButton *)mButton MovedToLocation:(CGPoint)location
-{
-    for (RCFastLinkButton *button in [self.scrollBoard subviews]) {
-        if (button != mButton && button!=self.addNew && CGRectContainsPoint(button.frame, location)) {
-            CGPoint center = button.center;
-            [UIView beginAnimations:nil context:nil];
-                button.center =  self.movingPosition;
-            [UIView commitAnimations];
-            self.movingPosition = center;
-            return;
-        }
-    }
-}
--(void)button:(RCFastLinkButton *)button DidEndMovingAtCenter:(CGPoint)center
-{
-    [UIView beginAnimations:nil context:nil];
-        button.center =  self.movingPosition;
-    [UIView commitAnimations];
-}
--(void)button:(RCFastLinkButton *)button WillBeginMovingAtCenter:(CGPoint)center
-{
-    self.movingPosition = center;
-    [self.scrollBoard bringSubviewToFront:button];
-}
-
--(void)editModeEnter
-{
-    if (self.isInEditMode) {
-        return;
-    }
-    self.isInEditMode = YES;
-    
-    [UIView animateWithDuration:.5 animations:^{
-        for (RCFastLinkButton *button in [self.scrollBoard subviews]) {
-            if ([button respondsToSelector:@selector(enterEditMode)]) {
-                [button enterEditMode];
-            }
-//            UIButton *closeButton = [UIButton buttonWithType:UIButtonTypeInfoDark];
-//            [button addSubview:closeButton];
-//            button.transform = CGAffineTransformMakeScale(0.8, 0.8);
-        }
-        self.addNew.transform = CGAffineTransformMakeScale(0.8, 0.8);
-    }];
-}
-
--(void)editModeExit
-{
-    if (!self.isInEditMode) {
-        return;
-    }
-    self.isInEditMode = NO;
-    
-        [UIView animateWithDuration:.5 animations:^{
-            for (RCFastLinkButton *button in [self.scrollBoard subviews]) {
-//                button.transform = CGAffineTransformIdentity;
-                if ([button respondsToSelector:@selector(exitEditMode)]) {
-                    [button exitEditMode];
-                }
-            }
-            self.addNew.transform = CGAffineTransformIdentity;
-        }];
-}
-
--(BOOL)isEditMode
-{
-    return self.isInEditMode;
-}
 
 
 @end

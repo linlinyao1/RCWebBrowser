@@ -8,6 +8,62 @@
 
 #import "RCSettingMenuViewController.h"
 
+typedef enum {
+    OptionSectionSearchEngine = 0,
+    OptionSectionPrivate,
+    OptionSectionNiteMode,
+    OptionSectionBackground,
+    OptionSectionUE,
+    OptionSectionAbout,
+
+    OptionSectionsCount
+} OptionsTypeSections;
+
+typedef enum {
+    OptionSearchEngineType = 0,
+    
+    OptionSearchEngineCount
+} OptionSearchEngine;
+
+typedef enum {
+    OptionPrivateHistory = 0,
+    OptionPrivateCookies,
+    OptionPrivateCache,
+
+    OptionPrivateCount
+} OptionPrivate;
+
+
+typedef enum {
+    OptionNiteModeOnOff = 0,
+    
+    OptionNiteModeCount
+} OptionNiteMode;
+
+typedef enum {
+    OptionBackgroundSelect = 0,
+    
+    OptionBackgroundCount
+} OptionBackground;
+
+typedef enum {
+    OptionUEProtocol = 0,
+    OptionUEImprove,
+    OptionUESuggestion,
+    
+    OptionUECount
+} OptionUE;
+
+typedef enum {
+    OptionAbout2345 = 0,
+    OptionAboutRating,
+    OptionAboutUpdate,
+    
+    OptionAboutCount
+} OptionAbout;
+
+
+
 @interface RCSettingMenuViewController ()
 //@property (nonatomic,retain) NSArray *sectionTitles;
 //@property (nonatomic,retain) NSArray *section1cells;
@@ -65,29 +121,46 @@
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
     // Return the number of sections.
-    return 4;
+    return OptionSectionsCount;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
     // Return the number of rows in the section.
-    int rows;
-    if (section == 0) {
-        rows = 1;
-    }else {
-        rows = 3;
-    }
+    int rows = 0;
+    switch (section) {
+        case OptionSectionSearchEngine:
+            rows = OptionSearchEngineCount;
+            break;
+        case OptionSectionPrivate:
+            rows = OptionPrivateCount;
+            break;
+        case OptionSectionNiteMode:
+            rows = OptionNiteModeCount;
+            break;
+        case OptionSectionBackground:
+            rows = OptionBackgroundCount;
+            break;
+        case OptionSectionUE:
+            rows = OptionUECount;
+            break;
+        case OptionSectionAbout:
+            rows = OptionAboutCount;
+            break;
+    }    
     return rows;
 }
 
 -(NSString*)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
 {
-    NSString *title = nil;
-    if (section == 0) {
+    NSString *title = @"";
+    if (section == OptionSectionSearchEngine) {
         title = @"搜索引擎设置";
-    }else if (section == 1) {
+    }else if (section == OptionSectionPrivate) {
         title = @"隐私信息保护";
-    }else if (section == 2) {
+    }else if (section == OptionSectionBackground) {
+        title = @"选择背景";
+    }else if (section == OptionSectionUE) {
         title = @"个人体验";
     }
     return title;
@@ -100,69 +173,99 @@
     if (!cell) {
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
     }
-    if (indexPath.section == 0) {
-        cell.textLabel.text = @"当前搜索引擎";
-    }else if (indexPath.section == 1) {
-        switch (indexPath.row) {
-            case 0:
-            {
-                cell.textLabel.text = @"清除历史记录";
-            }
-            break;
-            case 1:
-            {
-                cell.textLabel.text = @"清除Cookies";
-            }
-            break;
-            case 2:
-            {
-                cell.textLabel.text = @"清除全部缓存";
-            }
-            break;    
-            default:
+    
+    
+    if ([indexPath section] == OptionSectionSearchEngine)
+    {
+        switch ([indexPath row]) 
+        {
+            case OptionSearchEngineType:
+                {
+                    cell.textLabel.text = @"当前搜索引擎";
+                    
+                }
                 break;
         }
-    }else if (indexPath.section == 2) {
-        switch (indexPath.row) {
-            case 0:
-            {
-                cell.textLabel.text = @"产品使用许可协议";
-            }
+    }else if ([indexPath section] == OptionSectionPrivate) {
+        switch ([indexPath row]) 
+        {
+            case OptionPrivateHistory:
+                {
+                    cell.textLabel.text = @"清除历史记录";                
+                }
                 break;
-            case 1:
-            {
-                cell.textLabel.text = @"用户体验改进计划";
-            }
+            case OptionPrivateCookies:
+                {
+                    cell.textLabel.text = @"清除Cookies";                
+                }
                 break;
-            case 2:
-            {
-                cell.textLabel.text = @"意见反馈";
-            }
-                break;    
-            default:
+            case OptionPrivateCache:
+                {
+                    cell.textLabel.text = @"清除全部缓存";                
+                }
                 break;
         }
-    }else if (indexPath.section == 3) {
-        switch (indexPath.row) {
-            case 0:
+    }else if ([indexPath section] == OptionSectionNiteMode) {
+        switch ([indexPath row]) 
+        {
+            case OptionNiteModeOnOff:
+                {
+                    cell.textLabel.text = @"夜间模式";
+                    UISwitch *editingSwitch = [[UISwitch alloc] initWithFrame:CGRectMake(0, 0, 100, 30)];
+    //                [editingSwitch addTarget:self action:@selector(editingSwitchChanged:) forControlEvents:UIControlEventValueChanged];                
+                    cell.accessoryView = editingSwitch;
+                }
+                break;
+        }
+    }else if ([indexPath section] == OptionSectionBackground) {
+        switch ([indexPath row]) 
+        {
+            case OptionBackgroundSelect:
+                {
+                    cell.textLabel.text = @"背景"; // to be continue
+                }
+                break;
+        }
+    }else if ([indexPath section] == OptionSectionUE) {
+        switch ([indexPath row]) 
+        {
+            case OptionUEProtocol:
+                {
+                    cell.textLabel.text = @"产品使用许可协议"; // to be continue
+                }
+                break;
+            case OptionUEImprove:
+                {
+                    cell.textLabel.text = @"用户体验改进计划"; // to be continue
+                }
+                break;
+            case OptionUESuggestion:
+                {
+                    cell.textLabel.text = @"意见反馈"; // to be continue
+                }
+                break;
+        }
+    }else if ([indexPath section] == OptionSectionAbout) {
+        switch ([indexPath row]) 
+        {
+            case OptionAbout2345:
             {
-                cell.textLabel.text = @"关于2345";
+                cell.textLabel.text = @"关于2345"; // to be continue
             }
                 break;
-            case 1:
+            case OptionAboutRating:
             {
-                cell.textLabel.text = @"给2345浏览器打分";
+                cell.textLabel.text = @"给2345浏览器打分"; // to be continue
             }
                 break;
-            case 2:
+            case OptionAboutUpdate:
             {
-                cell.textLabel.text = @"检查更新";
+                cell.textLabel.text = @"检查更新"; // to be continue
             }
-                break;    
-            default:
                 break;
         }
     }
+    
     
     return cell;
 }

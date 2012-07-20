@@ -21,7 +21,7 @@
 @interface RCViewController ()<UITextFieldDelegate,RCTabViewDelegate,UIWebViewDelegate,RCBookMarkPopDelegate,RCSearchBarDelegate>
 @property (nonatomic,retain) NSMutableArray *openedWebs; //arrary of UIWebView, corresponding to tabs
 @property (nonatomic,retain) CMPopTipView *bookMarkPop;
-
+@property (nonatomic) BOOL isSliding;
 -(void)updateBackForwordState:(RCWebView*)web;
 @end
 
@@ -32,6 +32,7 @@
 @synthesize bottomToolBar = _bottomToolBar;
 @synthesize openedWebs = _openedWebs;
 @synthesize bookMarkPop = _bookMarkPop;
+@synthesize isSliding = _isSliding;
 
 -(NSMutableArray *)openedWebs
 {
@@ -115,24 +116,35 @@
 //    return PPRevealSideDirectionLeft | PPRevealSideDirectionRight | PPRevealSideDirectionTop | PPRevealSideDirectionBottom;
     return PPRevealSideDirectionLeft;
 }
-//- (BOOL) pprevealSideViewController:(PPRevealSideViewController *)controller shouldDeactivateGesture:(UIGestureRecognizer*)gesture forView:(UIView*)view;
-//{
-////    NSIndexPath *index = [self.tabView.tabTable indexPathForSelectedRow];
-////    RCWebView *web = [self.openedWebs objectAtIndex:index.row];
-////    if (web.isDefaultPage) {
-////        <#statements#>
-////    }
-//    return YES;
-//}
-//- (UIViewController*) controllerForGesturesOnPPRevealSideViewController:(PPRevealSideViewController*)controller
-//{
-//    return self;
-//}
-- (void) pprevealSideViewController:(PPRevealSideViewController *)controller willPushController:(UIViewController *)pushedController
+- (BOOL) pprevealSideViewController:(PPRevealSideViewController *)controller shouldDeactivateGesture:(UIGestureRecognizer*)gesture forView:(UIView*)view;
 {
+    if (self.isSliding) {
+        return NO;
+    }
     
+    NSIndexPath *index = [self.tabView.tabTable indexPathForSelectedRow];
+    RCWebView *web = [self.openedWebs objectAtIndex:index.row];
+    if ([web canBeSlided]) {
+        return NO;
+    }
+    return YES;
 }
 
+- (void) pprevealSideViewController:(PPRevealSideViewController *)controller willPushController:(UIViewController *)pushedController
+{
+    NSLog(@"will push");
+    self.searchBar.userInteractionEnabled = NO;
+    self.isSliding = YES;
+    self.broswerView.userInteractionEnabled = NO;
+}
+
+- (void) pprevealSideViewController:(PPRevealSideViewController *)controller willPopToController:(UIViewController *)centerController
+{
+    NSLog(@"will pop");
+    self.searchBar.userInteractionEnabled = YES;
+    self.isSliding = NO;
+    self.broswerView.userInteractionEnabled = YES;
+}
 
 
 #pragma mark - Bottom Bar
@@ -142,11 +154,13 @@
     RCWebView *web = [self.openedWebs objectAtIndex:index.row];
     
     [web goBack];
+    if (web.isDefaultPage) {
+        [self fullScreenButtonPressed:NO];
+    }
+//    [self updateBackForwordState:web];
     
-    [self updateBackForwordState:web];
-    
-    //    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(updateLocationField) object:nil];
-    //    [self performSelector:@selector(updateLocationField) withObject:nil afterDelay:1.];
+    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(updateBackForwordState:) object:web];
+    [self performSelector:@selector(updateBackForwordState:) withObject:web afterDelay:1.];
     
 }
 -(void)forwardButtonPressed
@@ -156,7 +170,9 @@
     
     [web goForward];
     
-    [self updateBackForwordState:web];    
+//    [self updateBackForwordState:web];
+    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(updateBackForwordState:) object:web];
+    [self performSelector:@selector(updateBackForwordState:) withObject:web afterDelay:1.];
 }
 -(void)menuButtonPressed
 {
@@ -318,7 +334,7 @@
 
 -(void)addToHistory:(BookmarkObject*)record
 {
-    NSMutableArray *historyArray = [RCRecordData recordDataWithKey:RCRD_BOOKMARK];    
+    NSMutableArray *historyArray = [RCRecordData recordDataWithKey:RCRD_HISTORY];    
     BOOL saveURL = YES;
     // Check that the URL is not already in the bookmark list
     for (BookmarkObject * bookmark in historyArray) {
@@ -334,7 +350,6 @@
         [historyArray addObject:record];
     }
     [RCRecordData updateRecord:historyArray ForKey:RCRD_HISTORY];
-    
     
     NSMutableArray *fastlinksArray = [RCRecordData recordDataWithKey:RCRD_FASTLINK]; 
     // Check that the URL is not already in the bookmark list
