@@ -8,7 +8,6 @@
 
 #import "RCMenuViewController.h"
 #import "RCSubMenuViewController.h"
-#import "CustomCell.h"
 #import "RCSettingMenuViewController.h"
 
 @interface RCMenuViewController ()
@@ -27,39 +26,39 @@
     return self;
 }
 
+//-(void)viewDidDisappear:(BOOL)animated
+//{
+//    [self.navigationController setNavigationBarHidden:NO];  
+//}
+
 -(void)viewDidAppear:(BOOL)animated
 {
     [super viewDidAppear:animated];
     CGRect frame = self.tableView.frame;
-    frame.size.width = frame.size.width - self.tableView.revealSideInset.right;
+    frame.size.width = frame.size.width - 60;
     self.tableView.frame = frame;
 }
 -(void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
-    [self.navigationController setNavigationBarHidden:YES];
+//    [self.navigationController setNavigationBarHidden:YES];
+    [self.navigationController setNavigationBarHidden:YES];  
 }
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-
-    // Uncomment the following line to preserve selection between presentations.
-    // self.clearsSelectionOnViewWillAppear = NO;
- 
-    // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
-    // self.navigationItem.rightBarButtonItem = self.editButtonItem;
-    [self.tableView addObserver:self 
-                     forKeyPath:@"revealSideInset"
-                        options:NSKeyValueObservingOptionNew
-                        context:NULL];
     
+
     
     self.menuItems = [NSArray arrayWithObjects:@"收藏夹",
                                               @"历史记录",
                                               @"最常访问",
                                               @"系统设置",
                                               nil];
-    
+//    self.tableView.backgroundColor = [UIColor colorWithPatternImage:RC_IMAGE(@"MenuBG")];
+    self.tableView.backgroundView = [[[UIImageView alloc] initWithImage:RC_IMAGE(@"MenuBG")] autorelease];
+//    self.tableView.separatorColor = [UIColor colorWithPatternImage:RC_IMAGE(@"MenuSeperateLine")];
+    self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
 }
 
 - (void)viewDidUnload
@@ -77,34 +76,13 @@
     return (interfaceOrientation == UIInterfaceOrientationPortrait);
 }
 
-- (void)didReceiveMemoryWarning
-{
-    @try {
-        [self.tableView removeObserver:self
-                            forKeyPath:@"revealSideInset"];
-    }
-    @catch (NSException *exception) {
-        
-    }
-    @finally {
-        
-    }
-    
-    [super didReceiveMemoryWarning];
-    
-    // Release any cached data, images, etc that aren't in use.
-}
+//- (void)didReceiveMemoryWarning
+//{
+//    [super didReceiveMemoryWarning];
+//    
+//    // Release any cached data, images, etc that aren't in use.
+//}
 
-- (void) observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
-    if ([keyPath isEqualToString:@"revealSideInset"]) {
-        UIEdgeInsets newInset = self.tableView.contentInset;
-        newInset.top = self.tableView.revealSideInset.top;
-        newInset.bottom = self.tableView.revealSideInset.bottom;
-        self.tableView.contentInset = newInset;
-    }
-    else
-        [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
-}
 
 #pragma mark - Table view data source
 
@@ -123,9 +101,29 @@
     // Configure the cell...
     if (!cell) {
         cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier] autorelease];
+        cell.accessoryView = [[[UIImageView alloc] initWithImage:RC_IMAGE(@"MenuDetailIndicate")] autorelease];
+        cell.backgroundColor = [UIColor clearColor];
+        
+        UIImageView *separator = [[[UIImageView alloc] initWithImage:RC_IMAGE(@"MenuSeparateLine")] autorelease];
+        separator.frame = CGRectMake(0, 42, 320-60, 2);
+        [cell.contentView addSubview:separator];
+        
+        cell.selectedBackgroundView = [[[UIImageView alloc] initWithImage:RC_IMAGE(@"MenuCellSelection")] autorelease];
     }
     cell.textLabel.text = [self.menuItems objectAtIndex:indexPath.row];
-    cell.accessoryType = UITableViewCellAccessoryDetailDisclosureButton;    
+    if ([cell.textLabel.text isEqualToString:@"收藏夹"]) {
+        cell.imageView.image = RC_IMAGE(@"MenuIcon_BookMark");
+    }else if ([cell.textLabel.text isEqualToString:@"历史记录"]) {
+        cell.imageView.image = RC_IMAGE(@"MenuIcon_History");
+    }else if ([cell.textLabel.text isEqualToString:@"最常访问"]) {
+        cell.imageView.image = RC_IMAGE(@"MenuIcon_MostViewed");
+    }else if ([cell.textLabel.text isEqualToString:@"系统设置"]) {
+        cell.imageView.image = RC_IMAGE(@"MenuIcon_Setting");
+    }
+    
+    
+    cell.textLabel.textColor = [UIColor whiteColor];
+    cell.textLabel.backgroundColor = [UIColor clearColor];
     cell.revealSideInset = self.tableView.revealSideInset;
     return cell;
 }

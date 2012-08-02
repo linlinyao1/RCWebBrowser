@@ -15,7 +15,9 @@ enum  {
     SETypeGoogle = 1,
     SETypeSoso = 2,
     SETypeEasou = 3,
-    SETypeYicha =4
+    SETypeYicha =4,
+    
+    SETypeCount = 5
     };
 typedef NSInteger SETypes;
 
@@ -29,6 +31,7 @@ typedef NSInteger SETypes;
 @interface RCSearchEnginePop : UITableView
 +(UIImage*) imageForSEType:(SETypes) type;
 +(NSURL*) urlForSEType:(SETypes)type WithKeyWords:(NSString*)keywords;
++(NSString*)titleForSEType:(SETypes)type;
 
 @property (nonatomic,assign) NSObject<RCSearchEnginePopDelegate> *notification;
 @end

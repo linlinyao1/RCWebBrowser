@@ -15,7 +15,8 @@
 @synthesize url = _url;
 @synthesize date = _date;
 @synthesize icon = _icon;
-
+@synthesize isDefault = _isDefault;
+@synthesize iconName = _iconName;
 - (NSString *)cachePathForFileName:(NSString *)name WithExtention:(NSString*)extention
 {
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory,NSUserDomainMask, YES);  
@@ -52,17 +53,14 @@
     [_icon release];
     _icon = [icon retain];
     [self saveToDiscWithIcon:icon andURL:self.url];
-//    [[EGOCache currentCache] setImage:icon forKey:self.url.absoluteString withTimeoutInterval:[NSDate timeIntervalSinceReferenceDate]];
 }
 -(UIImage *)icon
 {
     if (!_icon) {
-//        _icon = [[EGOCache currentCache] imageForKey:self.url.absoluteString];
       _icon = [self getImageFromDiscWithURL:self.url];
     }
     return _icon;
 }
-
 
 
 - (id) initWithName:(NSString *)name andURL:(NSURL *)url andIcon:(UIImage*)icon
@@ -72,7 +70,9 @@
         self.name = name;
         self.url = url;
         self.date = [NSDate date];
-        self.icon = icon;
+        if (icon) {
+            self.icon = icon;
+        }
     }
     return self;
 }
@@ -84,6 +84,8 @@
         self.name = [coder decodeObjectForKey: @"name"];
         self.url = [coder decodeObjectForKey: @"url"];
         self.date = [coder decodeObjectForKey:@"date"];
+        self.isDefault = [[coder decodeObjectForKey:@"isDefault"] boolValue];
+        self.iconName = [coder decodeObjectForKey:@"iconName"];
     }
     return self;
 }
@@ -92,13 +94,17 @@
     [coder encodeObject:_name forKey:@"name"];
     [coder encodeObject:_url forKey:@"url"];
     [coder encodeObject:_date forKey:@"date"];
-    
+    [coder encodeObject:[NSNumber numberWithBool:_isDefault] forKey:@"isDefault"];
+    [coder encodeObject:_iconName forKey:@"iconName"];
+
 }
 
 - (void) dealloc {
     self.name = nil;
     self.url = nil;
     self.date = nil;
+    self.icon = nil;
+    self.iconName = nil;
     [super dealloc];
 }
 

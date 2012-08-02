@@ -36,7 +36,7 @@
 @synthesize backView = _backView;
 @synthesize frontView = _frontView;
 @synthesize delegate = _delegate;
-
+@synthesize isBarShown = _isBarShown;
 
 -(void)enableBackOrNot:(BOOL)enable
 {
@@ -78,18 +78,20 @@
         self.backView.backgroundColor = [UIColor clearColor];
         self.suggestionButtonItem.hidden = YES;
     }else {
-        self.backView.backgroundColor = [UIColor whiteColor];
+        self.backView.backgroundColor = [UIColor colorWithPatternImage:RC_IMAGE(@"toolBarBG_Back")];
         self.suggestionButtonItem.hidden = NO;
     }
 }
 -(void)hideBar
 {
     self.frontView.transform = CGAffineTransformMakeTranslation(self.frame.size.width, 0);
+    self.isBarShown = NO;
 
 }
 -(void)showBar
 {
     self.frontView.transform = CGAffineTransformIdentity;
+    self.isBarShown = YES;
 }
 
 
@@ -175,8 +177,11 @@
 -(void)awakeFromNib
 {
     self.backgroundColor = [UIColor clearColor];
+    self.backView.backgroundColor = [UIColor clearColor];//[UIColor colorWithPatternImage:RC_IMAGE(@"toolBarBG")];
+    self.frontView.backgroundColor = [UIColor colorWithPatternImage:RC_IMAGE(@"toolBarBG")];
     [self addSubview:self.backView];
     [self addSubview:self.frontView];
+    self.isBarShown = YES;
 }
 
 

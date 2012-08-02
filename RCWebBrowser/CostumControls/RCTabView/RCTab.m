@@ -9,17 +9,18 @@
 #import "RCTab.h"
 
 
-#define RCTAB_IMAGE_INACTIVE RC_IMAGE(@"on_label")
-#define RCTAB_IMAGE_ACTIVE RC_IMAGE(@"active_label")
-#define RCTAB_IMAGE_CLOSE_INACTIVE RC_IMAGE(@"button_close_tab_on_1")
-#define RCTAB_IMAGE_CLOSE_ACTIVE RC_IMAGE(@"button_close_tab_on_1_press")
+//#define RCTAB_IMAGE_INACTIVE RC_IMAGE(@"on_label")
+//#define RCTAB_IMAGE_ACTIVE RC_IMAGE(@"active_label")
+//#define RCTAB_IMAGE_CLOSE_INACTIVE RC_IMAGE(@"button_close_tab_on_1")
+//#define RCTAB_IMAGE_CLOSE_ACTIVE RC_IMAGE(@"button_close_tab_on_1_press")
 
 @interface RCTab()
-
+@property (nonatomic,retain) UIButton *closeButton;
 @end    
 
 @implementation RCTab
 @synthesize delegate = _delegate;
+@synthesize closeButton = _closeButton;
 
 -(void)closeButtonPressed:(UIButton*)sender
 {
@@ -33,24 +34,26 @@
     self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
     if (self) {
         // Initialization code
-        UIImageView *bgImage_selected = [[UIImageView alloc] initWithImage:RC_IMAGE(@"active_label")];
-        UIImageView *bgImage = [[UIImageView alloc] initWithImage:RC_IMAGE(@"on_label")];
+        UIImageView *bgImage_selected = [[UIImageView alloc] initWithImage:RC_IMAGE(@"tab_active")];
+        UIImageView *bgImage = [[UIImageView alloc] initWithImage:RC_IMAGE(@"tab_inactive")];
         [self setBackgroundView:bgImage];
         [self setSelectedBackgroundView:bgImage_selected];
         [bgImage release];
         [bgImage_selected release];
      
         UIButton *closeButton = [UIButton buttonWithType:UIButtonTypeCustom];
-        closeButton.frame = CGRectMake(0, 0, 21.5, 23);
-        [closeButton setBackgroundImage:RCTAB_IMAGE_CLOSE_INACTIVE forState:UIControlStateNormal];
-        [closeButton setBackgroundImage:RCTAB_IMAGE_CLOSE_ACTIVE forState:(UIControlStateHighlighted|UIControlStateSelected)];
+        closeButton.frame = CGRectMake(110, 9, 24, 24);
+        [closeButton setBackgroundImage:RC_IMAGE(@"tab_close_nomal") forState:UIControlStateNormal];
+        [closeButton setBackgroundImage:RC_IMAGE(@"tab_close_pressed") forState:(UIControlStateHighlighted|UIControlStateSelected)];
         [closeButton addTarget:self action:@selector(closeButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
-        [self setAccessoryView:closeButton];
-        [self.accessoryView setHidden:YES];
+        self.closeButton = closeButton;
+        [self.contentView addSubview:closeButton];
+//        [self setAccessoryView:closeButton];
+        [self.closeButton setHidden:YES];
         
-        self.textLabel.textAlignment = UITextAlignmentCenter;
+//        self.textLabel.textAlignment = UITextAlignmentCenter;
         self.textLabel.backgroundColor = [UIColor clearColor];
-        self.textLabel.textColor = [UIColor whiteColor];
+        self.textLabel.textColor = [UIColor blackColor];
     }
     
     return self;
@@ -62,13 +65,20 @@
     if (selected) {
         [self.backgroundView addSubview:self.selectedBackgroundView];
         if ([self.delegate canCloseCell]) {
-            self.accessoryView.hidden = NO;
+//            self.accessoryView.hidden = NO;
+            self.closeButton.hidden = NO;
         }
     }else {
         [self.selectedBackgroundView removeFromSuperview];
-        self.accessoryView.hidden = YES;
+//        self.accessoryView.hidden = YES;
+        self.closeButton.hidden = YES;
     }
 }
 
+//- (void)layoutSubviews {
+//    [super layoutSubviews];
+//    self.imageView.frame = CGRectMake(7,10,20,20);
+//    self.imageView.bounds = CGRectMake(0,0,20,20);
+//}
 
 @end

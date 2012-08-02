@@ -1031,6 +1031,7 @@
 #pragma mark - Gesture recognizer
 
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch {
+    
     _panOrigin = _rootViewController.view.frame.origin;
     gestureRecognizer.enabled = YES;
     _currentPanDirection = [self getSideToClose];

@@ -10,10 +10,11 @@
 #import "BookmarkObject.h"
 
 @protocol RCBookMarkPopDelegate <NSObject>
-
 -(BookmarkObject*)currentWebInfo;
 -(UIWebView*)currentWeb;
+-(void)highlightBookMarkButton:(BOOL)isHighlight;
 @end
+
 @interface RCBookMarkPop : UIView
 @property (nonatomic,assign) NSObject<RCBookMarkPopDelegate> *delegate;
 

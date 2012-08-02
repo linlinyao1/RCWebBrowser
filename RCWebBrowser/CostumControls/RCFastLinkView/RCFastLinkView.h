@@ -8,15 +8,26 @@
 
 #import <UIKit/UIKit.h>
 
+@protocol RCFastLinkViewDelegate <NSObject>
+
+-(void)openLink:(NSURL *)URL;
+
+@end
+
+
+
 @interface RCFastLinkView : UIView
+@property (nonatomic,assign) NSObject<RCFastLinkViewDelegate>* delegate; 
 
-@property (nonatomic,retain) UIScrollView *scrollBoard;
++(RCFastLinkView*)defaultPage;
 
-+(id)defaultPage;
+-(void)scrollPage;
 
 -(void)refresh;
 
--(BOOL)isEditing;
+-(BOOL)editing;
+-(void)setEding:(BOOL)editing;
 
 -(BOOL)canBeSlided;
+
 @end

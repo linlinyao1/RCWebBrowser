@@ -42,14 +42,39 @@
     return [UIImage imageNamed:imageName];
 }
 
++(NSString*)titleForSEType:(SETypes)type
+{
+    NSString *title = nil;
+    switch (type) {
+        case SETypeBaidu:
+            title = @"百度";
+            break;
+        case SETypeGoogle:  
+            title = @"谷歌";
+            break;
+        case SETypeSoso:  
+            title = @"搜搜";
+            break;
+        case SETypeEasou:  
+            title = @"宜搜";
+            break;
+        case SETypeYicha:  
+            title = @"易查";
+            break;
+    }
+    return title;
+}
+
+
+
 +(NSURL *)urlForSEType:(SETypes)type WithKeyWords:(NSString *)keywords
 {
 //    百度：http://m.baidu.com/s?tn=site888_pg&word=
 //    谷歌：http://www.google.com.hk/search?client=aff-9991&q=
 //    搜搜：http://wap.soso.com/sweb/search.jsp?unc=s300000_1&cid=s300000_1&key=
-//    宜搜：http://ad2.easou.com:8080/j10ad/ea2.jsp?cid=bicn3516_48168_D_1&channel=11&key=关键词
+//    宜搜：http://ad2.easou.com:8080/j10ad/ea2.jsp?cid=bicn3516_48168_D_1&channel=11&key=
 //    易查：http://yicha.cn/union/u.jsp?p=page&site=2145958760&key=
-    NSString *string;
+    NSString *string = nil;
     switch (type) {
         case SETypeBaidu:
             string = @"http://m.baidu.com/s?tn=site888_pg&word=";
@@ -90,7 +115,7 @@
 
 -(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    return self.listContent.count;
+    return SETypeCount;
 }
 
 -(UITableViewCell*)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -102,7 +127,7 @@
 	{
 		cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier] autorelease];
 	}
-    cell.textLabel.text = [self.listContent objectAtIndex:indexPath.row];
+    cell.textLabel.text = [RCSearchEnginePop titleForSEType:indexPath.row];// [self.listContent objectAtIndex:indexPath.row];
     cell.imageView.image = [RCSearchEnginePop imageForSEType:indexPath.row];    
     return cell;
 }

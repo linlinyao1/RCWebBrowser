@@ -10,15 +10,18 @@
 #import "BookmarkObject.h"
 #import "PPRevealSideViewController.h"
 #import "RCRecordData.h"
+#import "RCViewController.h"
+#import "RCBookMarkEditViewController.h"
+#import "UIBarButtonItem+BackStyle.h"
 
-
-@interface RCSubMenuViewController ()
+@interface RCSubMenuViewController ()<UIAlertViewDelegate>
 @property (nonatomic,retain) NSMutableArray* submenuItems;
+@property (nonatomic) RCSubMenuType menuType;
 @end
 
 @implementation RCSubMenuViewController
 @synthesize submenuItems = _submenuItems;
-
+@synthesize menuType = _menuType;
 
 - (id)initWithStyle:(UITableViewStyle)style
 {
@@ -33,12 +36,66 @@
 {
     [super viewWillAppear:animated];
     [self.navigationController setNavigationBarHidden:NO];
+    
+    UIView *header = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 320, 44)];
+    header.backgroundColor = [UIColor clearColor];
+    UILabel *titleLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 130, 44)];
+    titleLabel.backgroundColor = [UIColor clearColor];
+    titleLabel.textAlignment = UITextAlignmentCenter;
+    titleLabel.textColor = [UIColor whiteColor];
+    [header addSubview:titleLabel];
+    if (self.menuType == RCSubMenuFavorite) {
+        NSMutableArray *bookmarksArray = [RCRecordData recordDataWithKey:RCRD_BOOKMARK];
+        self.submenuItems = [NSMutableArray arrayWithArray:bookmarksArray];   
+        
+        titleLabel.text = @"本地收藏";
+        UIButton *edit = [UIButton buttonWithType:UIButtonTypeCustom];
+        edit.frame = CGRectMake(130, 7, 53, 29);
+        [edit setBackgroundImage:RC_IMAGE(@"MenuItemNomal") forState:UIControlStateNormal];
+        edit.titleLabel.font = [UIFont systemFontOfSize:12];
+        if (!self.tableView.isEditing) {
+            [edit setTitle:@"编辑" forState:UIControlStateNormal];
+        }else {
+            [edit setTitle:@"完成" forState:UIControlStateNormal];
+        }
+        [edit addTarget:self action:@selector(favEdit:) forControlEvents:UIControlEventTouchUpInside];
+        [header addSubview:edit];
+    }else if (self.menuType == RCSubMenuHistory) {
+        NSMutableArray *historyArray = [RCRecordData recordDataWithKey:RCRD_HISTORY];
+        self.submenuItems = [NSMutableArray arrayWithArray:historyArray];
+        
+        titleLabel.text = @"历史记录";
+        UIButton *clear = [UIButton buttonWithType:UIButtonTypeCustom];
+        clear.frame = CGRectMake(130, 7, 53, 29);
+        clear.titleLabel.font = [UIFont systemFontOfSize:12];
+        [clear setBackgroundImage:RC_IMAGE(@"MenuItemNomal") forState:UIControlStateNormal];
+        [clear setTitle:@"清空" forState:UIControlStateNormal];
+        [clear addTarget:self action:@selector(clearHistory:) forControlEvents:UIControlEventTouchUpInside];
+        [header addSubview:clear];
+    }else if (self.menuType == RCSubMenuMostViewed) {
+        NSMutableArray *historyArray = [RCRecordData recordDataWithKey:RCRD_HISTORY];
+        [historyArray sortedArrayUsingComparator:^NSComparisonResult(BookmarkObject* obj1, BookmarkObject* obj2) {
+            return [obj1.count compare:obj2.count];
+        }];
+        self.submenuItems = historyArray;
+        
+        titleLabel.text = @"最常访问";
+        UIButton *clear = [UIButton buttonWithType:UIButtonTypeCustom];
+        clear.frame = CGRectMake(130, 7, 53, 29);
+        clear.titleLabel.font = [UIFont systemFontOfSize:12];
+        [clear setBackgroundImage:RC_IMAGE(@"MenuItemNomal") forState:UIControlStateNormal];
+        [clear setTitle:@"清空" forState:UIControlStateNormal];
+        [clear addTarget:self action:@selector(clearMostViewed:) forControlEvents:UIControlEventTouchUpInside];
+        [header addSubview:clear];
+    }
+    self.navigationItem.titleView = header;
+    [self.tableView reloadData];
 }
 
 -(void)viewDidAppear:(BOOL)animated
 {
     [super viewDidAppear:animated];
-    self.tableView.frame = CGRectMake(0, 0, 260, self.tableView.frame.size.height);
+    self.tableView.frame = CGRectMake(0, 0, 320-60, self.tableView.frame.size.height);
 }
 
 
@@ -65,71 +122,36 @@
 
 -(id)initWithSubMenuType:(RCSubMenuType)type
 {
+    self.menuType = type;
     if (type != RCSubMenuSetting) {
         self = [super initWithStyle:UITableViewStylePlain];
     }else {
         self = [super initWithStyle:UITableViewStyleGrouped];
     }
     
-    NSUserDefaults * defaults = [NSUserDefaults standardUserDefaults];
+//    NSUserDefaults * defaults = [NSUserDefaults standardUserDefaults];
 
-    if (self) {
-        switch (type) {
-            case RCSubMenuFavorite:
-            {
-                NSMutableArray *bookmarksArray = [RCRecordData recordDataWithKey:RCRD_BOOKMARK];
-                self.submenuItems = [NSMutableArray arrayWithArray:bookmarksArray];
-            }
-                break;
-            case RCSubMenuHistory:
-            {
-                NSMutableArray *historyArray = [RCRecordData recordDataWithKey:RCRD_HISTORY];
-                self.submenuItems = [NSMutableArray arrayWithArray:historyArray];
-            }
-                break;
-            case RCSubMenuMostViewed:
-            {
-                NSData * history = [defaults objectForKey:@"history"];
-                NSMutableArray *historyArray;
-                
-                if (history) {
-                    historyArray = [[NSMutableArray alloc] initWithArray:[NSKeyedUnarchiver unarchiveObjectWithData:history]];
-                    [historyArray sortUsingComparator:^NSComparisonResult(BookmarkObject *obj1, BookmarkObject *obj2) {
-                        return  [obj2.count compare:obj1.count];
-                    }];
-                }else {
-                    historyArray = [[NSMutableArray alloc] initWithCapacity:1];
-                }
-                self.submenuItems = [NSMutableArray arrayWithArray:historyArray];
-            }
-                break;
-            case RCSubMenuSetting:                
-                
-                break;
-            default:
-                NSLog(@"error");
-                break;
-        }
-            
-    }
     return self;
 }
 
 
 
 
-
+-(void)goBack
+{
+    [self.navigationController popViewControllerAnimated:YES];
+}
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-
-    // Uncomment the following line to preserve selection between presentations.
-    // self.clearsSelectionOnViewWillAppear = NO;
- 
-    // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
-    // self.navigationItem.rightBarButtonItem = self.editButtonItem;
+    self.tableView.allowsSelectionDuringEditing = YES;
+    self.tableView.backgroundView = [[[UIImageView alloc] initWithImage:RC_IMAGE(@"MenuBG")] autorelease];    
+    self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     
+    
+    UIBarButtonItem *newBackButton = [UIBarButtonItem barButtonWithCustomImage:RC_IMAGE(@"MenuItemBack@2x") HilightImage:nil Title:@"返回" Target:self Action:@selector(goBack)];
+    self.navigationItem.leftBarButtonItem = newBackButton;
 }
 
 - (void)viewDidUnload
@@ -144,8 +166,48 @@
     return (interfaceOrientation == UIInterfaceOrientationPortrait);
 }
 
-#pragma mark - Table view data source
 
+
+
+
+-(void)favEdit:(UIButton*)sender
+{
+    if (!self.tableView.isEditing) {
+        [self.tableView setEditing:YES animated:YES];
+        [sender setTitle:@"完成" forState:UIControlStateNormal];
+    }else {
+        [self.tableView setEditing:NO animated:YES];
+        [sender setTitle:@"编辑" forState:UIControlStateNormal];
+    }
+}
+
+-(void)clearHistory:(UIButton*)sender
+{
+    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"确认清空历史记录" message:@"清空后将不能找回" delegate:self cancelButtonTitle:@"取消" otherButtonTitles:@"清空", nil];
+    [alert show];
+}
+-(void)clearMostViewed:(UIButton*)sender
+{
+    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"确认清空最常访问" message:@"清空后将不能找回" delegate:self cancelButtonTitle:@"取消" otherButtonTitles:@"清空", nil];
+    [alert show];
+}
+-(void)alertViewCancel:(UIAlertView *)alertView
+{
+    NSLog(@"cancle");
+}
+-(void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
+{
+    if ([[alertView buttonTitleAtIndex:buttonIndex] isEqualToString:@"取消"]) {
+        [alertView dismissWithClickedButtonIndex:buttonIndex animated:YES];
+    }else if ([[alertView buttonTitleAtIndex:buttonIndex] isEqualToString:@"清空"]) {
+        [self.submenuItems removeAllObjects];
+        [RCRecordData updateRecord:self.submenuItems ForKey:RCRD_HISTORY];
+        [alertView dismissWithClickedButtonIndex:buttonIndex animated:YES];
+        [self.tableView reloadData];
+    }
+}
+
+#pragma mark - Table view data source
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
@@ -160,10 +222,15 @@
     
     if (!cell) {
         cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:CellIdentifier] autorelease];
-        cell.accessoryType = UITableViewCellAccessoryDetailDisclosureButton;
+        
+        UIImageView *separator = [[[UIImageView alloc] initWithImage:RC_IMAGE(@"MenuSeparateLine")] autorelease];
+        separator.frame = CGRectMake(0, 42, 320-60, 2);
+        [cell.contentView addSubview:separator];
+        cell.selectedBackgroundView = [[[UIImageView alloc] initWithImage:RC_IMAGE(@"MenuCellSelection")] autorelease];
     }
     BookmarkObject *obj = [self.submenuItems objectAtIndex:indexPath.row];
     NSLog(@"count:%@",obj.count);
+    cell.textLabel.textColor = [UIColor whiteColor];
     cell.textLabel.text = obj.name;
     cell.detailTextLabel.text = obj.url.absoluteString;
     return cell;
@@ -209,14 +276,19 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    // Navigation logic may go here. Create and push another view controller.
-    /*
-     <#DetailViewController#> *detailViewController = [[<#DetailViewController#> alloc] initWithNibName:@"<#Nib name#>" bundle:nil];
-     // ...
-     // Pass the selected object to the new view controller.
-     [self.navigationController pushViewController:detailViewController animated:YES];
-     [detailViewController release];
-     */
+    UITableViewCell *cell = [tableView cellForRowAtIndexPath:indexPath];
+    if (self.menuType == RCSubMenuFavorite) {
+        if (!self.tableView.editing) {
+            [self.revealSideViewController popViewControllerAnimated:YES];
+            RCViewController *rcVC = (RCViewController *)self.revealSideViewController.rootViewController;
+            [rcVC loadURLWithCurrentTab:[NSURL  URLWithString:cell.detailTextLabel.text]];
+        }else {
+            RCBookMarkEditViewController *bmEdit = [[RCBookMarkEditViewController alloc] initWithNibName:@"RCBookMarkEditViewController" bundle:nil];
+            bmEdit.index = indexPath.row;
+            [self.navigationController pushViewController:bmEdit animated:YES];
+
+        }
+    }
 }
 
 @end

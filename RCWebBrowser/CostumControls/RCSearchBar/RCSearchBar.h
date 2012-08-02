@@ -54,6 +54,7 @@ typedef NSInteger RCKeyBoardAccessoryType ;
 -(void)showView;
 
 
--(void)setLoadingProgress:(CGFloat)progress; // 0-1
-
+-(void)startLoadingProgress;
+-(void)stopLoadProgress;
+-(void)removePregress;
 @end

@@ -18,17 +18,21 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-    self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
+    self.window = [[[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]] autorelease];
     // Override point for customization after application launch.
-    self.viewController = [[RCViewController alloc] initWithNibName:@"RCViewController" bundle:nil];
+    RCViewController *RCVC = [[RCViewController alloc] initWithNibName:@"RCViewController" bundle:nil];
+    self.viewController = RCVC;
+    [RCVC release];
 //    UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:self.viewController];
     
     PPRevealSideViewController *revealSideViewController = [[PPRevealSideViewController alloc] initWithRootViewController:self.viewController];
+    
     revealSideViewController.panInteractionsWhenClosed = PPRevealSideInteractionNone|PPRevealSideInteractionNavigationBar | PPRevealSideInteractionContentView;
     revealSideViewController.delegate = self.viewController;
     
 //    [nav setNavigationBarHidden:YES];
     self.window.rootViewController = revealSideViewController;//self.viewController;
+    [revealSideViewController release];
     [self.window makeKeyAndVisible];
     return YES;
 }

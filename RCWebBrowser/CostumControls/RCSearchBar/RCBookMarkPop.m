@@ -33,9 +33,15 @@
     if (!existObj) {
         [self.bookmarksArray addObject:curObj];
         [sender setTitle:@"从收藏夹移除" forState:UIControlStateNormal];
+        [self.delegate highlightBookMarkButton:YES];
     }else {
         [self.bookmarksArray removeObject:existObj];
         [sender setTitle:@"添加到收藏" forState:UIControlStateNormal];
+        if ([self.addToFastLink.titleLabel.text isEqualToString: @"从快速启动移除"]) {
+            [self.delegate highlightBookMarkButton:YES];
+        }else {
+            [self.delegate highlightBookMarkButton:NO];
+        }
     }
     [RCRecordData updateRecord:self.bookmarksArray ForKey:RCRD_BOOKMARK];
 
@@ -50,11 +56,19 @@
         RCFastLinkObject *flObj = [[RCFastLinkObject alloc] initWithName:curObj.name andURL:curObj.url andIcon:[UIView captureView:[self.delegate currentWeb]]];
         [self.fastlinksArray addObject:flObj];
         [sender setTitle:@"从快速启动移除" forState:UIControlStateNormal];
+        [self.delegate highlightBookMarkButton:YES];
+        [flObj release];
     }else {
         [self.fastlinksArray removeObject:existObj];
         [sender setTitle:@"添加快速启动" forState:UIControlStateNormal];
+        if ([self.addToFav.titleLabel.text isEqualToString: @"从收藏夹移除"]) {
+            [self.delegate highlightBookMarkButton:YES];
+        }else {
+            [self.delegate highlightBookMarkButton:NO];
+        }
     }
     [RCRecordData updateRecord:self.fastlinksArray ForKey:RCRD_FASTLINK];
+    
 }
 
 

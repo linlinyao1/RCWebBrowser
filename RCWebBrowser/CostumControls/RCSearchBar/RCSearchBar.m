@@ -10,8 +10,7 @@
 #import "JSONKit.h"
 #import "RCRecordData.h"
 #import "RCSearchEnginePop.h"
-
-#import "YLProgressBar.h"
+#import "QuartzCore/QuartzCore.h"
 
 @interface RCSearchBar ()<UITextFieldDelegate,UITableViewDataSource,UITableViewDelegate,RCSearchEnginePopDelegate>
 @property (nonatomic,retain) UIButton *searchEngineButton;
@@ -21,7 +20,7 @@
 @property (nonatomic,retain) UITableView *searchResultTable;
 @property (nonatomic,retain) NSMutableArray *listContent;			// The master content.
 @property (nonatomic,retain) NSMutableArray *historys;
-@property (nonatomic,retain) YLProgressBar *progressBar;
+@property (nonatomic,retain) UIImageView *progressBar;
 @end
 
 @implementation RCSearchBar
@@ -58,6 +57,56 @@
 
 
 
+-(void)startLoadingProgress
+{
+    if (!self.progressBar) {
+        self.progressBar = [[[UIImageView alloc] initWithImage:RC_IMAGE(@"search_progressbar")] autorelease];
+        self.progressBar.frame = CGRectOffset(self.locationField.bounds, -self.locationField.bounds.size.width, 0);
+        self.progressBar.userInteractionEnabled= NO;
+    }
+    [self.locationField addSubview:self.progressBar];
+
+    self.progressBar.transform = CGAffineTransformMakeTranslation(self.progressBar.frame.size.width*0.15, 0);
+    
+    [UIView animateWithDuration:3
+                          delay:0
+                        options:UIViewAnimationOptionBeginFromCurrentState|UIViewAnimationOptionAllowUserInteraction
+                     animations:^{
+                         self.progressBar.transform = CGAffineTransformMakeTranslation(self.progressBar.frame.size.width*0.5, 0);
+                     } completion:^(BOOL finished) {
+                         if (finished) {
+                             [UIView animateWithDuration:3
+                                                   delay:1
+                                                 options:UIViewAnimationOptionBeginFromCurrentState|UIViewAnimationOptionAllowUserInteraction
+                                              animations:^{
+                                                  self.progressBar.transform = CGAffineTransformMakeTranslation(self.progressBar.frame.size.width*0.9, 0);
+                                              } completion:^(BOOL finished) {
+
+                                              }];
+                         }
+                     }];
+    
+}
+-(void)stopLoadProgress
+{
+    [UIView animateWithDuration:.1
+                          delay:0
+                        options:UIViewAnimationOptionBeginFromCurrentState|UIViewAnimationOptionAllowUserInteraction
+                     animations:^{
+                         self.progressBar.transform = CGAffineTransformMakeTranslation(self.progressBar.frame.size.width, 0);
+                     } completion:^(BOOL finished) {
+                         self.progressBar.transform = CGAffineTransformIdentity;
+                         [self.progressBar removeFromSuperview];
+                     }];
+}
+
+
+-(void)removePregress
+{
+    [self.progressBar removeFromSuperview];
+}
+
+
 -(void)hideViewWithOffset:(CGFloat)offset
 {
     self.transform = CGAffineTransformMakeTranslation(0, -offset);
@@ -70,26 +119,9 @@
 
 - (void)reloadOrStop:(id) sender {
     [self.delegate reloadOrStop:sender];
+    
 }
 
-
--(void)setLoadingProgress:(CGFloat)progress
-{
-    if (progress>=1) {
-        [UIView animateWithDuration:.2 animations:^{
-            self.progressBar.progress = 1;
-        }completion:^(BOOL finished) {
-            [self.progressBar removeFromSuperview];
-        }];
-    }else if (progress<=0) {
-        [self.progressBar removeFromSuperview];
-    }else {
-        if (![[self.locationField subviews] containsObject:self.progressBar]) {
-            [self.locationField addSubview:self.progressBar];
-        }
-        self.progressBar.progress = progress;
-    }
-}
 
 
 -(void)bookMarkButtonPressed:(UIButton*)sender
@@ -132,18 +164,22 @@
 
 -(void)loadView
 {
+    self.backgroundColor = [UIColor colorWithPatternImage:RC_IMAGE(@"searchBarBG")];
+    
     //bookmark button
     UIButton *bookMarkButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    bookMarkButton.frame =CGRectMake(2, 2, 40, 40);
-    [bookMarkButton setImage:[UIImage imageNamed:@"add_fov"] forState:UIControlStateNormal];
-    [bookMarkButton setImage:[UIImage imageNamed:@"add_fov"] forState:UIControlStateHighlighted];
+    bookMarkButton.frame =CGRectMake(3, 5, 38, 34);
+    [bookMarkButton setImage:RC_IMAGE(@"search_addfav_nomal") forState:UIControlStateNormal];
+    [bookMarkButton setImage:RC_IMAGE(@"search_addfav_disable") forState:UIControlStateDisabled];
     [bookMarkButton addTarget:self action:@selector(bookMarkButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
 
     [self addSubview:bookMarkButton];
     self.bookMarkButton = bookMarkButton;
     
     // url input
-    UITextField *locationField = [[UITextField alloc] initWithFrame:CGRectMake(44,7,266,30)];
+    UITextField *locationField = [[UITextField alloc] initWithFrame:CGRectMake(54,5,249,33)];
+    locationField.layer.cornerRadius = 8;
+    locationField.background = RC_IMAGE(@"searchBG@2x");
     locationField.delegate = self;
     locationField.autoresizingMask = UIViewAutoresizingFlexibleWidth;
     locationField.textColor = [UIColor colorWithRed:102.0/255 green:102.0/255 blue:102.0/255 alpha:1.0];
@@ -154,7 +190,6 @@
     locationField.contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
     locationField.clearsOnBeginEditing = NO;
     locationField.autocapitalizationType = UITextAutocapitalizationTypeNone;
-    locationField.autocorrectionType = UITextAutocorrectionTypeNo;
     locationField.keyboardType = UIKeyboardTypeURL;
     locationField.returnKeyType = UIReturnKeyGo;
     locationField.clearButtonMode = UITextFieldViewModeWhileEditing;
@@ -163,16 +198,16 @@
     [locationField release];
     
     // progressBar
-    YLProgressBar *progressBar = [[YLProgressBar alloc] initWithFrame:locationField.bounds];
-    progressBar.userInteractionEnabled = NO;
-    self.progressBar = progressBar;
+//    YLProgressBar *progressBar = [[YLProgressBar alloc] initWithFrame:locationField.bounds];
+//    progressBar.userInteractionEnabled = NO;
+//    self.progressBar = progressBar;
     
     
     //reload/stop button
     UIButton *stopReloadButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    stopReloadButton.bounds = CGRectMake(0, 0, 26, 30);
-    [stopReloadButton setImage:[UIImage imageNamed:@"CIALBrowser.bundle/images/AddressViewReload.png"] forState:UIControlStateNormal];
-    [stopReloadButton setImage:[UIImage imageNamed:@"CIALBrowser.bundle/images/AddressViewReload.png"] forState:UIControlStateHighlighted];
+    stopReloadButton.bounds = CGRectMake(0, 0, 25, 25);
+    [stopReloadButton setImage:RC_IMAGE(@"search_reload_nomal") forState:UIControlStateNormal];
+    [stopReloadButton setImage:RC_IMAGE(@"search_reload_pressed") forState:UIControlStateHighlighted];
     stopReloadButton.showsTouchWhenHighlighted = NO;
     [stopReloadButton addTarget:self action:@selector(reloadOrStop:) forControlEvents:UIControlEventTouchUpInside];
     locationField.rightView = stopReloadButton;
@@ -191,8 +226,9 @@
     self.searchEngineButton = searchEngineButton;
     
     //cancelButton
-    UIButton* cancelButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
-    cancelButton.frame = CGRectMake(320, 7, 30, 30);
+    UIButton* cancelButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    cancelButton.frame = CGRectMake(320, 6, 48, 32);
+    [cancelButton setImage:RC_IMAGE(@"search_cancle") forState:UIControlStateNormal];
     [cancelButton addTarget:self action:@selector(cancelButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
     [self addSubview:cancelButton];
     self.cancelButton = cancelButton;
@@ -232,11 +268,28 @@
     [self restoreDefaultState];
 }
 
+
+-(RCKeyBoardAccessoryType)checkInputContent:(NSString*)text
+{
+    //check if contain any chinese
+    for(int i=0; i< [text length];i++){
+        int a = [text characterAtIndex:i];
+        if( a > 0x4e00 && a < 0x9fff)
+            return RCKeyBoardTypeNone;
+    }
+    
+    NSRange foundObj=[text rangeOfString:@"." options:NSCaseInsensitiveSearch];
+    if(foundObj.length>0) { 
+        return RCkeyBoardTypeSuffix;
+    } else {
+        return RCKeyBoardTypePrefix;
+    }
+}
+
 -(void)loadDataWithText:(NSString*)text
 {
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         NSMutableArray *tempArray = [[[NSMutableArray alloc] init] autorelease];
-        
         if (!text.length) {
             for (int i=0; i<MIN(self.historys.count, 10); i++) {
                 [tempArray addObject:[self.historys objectAtIndex:i]];
@@ -255,27 +308,29 @@
             //for baidu search
             NSString *query = [NSString stringWithFormat:@"http://unionsug.baidu.com/su?wd=%@",text];
             query = [query stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-            NSData *data = [NSData dataWithContentsOfURL:[NSURL URLWithString:query]];      
-            NSStringEncoding enc = CFStringConvertEncodingToNSStringEncoding(kCFStringEncodingGB_18030_2000);//
-            NSString* string = [[NSString alloc] initWithData:data encoding:enc];
-            if (string) {
-                string = [string stringByReplacingCharactersInRange:[string rangeOfString:@"window.baidu.sug("] withString:@""];
-                string = [string stringByReplacingCharactersInRange:[string rangeOfString:@");"] withString:@""];
-                string = [string stringByReplacingOccurrencesOfString:@"q:" withString:@"\"q\":"];
-                string = [string stringByReplacingOccurrencesOfString:@"p:" withString:@"\"p\":"];
-                string = [string stringByReplacingOccurrencesOfString:@"s:" withString:@"\"s\":"];
-            }
-
-            
-            NSDictionary *jsonDic = [string mutableObjectFromJSONString];
-            NSArray *baiduArray = [jsonDic objectForKey:@"s"];
-            [tempArray addObjectsFromArray:baiduArray];{
+            NSData *data = [NSData dataWithContentsOfURL:[NSURL URLWithString:query]];     
+            if (data) {
+                NSStringEncoding enc = CFStringConvertEncodingToNSStringEncoding(kCFStringEncodingGB_18030_2000);//
+                NSString* string = [[[NSString alloc] initWithData:data encoding:enc] autorelease];
+                if (string) {
+                    string = [string stringByReplacingCharactersInRange:[string rangeOfString:@"window.baidu.sug("] withString:@""];
+                    string = [string stringByReplacingCharactersInRange:[string rangeOfString:@");"] withString:@""];
+                    string = [string stringByReplacingOccurrencesOfString:@"q:" withString:@"\"q\":"];
+                    string = [string stringByReplacingOccurrencesOfString:@"p:" withString:@"\"p\":"];
+                    string = [string stringByReplacingOccurrencesOfString:@"s:" withString:@"\"s\":"];
+                    NSDictionary *jsonDic = [string mutableObjectFromJSONString];
+                    NSArray *baiduArray = [jsonDic objectForKey:@"s"];
+                    [tempArray addObjectsFromArray:baiduArray];
+                }
                 
+                
+;
             }
 
         }  
         dispatch_async(dispatch_get_main_queue(), ^{
             //                [self.listContent removeAllObjects];
+            self.KBAType = [self checkInputContent:text];
             self.listContent = tempArray;
             [self.searchResultTable reloadData];   
         }); 
@@ -299,7 +354,7 @@
 -(void)restoreDefaultState
 {
     self.locationField.text = nil;
-    self.locationField.placeholder = @"请输入网址";
+    self.locationField.placeholder = @"请输入网址或者搜索关键字…";
     [self.bookMarkButton setEnabled:NO];
 }
 
@@ -327,7 +382,7 @@
                          self.locationField.leftViewMode = UITextFieldViewModeAlways;
                          self.locationField.rightViewMode = UITextFieldViewModeNever;
                          self.bookMarkButton.transform = CGAffineTransformMakeTranslation(-CGRectGetMaxX(self.bookMarkButton.frame), 0);
-                         self.locationField.transform = CGAffineTransformMakeTranslation(-42, 0);
+                         self.locationField.transform = CGAffineTransformMakeTranslation(-52, 0);
                          self.cancelButton.transform = CGAffineTransformMakeTranslation(-self.cancelButton.frame.size.width, 0);
                          self.searchResultTable.transform = CGAffineTransformMakeTranslation(0, -self.searchResultTable.frame.size.height);
                          [self.delegate searchModeOn];
@@ -376,7 +431,7 @@
 -(BOOL)textFieldShouldBeginEditing:(UITextField *)textField
 {
     if (!self.searchResultTable) {
-        self.searchResultTable = [[[UITableView alloc] initWithFrame:CGRectMake(0, 480, 320, 480-88)] autorelease];
+        self.searchResultTable = [[[UITableView alloc] initWithFrame:CGRectMake(0, 480, 320, 480-82)] autorelease];
         self.searchResultTable.delegate = self;
         self.searchResultTable.dataSource = self;
         [self.superview addSubview:self.searchResultTable];

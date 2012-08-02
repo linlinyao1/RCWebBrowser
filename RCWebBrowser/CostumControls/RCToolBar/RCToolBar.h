@@ -18,6 +18,8 @@
 @end
 
 @interface RCToolBar : UIView
+@property(nonatomic) BOOL isBarShown;
+
 //-(void)moveFrontBar:(BOOL)isOut;
 -(void)enableBackOrNot:(BOOL)enable;
 -(void)enableForwardOrNot:(BOOL)enable;

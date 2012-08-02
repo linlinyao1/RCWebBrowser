@@ -45,6 +45,9 @@ static inline NSString* cachePathForKey(NSString* key) {
 
 +(void)updateRecord:(NSMutableArray *)record ForKey:(NSString *)key
 {
+    if (!record) {
+        record = [[[NSMutableArray alloc] initWithCapacity:1] autorelease];
+    }
     NSData *data = [NSKeyedArchiver archivedDataWithRootObject:record];
     [[NSFileManager defaultManager]createFileAtPath:cachePathForKey(key) contents:data attributes:nil];
 }

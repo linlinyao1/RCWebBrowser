@@ -22,13 +22,15 @@
         // Initialization code
         [self turnOnDefaultPage];
         self.scalesPageToFit = YES;
-
     }
     return self;
 }
 
 -(void)turnOnDefaultPage
 {
+    if (self.isLoading) {
+        [self stopLoading];
+    }
     [[RCFastLinkView defaultPage] refresh];
     [self addSubview:[RCFastLinkView defaultPage]];
     self.isDefaultPage = YES;

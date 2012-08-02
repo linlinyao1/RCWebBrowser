@@ -8,6 +8,11 @@
 
 #import "RCAddNewViewController.h"
 #import "GMGridView.h"
+#import "JSONKit.h"
+#import "RCAddNewCustomCell.h"
+#import "RCRecordData.h"
+#import "RCFastLinkObject.h"
+#import "RCAddNewManully.h"
 
 typedef enum {
     AddNewSitesCommon = 0,
@@ -22,64 +27,65 @@ typedef enum {
     AddNewSitesCount
 } AddNewSites;
 
+typedef enum {
+    ManullyAddName = 0,
+    ManullyAddURL,
+    ManullyAddConfirm,
+    
+    ManullyAddCount
+}ManullyAdd;
 
 
+@interface RCAddNewViewController () <UITableViewDelegate,UITableViewDataSource,UITextFieldDelegate>
+@property (nonatomic,retain) IBOutlet UITableView* channelTable;
+@property (retain, nonatomic) IBOutlet UITableView *siteTable;
 
-@interface RCAddNewViewController () <UITableViewDelegate,UITableViewDataSource,GMGridViewDataSource,GMGridViewActionDelegate>
-@property (nonatomic,retain)UITableView* channelTable;
-@property (nonatomic,retain)GMGridView* siteTable;
-@property (nonatomic,retain)NSMutableArray* listSites;
+@property (nonatomic,retain) NSMutableArray* listSites;
+@property (nonatomic,retain) NSMutableArray* fastLinks;
+
+@property (nonatomic,retain) RCAddNewManully* manulView;
 @end
 
 @implementation RCAddNewViewController
 @synthesize channelTable = _channelTable;
 @synthesize siteTable = _siteTable;
 @synthesize listSites = _listSites;
-
-
-- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
-{
-    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
-    if (self) {
-        // Custom initialization  
-    }
-    return self;
-}
-
--(void)loadView
-{
-    self.listSites = [NSMutableArray arrayWithCapacity:1];
-    
-    
-    UITableView *tableView = [[[UITableView alloc] initWithFrame:CGRectMake(0, 0, 110, 480) style:UITableViewStylePlain] autorelease];
-    tableView.dataSource = self;
-    tableView.delegate = self;
-    self.channelTable = tableView;
-    [self.view addSubview:tableView];
-    
-    GMGridView *gmGridView = [[[GMGridView alloc] initWithFrame:CGRectMake(110, 0, 210, 480)] autorelease]; //self.bounds
-    gmGridView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-    gmGridView.backgroundColor = [UIColor clearColor];
-    gmGridView.style = GMGridViewStylePush;
-    gmGridView.itemSpacing = 10;
-    gmGridView.minEdgeInsets = UIEdgeInsetsMake(10, 10, 10, 10);
-    gmGridView.actionDelegate = self;
-    gmGridView.dataSource = self;
-    gmGridView.backgroundColor = [UIColor whiteColor];
-    self.siteTable = gmGridView;
-    [self.view addSubview:gmGridView];
-    
-}
+@synthesize fastLinks = _fastLinks;
+@synthesize manulView = _manulView;
 
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
 	// Do any additional setup after loading the view.
+    UIImageView *channelBG = [[[UIImageView alloc] initWithImage:RC_IMAGE(@"addNew_channelBG")] autorelease];
+    self.channelTable.backgroundView = channelBG;
+    UIImageView *siteBG = [[[UIImageView alloc] initWithImage:RC_IMAGE(@"addNew_sitesBG")] autorelease];
+    self.siteTable.backgroundView = siteBG;
+
+    
+    
+    NSString *path = [[NSBundle mainBundle]pathForResource:@"webSitesCollection" ofType:@"json"];
+    NSString *jsonData = [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:nil];
+//    NSArray *array = [jsonData objectFromJSONString]; 
+    self.listSites = [jsonData objectFromJSONString];//[array mutableCopy];
+    
+    [self.channelTable selectRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0] animated:NO scrollPosition:UITableViewScrollPositionNone];
+    
+    NSMutableArray *muArray = [RCRecordData recordDataWithKey:RCRD_FASTLINK];
+    self.fastLinks = muArray;
+    
 }
 
+-(void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    [super touchesBegan:touches withEvent:event];
+    
+    [self.manulView resignKeyboard];
+}
 - (void)viewDidUnload
 {
+    [self setSiteTable:nil];
     [super viewDidUnload];
     // Release any retained subviews of the main view.
 }
@@ -89,110 +95,191 @@ typedef enum {
     return (interfaceOrientation == UIInterfaceOrientationPortrait);
 }
 
+
+- (IBAction)goBack {
+    [self dismissModalViewControllerAnimated:YES];
+}
+
+
+-(void)WebSiteSelected:(RCAddNewCustomCellButton*)sender
+{
+    NSLog(@"left urlString :%@",sender.url);
+    BOOL addNew = YES;
+    for (RCFastLinkObject* obj in self.fastLinks) {
+        if ([obj.url isEqual:sender.url]) {
+            [self.fastLinks removeObject:obj];
+            addNew = NO;
+            break;
+        }
+    }
+    if (addNew) {
+        RCFastLinkObject* newObj = [[[RCFastLinkObject alloc] initWithName:sender.nameLabel.text andURL:sender.url andIcon:nil] autorelease];
+        newObj.isDefault = YES;
+        newObj.iconName = sender.imageName;
+        [self.fastLinks addObject:newObj];
+    }
+    [RCRecordData updateRecord:self.fastLinks ForKey:RCRD_FASTLINK];
+    sender.mark = !sender.mark;
+}
+
+
+-(void)refreshMark:(RCAddNewCustomCellButton*)button
+{
+    BOOL markOrNot = NO;
+    for (RCFastLinkObject* obj in self.fastLinks) {
+        if ([obj.url isEqual:button.url]) {
+            markOrNot = YES;
+            break;
+        }
+    }
+    [button setMark:markOrNot];
+}
+
+
+
+
 #pragma mark - UITableViewDelegate, UITableViewDataSource
+
+
+-(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    if (tableView == self.siteTable) {
+        if ([self.channelTable indexPathForSelectedRow].row == self.listSites.count) {
+            return 46;
+        }else {
+            return 80;
+        }
+    }else {
+        return 46;
+    }
+}
+
+
+
 
 -(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    return AddNewSitesCount;
+    if (tableView == self.channelTable) {
+        return self.listSites.count+1;
+    }else if (tableView == self.siteTable) {
+        NSIndexPath *path = [self.channelTable indexPathForSelectedRow];
+        if (path.row == self.listSites.count) {
+            return ManullyAddCount;
+        }else {
+            NSDictionary* dic = [self.listSites objectAtIndex:path.row];
+            NSArray *array = [dic objectForKey:@"content"];
+            return ceil(array.count/2);
+        }
+
+    }
+    return 0; // error
 }
 
 -(UITableViewCell*)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    static NSString *CellIdentifier = @"Cell";
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
-    // Configure the cell...
-    if (!cell) {
-        cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier] autorelease];
+    if (tableView == self.channelTable) {
+        static NSString *CellIdentifier = @"Cell";
+        UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
+        // Configure the cell...
+        if (!cell) {
+            cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier] autorelease];
+            cell.selectedBackgroundView = [[[UIImageView alloc] initWithImage:RC_IMAGE(@"addNew_channel_selection")] autorelease];
+        }
+        if (indexPath.row<self.listSites.count) {
+            NSDictionary* dic = [self.listSites objectAtIndex:indexPath.row];
+            NSString *title = [dic objectForKey:@"title"];
+            cell.textLabel.text = title;
+        }else {
+            cell.textLabel.text = @"手动添加";
+        }
+        return cell;
+    }else if (tableView == self.siteTable) {
+        NSIndexPath *path = [self.channelTable indexPathForSelectedRow];
+//        if (path.row == self.listSites.count) {
+//            static NSString *CellIdentifier = @"Manualy Add";
+//            UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
+//            // Configure the cell...
+//            if (!cell) {
+//                cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier] autorelease];
+//            }
+//            switch (indexPath.row) {
+//                case ManullyAddName:
+//                    cell.textLabel.text = @"常用网站";
+//                    break;
+//                case ManullyAddURL:
+//                    cell.textLabel.text = @"社区论坛";
+//                    break;
+//                case AddNewSitesLife:
+//                    cell.textLabel.text = @"生活旅行";
+//                    break;
+//            }
+//            return cell;
+//        }
+        
+        
+        
+        static NSString *CellIdentifier = @"Cell";
+        RCAddNewCustomCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
+        // Configure the cell...
+        if (!cell) {
+            cell = [[[RCAddNewCustomCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier] autorelease];
+            [cell.leftIcon addTarget:self action:@selector(WebSiteSelected:) forControlEvents:UIControlEventTouchUpInside];
+            [cell.rightIcon addTarget:self action:@selector(WebSiteSelected:) forControlEvents:UIControlEventTouchUpInside];
+        }
+        NSArray *content = [[self.listSites objectAtIndex:path.row] objectForKey:@"content"];
+        
+        cell.leftIcon.url = [NSURL URLWithString:[[content objectAtIndex:indexPath.row*2] objectForKey:@"urllink"]];
+        cell.leftIcon.nameLabel.text = [[content objectAtIndex:indexPath.row*2] objectForKey:@"urltitle"];
+//        [cell.leftIcon setImage:[UIImage imageNamed:[[content objectAtIndex:indexPath.row*2] objectForKey:@"urlico"]] forState:UIControlStateNormal];
+        cell.leftIcon.imageName = [[content objectAtIndex:indexPath.row*2] objectForKey:@"urlico"];
+        [self refreshMark:cell.leftIcon];
+
+        
+        if ((indexPath.row*2+1)<content.count) {
+            cell.rightIcon.url = [NSURL URLWithString:[[content objectAtIndex:indexPath.row*2+1] objectForKey:@"urllink"]];
+            cell.rightIcon.nameLabel.text = [[content objectAtIndex:indexPath.row*2+1] objectForKey:@"urltitle"];
+//            [cell.rightIcon setImage:[UIImage imageNamed:[[content objectAtIndex:indexPath.row*2+1] objectForKey:@"urlico"]] forState:UIControlStateNormal];
+            cell.rightIcon.imageName = [[content objectAtIndex:indexPath.row*2+1] objectForKey:@"urlico"];
+            [self refreshMark:cell.rightIcon];
+        }else {
+            cell.rightIcon = nil;
+        }
+        return cell;
     }
-    switch (indexPath.row) {
-        case AddNewSitesCommon:
-            cell.textLabel.text = @"常用网站";
-            break;
-        case AddNewSitesBBS:
-            cell.textLabel.text = @"社区论坛";
-            break;
-        case AddNewSitesLife:
-            cell.textLabel.text = @"生活旅行";
-            break;
-        case AddNewSitesTool:
-            cell.textLabel.text = @"常用工具";
-            break;
-        case AddNewSitesMan:
-            cell.textLabel.text = @"男性频道";
-            break;
-        case AddNewSitesWoman:
-            cell.textLabel.text = @"女性频道";
-            break;
-        case AddNewSitesShopping:
-            cell.textLabel.text = @"购物频道";
-            break;
-        case AddNewSitesManul:
-            cell.textLabel.text = @"手工添加";
-            break;
-    }
-//    cell.textLabel.text = [self.menuItems objectAtIndex:indexPath.row];
-//    cell.accessoryType = UITableViewCellAccessoryDetailDisclosureButton;    
-//    cell.revealSideInset = self.tableView.revealSideInset;
-    return cell;
+    
+    return nil;
 }
 
 -(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    //test
-    [self.listSites removeAllObjects];
-    for (int i=0; i<(indexPath.row+1); i++) {
-        [self.listSites addObject:[NSNumber numberWithInt:i]];
+    if (tableView == self.channelTable) {
+        if (indexPath.row == self.listSites.count) {
+            if (!self.manulView) {
+                RCAddNewManully *view = [[RCAddNewManully alloc] init];
+                view.frame = self.siteTable.frame;
+                self.manulView = view;
+                [view release];
+            }
+            [self.view addSubview:self.manulView];
+        }else {
+            [self.manulView removeFromSuperview];
+            [self.siteTable reloadData];
+        }
+    }else {
+        NSLog(@"site table seledted");
     }
-    [self.siteTable reloadData];
-}
 
-
-
-#pragma mark - GMGridViewDataSource,GMGridViewActionDelegate
-
-- (void)GMGridView:(GMGridView *)gridView didTapOnItemAtIndex:(NSInteger)position
-{
-    NSLog(@"Did tap at index %d", position);
-}
-
-- (NSInteger)numberOfItemsInGMGridView:(GMGridView *)gridView
-{
-    return self.listSites.count;
-}
-
-- (CGSize)sizeForItemsInGMGridView:(GMGridView *)gridView
-{
-    return CGSizeMake(64, 64);
-}
-
-//-(void)testButtonTap
-//{
-//    if (self.gridView.isEditing) {
-//        self.gridView.editing = NO;
-//    }
-//    [self repositionAddNewButton];
-//}
-
-- (GMGridViewCell *)GMGridView:(GMGridView *)gridView cellForItemAtIndex:(NSInteger)index
-{    
-    CGSize size = [self sizeForItemsInGMGridView:gridView];
-    
-    GMGridViewCell *cell = [gridView dequeueReusableCell];   
-    if (!cell) 
-    {
-        cell = [[GMGridViewCell alloc] init];
-        cell.deleteButtonIcon = [UIImage imageNamed:@"close_x.png"];
-        cell.deleteButtonOffset = CGPointMake(-15, -15);
-        cell.contentView = [[[UIView alloc] initWithFrame:CGRectMake(0, 0, size.width, size.height)] autorelease];
-    }    
-    [[cell.contentView subviews] makeObjectsPerformSelector:@selector(removeFromSuperview)];
-    cell.contentView.backgroundColor = [UIColor redColor];
-    
-    return cell;
 }
 
 
 
 
 
+
+
+- (void)dealloc {
+    [_siteTable release];
+    [_channelTable release];
+    [super dealloc];
+}
 @end

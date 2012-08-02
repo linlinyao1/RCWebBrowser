@@ -24,8 +24,11 @@
 @interface RCTabView : UIView
 @property (nonatomic,retain) UITableView *tabTable;
 @property (nonatomic,assign) IBOutlet NSObject<RCTabViewDelegate>* delegate;
-
+@property (nonatomic) BOOL disablePPSlide;
 
 -(void)hideViewWithOffset:(CGFloat)offset;
 -(void)showView;
+
+-(void)resotreCurrentTab;
+//-(BOOL)canBeSlided;
 @end

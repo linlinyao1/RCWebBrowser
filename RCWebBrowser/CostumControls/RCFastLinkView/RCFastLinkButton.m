@@ -7,6 +7,8 @@
 //
 
 #import "RCFastLinkButton.h"
+#import "QuartzCore/QuartzCore.h"
+
 
 @interface RCFastLinkButton ()
 @property (nonatomic,retain) UIButton *closeButton;
@@ -21,13 +23,25 @@
 {
     self = [self initWithFrame:frame];
     if (self) {
+        self.backgroundColor = [UIColor clearColor];
+        self.layer.cornerRadius = 6;
+        self.layer.masksToBounds = YES;
+//        [self setBackgroundImage:RC_IMAGE(@"fastlinkButtonBG") forState:UIControlStateNormal];
         if (name) {
-            UILabel *nameLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 52, 64, 12)];
+            UIImageView *textBG = [[UIImageView alloc] initWithImage:RC_IMAGE(@"fastlink_textBG")];
+            textBG.frame = CGRectMake(5, 47, 54, 15);
+            
+            UILabel *nameLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 54, 15)];
+            nameLabel.backgroundColor = [UIColor clearColor];
+            nameLabel.textAlignment = UITextAlignmentCenter;
             nameLabel.text = name;
-            nameLabel.backgroundColor = [UIColor grayColor];
             nameLabel.textColor = [UIColor whiteColor];
             nameLabel.font = [UIFont systemFontOfSize:10];
-            [self addSubview:nameLabel];
+            
+            [textBG addSubview:nameLabel];
+            [nameLabel release];
+            [self addSubview:textBG];
+            [textBG release];
 //            self.contentVerticalAlignment = UIControlContentVerticalAlignmentBottom;  
 //            self.contentHorizontalAlignment = UIControlContentHorizontalAlignmentLeft;
 //            self.titleEdgeInsets = UIEdgeInsetsMake(0, 0, 0, 0);
@@ -41,6 +55,8 @@
         }
         if (icon) {
             [self setBackgroundImage:icon forState:UIControlStateNormal];
+        }else {
+            [self setBackgroundImage:RC_IMAGE(@"defaultButtonBG") forState:UIControlStateNormal];
         }
     }
     return self;
@@ -52,7 +68,7 @@
     self = [super initWithFrame:frame];
     if (self) {
         // Initialization code
-        self.backgroundColor = [UIColor whiteColor];
+        self.backgroundColor = [UIColor clearColor];
     }
     return self;
 }
