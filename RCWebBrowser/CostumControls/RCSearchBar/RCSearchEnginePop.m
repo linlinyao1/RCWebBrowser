@@ -22,19 +22,19 @@
     NSString *imageName = nil;
     switch (type) {
         case SETypeBaidu:
-            imageName = @"icon_search_baidu";
+            imageName = @"icon_search_baidu2";
             break;
         case SETypeGoogle:  
-            imageName = @"icon_search_google";
+            imageName = @"icon_search_google2";
             break;
         case SETypeSoso:  
-            imageName = @"icon_search_baidu";
+            imageName = @"icon_search_soso";
             break;
         case SETypeEasou:  
-            imageName = @"icon_search_baidu";
+            imageName = @"icon_search_easou";
             break;
         case SETypeYicha:  
-            imageName = @"icon_search_baidu";
+            imageName = @"icon_search_yicha";
             break;
         default:
             break;
@@ -95,6 +95,11 @@
             break;
     }
     string = [string stringByAppendingString:keywords];
+    string = [string stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+    
+    NSURL *url = [NSURL URLWithString:string];
+    NSLog(@"url: %@",url);
+    
     return [NSURL URLWithString:string];
 }
 
@@ -107,7 +112,7 @@
         self.dataSource = self;
         self.delegate = self;
         self.listContent = [NSArray arrayWithObjects:@"百度",@"谷歌",@"搜搜",@"宜搜",@"易查", nil];
-        self.rowHeight = 30;
+        self.rowHeight = 50;
     }
     return self;
 }
@@ -140,6 +145,10 @@
     [self.notification searchNeedUpdate];
 }
 
-
+-(void)dealloc
+{
+    [super dealloc];
+    [self.listContent release];
+}
 
 @end

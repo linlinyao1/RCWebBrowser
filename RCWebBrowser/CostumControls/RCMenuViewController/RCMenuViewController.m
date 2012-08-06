@@ -46,10 +46,7 @@
 }
 - (void)viewDidLoad
 {
-    [super viewDidLoad];
-    
-
-    
+    [super viewDidLoad];    
     self.menuItems = [NSArray arrayWithObjects:@"收藏夹",
                                               @"历史记录",
                                               @"最常访问",
@@ -63,12 +60,9 @@
 
 - (void)viewDidUnload
 {
-    [self.tableView removeObserver:self
-                        forKeyPath:@"revealSideInset"];
     [super viewDidUnload];
     // Release any retained subviews of the main view.
     // e.g. self.myOutlet = nil;
-    
 }
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
@@ -107,6 +101,8 @@
         UIImageView *separator = [[[UIImageView alloc] initWithImage:RC_IMAGE(@"MenuSeparateLine")] autorelease];
         separator.frame = CGRectMake(0, 42, 320-60, 2);
         [cell.contentView addSubview:separator];
+        
+        cell.textLabel.font = [UIFont systemFontOfSize:17];
         
         cell.selectedBackgroundView = [[[UIImageView alloc] initWithImage:RC_IMAGE(@"MenuCellSelection")] autorelease];
     }
@@ -149,5 +145,12 @@
     }
     
 }
+
+-(void)dealloc
+{
+    [_menuItems release];
+    [super dealloc];
+}
+
 
 @end

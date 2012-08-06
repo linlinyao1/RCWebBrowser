@@ -10,6 +10,7 @@
 
 #import "RCViewController.h"
 #import "PPRevealSideViewController.h"
+#import "MobClick.h"
 
 @implementation RCAppDelegate
 
@@ -18,6 +19,7 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+    
     self.window = [[[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]] autorelease];
     // Override point for customization after application launch.
     RCViewController *RCVC = [[RCViewController alloc] initWithNibName:@"RCViewController" bundle:nil];
@@ -34,6 +36,10 @@
     self.window.rootViewController = revealSideViewController;//self.viewController;
     [revealSideViewController release];
     [self.window makeKeyAndVisible];
+    
+    
+    [MobClick startWithAppkey:@"501a19ab5270156736000014" reportPolicy:REALTIME channelId:nil];
+    [MobClick checkUpdate];
     return YES;
 }
 

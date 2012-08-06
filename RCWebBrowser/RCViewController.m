@@ -11,13 +11,9 @@
 #import "RCMenuViewController.h"
 #import "CMPopTipView.h"
 #import "RCBookMarkPop.h"
-#import "RCSearchResultViewController.h"
-#import "RCNavigationBar.h"
 #import "RCRecordData.h"
 #import "RCFastLinkObject.h"
 #import "UIView+ScreenShot.h"
-#import "SCNavigationBar.h"
-#import "EGOCache.h"
 
 @interface RCViewController ()<UITextFieldDelegate,RCTabViewDelegate,UIWebViewDelegate,RCBookMarkPopDelegate,RCSearchBarDelegate,RCFastLinkViewDelegate,UIAlertViewDelegate>
 @property (nonatomic,retain) NSMutableArray *openedWebs; //arrary of UIWebView, corresponding to tabs
@@ -223,12 +219,11 @@
         [[RCFastLinkView defaultPage] scrollPage];
     }else {
         [web turnOnDefaultPage];
-        
-        
         [self.bottomToolBar enableBackOrNot:NO];
         [self.bottomToolBar enableForwardOrNot:[web canGoForward]];
         [self.searchBar stopLoadProgress];
         [self.tabView resotreCurrentTab];
+        [self.searchBar restoreDefaultState];
     }
 }
 -(void)fullScreenButtonPressed:(BOOL)hideOrNot
@@ -300,11 +295,13 @@
         [self.searchBar.stopReloadButton setImage:RC_IMAGE(@"search_stop_pressed") forState:UIControlStateHighlighted];
         [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
         [self.searchBar startLoadingProgress];
+        [self.searchBar.bookMarkButton setEnabled:NO];
     } else {
         [self.searchBar.stopReloadButton setImage:RC_IMAGE(@"search_reload_nomal") forState:UIControlStateNormal];
         [self.searchBar.stopReloadButton setImage:RC_IMAGE(@"search_reload_pressed") forState:UIControlStateHighlighted];
         [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
         [self.searchBar stopLoadProgress];
+        [self.searchBar.bookMarkButton setEnabled:YES];
     }
     
     if (web.request.URL.absoluteString.length) {
@@ -331,18 +328,25 @@
         self.searchBar.locationField.rightView.userInteractionEnabled = NO;
     }else {
         self.searchBar.locationField.rightView.userInteractionEnabled = YES;
-        [self.searchBar.bookMarkButton setEnabled:YES];
 
         NSMutableArray *fastlinksArray = [RCRecordData recordDataWithKey:RCRD_FASTLINK];
         BookmarkObject *curObj = [self currentWebInfo];
         for (RCFastLinkObject * fastlink in fastlinksArray) {
-            if ([fastlink.url.absoluteString isEqual:curObj.url.absoluteString]) {
+            NSString* urlString = fastlink.url.absoluteString;
+            if ([urlString hasSuffix:@"/"]) {
+                urlString = [urlString substringToIndex:urlString.length-1];
+            }            
+            if ([urlString isEqual:curObj.url.absoluteString]) {
                 [self.searchBar.bookMarkButton setImage:RC_IMAGE(@"search_addfav_hilite") forState:UIControlStateNormal];
                 return;
             }
         }
         NSMutableArray *bookmarksArray = [RCRecordData recordDataWithKey:RCRD_BOOKMARK];
         for (BookmarkObject * bookmark in bookmarksArray) {
+            NSString* urlString = bookmark.url.absoluteString;
+            if ([urlString hasSuffix:@"/"]) {
+                urlString = [urlString substringToIndex:urlString.length-1];
+            }
             if ([bookmark.url.absoluteString isEqual:curObj.url.absoluteString]) {
                 [self.searchBar.bookMarkButton setImage:RC_IMAGE(@"search_addfav_hilite") forState:UIControlStateNormal];
                 return;
@@ -435,8 +439,9 @@
     [self addToHistory:record];
     [record release];
     
-    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(updateBackForwordState:) object:webView];
-    [self performSelector:@selector(updateBackForwordState:) withObject:webView afterDelay:.1];
+    [self updateBackForwordState:(RCWebView*)webView];
+//    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(updateBackForwordState:) object:webView];
+//    [self performSelector:@selector(updateBackForwordState:) withObject:webView afterDelay:.1];
 //    [self.searchBar stopLoadProgress];
 }
 -(void)webViewDidStartLoad:(UIWebView *)webView
@@ -469,8 +474,10 @@
         [alert show];
         [alert release];
     }
-    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(updateBackForwordState:) object:webView];
-    [self performSelector:@selector(updateBackForwordState:) withObject:webView afterDelay:0];
+    [self updateBackForwordState:(RCWebView*)webView];
+
+//    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(updateBackForwordState:) object:webView];
+//    [self performSelector:@selector(updateBackForwordState:) withObject:webView afterDelay:0];
     
 }
 
@@ -587,7 +594,11 @@
         [self.searchBar removePregress];
     }
     else {
-        [webView reload]; 
+        if (webView.request.URL.absoluteString) {
+            [webView reload]; 
+        }else {
+            [webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:self.searchBar.locationField.text]]];
+        }
     }   
 //    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(updateBackForwordState:) object:webView];
 //    [self performSelector:@selector(updateBackForwordState:) withObject:webView afterDelay:1.];
@@ -629,7 +640,10 @@
 {
     NSIndexPath *index = [self.tabView.tabTable indexPathForSelectedRow];
     
-    NSString *name = [self.tabView.tabTable cellForRowAtIndexPath:index].textLabel.text;
+    RCTab *tab = (RCTab *)[self.tabView.tabTable cellForRowAtIndexPath:index];
+    NSString *name = tab.titleLabel.text;
+//    NSString *name = [self.tabView.tabTable cellForRowAtIndexPath:index].textLabel.text;
+    
     NSURL *url = ((UIWebView*)[self.openedWebs objectAtIndex:index.row]).request.URL;
     NSString *urlString = url.absoluteString;
     if ([urlString hasSuffix:@"/"]) {

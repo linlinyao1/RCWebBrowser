@@ -9,7 +9,7 @@
 #import "RCBookMarkEditViewController.h"
 #import "RCRecordData.h"
 #import "BookmarkObject.h"
-
+#import "UIBarButtonItem+BackStyle.h"
 @interface RCBookMarkEditViewController ()
 @property (nonatomic,retain) NSMutableArray *bookMarkArray;
 @end
@@ -39,9 +39,20 @@
     [self.navigationController popViewControllerAnimated:YES];
 }
 
+-(void)goBack
+{
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+-(void)viewWillAppear:(BOOL)animated
+{
+
+}
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    self.view.backgroundColor = [UIColor colorWithPatternImage:RC_IMAGE(@"MenuBG")];    
+
     // Do any additional setup after loading the view from its nib.
     NSMutableArray *bookMarks = [RCRecordData recordDataWithKey:RCRD_BOOKMARK];
     BookmarkObject *obj = [bookMarks objectAtIndex:self.index];
@@ -59,14 +70,19 @@
     [header addSubview:titleLabel];
     [titleLabel release];
     
-    UIButton *edit = [UIButton buttonWithType:UIButtonTypeRoundedRect];
-    edit.frame = CGRectMake(130, 0, 44, 44);
+    UIButton *edit = [UIButton buttonWithType:UIButtonTypeCustom];
+    edit.frame = CGRectMake(130, 7, 53, 29);
     [edit setTitle:@"完成" forState:UIControlStateNormal];
+    edit.titleLabel.font = [UIFont systemFontOfSize:12];
+    [edit setBackgroundImage:RC_IMAGE(@"MenuItemNomal") forState:UIControlStateNormal];   
     [edit addTarget:self action:@selector(editBookMark:) forControlEvents:UIControlEventTouchUpInside];
     [header addSubview:edit];
     
     self.navigationItem.titleView = header;
     [header release];
+    
+    UIBarButtonItem *newBackButton = [UIBarButtonItem barButtonWithCustomImage:RC_IMAGE(@"MenuItemBack@2x") HilightImage:nil Title:@"返回" Target:self Action:@selector(goBack)];
+    self.navigationItem.leftBarButtonItem = newBackButton;
 }
 
 - (void)viewDidUnload
@@ -86,6 +102,7 @@
 - (void)dealloc {
     [bookMarkNameField release];
     [bookMarkURLField release];
+    [_bookMarkArray release];
     [super dealloc];
 }
 @end

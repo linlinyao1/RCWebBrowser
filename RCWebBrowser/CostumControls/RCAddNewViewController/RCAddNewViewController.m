@@ -7,7 +7,6 @@
 //
 
 #import "RCAddNewViewController.h"
-#import "GMGridView.h"
 #import "JSONKit.h"
 #import "RCAddNewCustomCell.h"
 #import "RCRecordData.h"
@@ -280,6 +279,10 @@ typedef enum {
 - (void)dealloc {
     [_siteTable release];
     [_channelTable release];
+    [_listSites release];
+    [_fastLinks release];
+    [_manulView release];
+
     [super dealloc];
 }
 @end

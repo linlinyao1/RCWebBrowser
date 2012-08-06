@@ -37,7 +37,6 @@
             nameLabel.text = name;
             nameLabel.textColor = [UIColor whiteColor];
             nameLabel.font = [UIFont systemFontOfSize:10];
-            
             [textBG addSubview:nameLabel];
             [nameLabel release];
             [self addSubview:textBG];
@@ -73,5 +72,12 @@
     return self;
 }
 
+-(void)dealloc
+{
+    [_closeButton release];
+    [_url release];
+    [super dealloc];
+
+}
 
 @end

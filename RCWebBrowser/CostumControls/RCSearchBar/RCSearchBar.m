@@ -70,14 +70,14 @@
     
     [UIView animateWithDuration:3
                           delay:0
-                        options:UIViewAnimationOptionBeginFromCurrentState|UIViewAnimationOptionAllowUserInteraction
+                        options:0//UIViewAnimationOptionBeginFromCurrentState|UIViewAnimationOptionAllowUserInteraction
                      animations:^{
                          self.progressBar.transform = CGAffineTransformMakeTranslation(self.progressBar.frame.size.width*0.5, 0);
                      } completion:^(BOOL finished) {
                          if (finished) {
                              [UIView animateWithDuration:3
                                                    delay:1
-                                                 options:UIViewAnimationOptionBeginFromCurrentState|UIViewAnimationOptionAllowUserInteraction
+                                                 options:0//UIViewAnimationOptionBeginFromCurrentState|UIViewAnimationOptionAllowUserInteraction
                                               animations:^{
                                                   self.progressBar.transform = CGAffineTransformMakeTranslation(self.progressBar.frame.size.width*0.9, 0);
                                               } completion:^(BOOL finished) {
@@ -129,7 +129,7 @@
     
     // Toggle popTipView when a standard UIButton is pressed
     if (nil == self.bookMarkPop) {
-        RCBookMarkPop *pop = [[[RCBookMarkPop alloc] initWithFrame:CGRectMake(0, 0, 100, 50)] autorelease];
+        RCBookMarkPop *pop = [[[RCBookMarkPop alloc] initWithFrame:CGRectMake(0, 0, 160, 70)] autorelease];
         pop.delegate = self.delegate;
         [pop updateBttonState];
         self.bookMarkPop = [[[CMPopTipView alloc] initWithCustomView:pop] autorelease];
@@ -147,7 +147,7 @@
     // Toggle popTipView when a standard UIButton is pressed
     if (nil == self.searchEnginePop) {
         [self.locationField resignFirstResponder];
-        RCSearchEnginePop *pop = [[[RCSearchEnginePop alloc] initWithFrame:CGRectMake(0, 0, 100, 150) style:UITableViewStylePlain] autorelease];
+        RCSearchEnginePop *pop = [[[RCSearchEnginePop alloc] initWithFrame:CGRectMake(0, 0, 100, 250) style:UITableViewStylePlain] autorelease];
         pop.notification = self;
         self.searchEnginePop = [[[CMPopTipView alloc] initWithCustomView:pop] autorelease];
         self.searchEnginePop.backgroundColor = [UIColor whiteColor];      
@@ -168,7 +168,7 @@
     
     //bookmark button
     UIButton *bookMarkButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    bookMarkButton.frame =CGRectMake(3, 5, 38, 34);
+    bookMarkButton.frame =CGRectMake(10, 5, 38, 34);
     [bookMarkButton setImage:RC_IMAGE(@"search_addfav_nomal") forState:UIControlStateNormal];
     [bookMarkButton setImage:RC_IMAGE(@"search_addfav_disable") forState:UIControlStateDisabled];
     [bookMarkButton addTarget:self action:@selector(bookMarkButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
@@ -177,7 +177,7 @@
     self.bookMarkButton = bookMarkButton;
     
     // url input
-    UITextField *locationField = [[UITextField alloc] initWithFrame:CGRectMake(54,5,249,33)];
+    UITextField *locationField = [[UITextField alloc] initWithFrame:CGRectMake(54,5,260,33)];
     locationField.layer.cornerRadius = 8;
     locationField.background = RC_IMAGE(@"searchBG@2x");
     locationField.delegate = self;
@@ -215,13 +215,24 @@
     self.stopReloadButton = stopReloadButton;
     
     // searchEngineButton
-    UIButton *searchEngineButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
-    searchEngineButton.bounds = CGRectMake(0, 0, 16, 16);
+    UIView *searchEngineButtonBG = [[[UIView alloc] initWithFrame:CGRectMake(0, 0, 40, 28)] autorelease];
+    
+    UIButton *searchEngineButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    searchEngineButton.frame = CGRectMake(0, 0, 28, 28);
     [searchEngineButton addTarget:self action:@selector(searchEngineButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
-    NSNumber *setype = [[NSUserDefaults standardUserDefaults]objectForKey:SE_UDKEY];
-    UIImage *image = [RCSearchEnginePop imageForSEType:setype.intValue];
-    [searchEngineButton setBackgroundImage:image forState:UIControlStateNormal];
-    self.locationField.leftView = searchEngineButton;
+//    NSNumber *setype = [[NSUserDefaults standardUserDefaults]objectForKey:SE_UDKEY];
+//    UIImage *image = [RCSearchEnginePop imageForSEType:setype.intValue];
+//    [searchEngineButton setBackgroundImage:image forState:UIControlStateNormal];
+    [searchEngineButtonBG addSubview:searchEngineButton];
+    
+//    UIImageView* notch = [[[UIImageView alloc] initWithImage:RC_IMAGE(@"searchEngineNotch")] autorelease];
+    UIButton *notch = [UIButton buttonWithType:UIButtonTypeCustom];
+    notch.frame = CGRectMake(28, 8, 12, 12);
+    [notch setBackgroundImage:RC_IMAGE(@"searchEngineNotch") forState:UIControlStateNormal];
+    [notch addTarget:self action:@selector(searchEngineButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
+    [searchEngineButtonBG addSubview:notch];
+    
+    self.locationField.leftView = searchEngineButtonBG;//searchEngineButton;
     self.locationField.leftViewMode = UITextFieldViewModeNever;
     self.searchEngineButton = searchEngineButton;
     
@@ -267,6 +278,26 @@
     //end
     [self restoreDefaultState];
 }
+
+-(void)dealloc
+{
+    [super dealloc];
+    [self.locationField release];
+    [self.searchEngineButton release];
+    [self.cancelButton release];
+    [self.keyBoardAccessory release];
+    [self.keyBoardButtons release];
+    [self.searchResultTable release];
+    [self.listContent release];
+    [self.historys release];
+    [self.progressBar release];
+    [self.stopReloadButton release];
+    [self.bookMarkPop release];
+    [self.searchEnginePop release];
+    [self.searchResultTable release];
+    [self.historys release];    
+}
+
 
 
 -(RCKeyBoardAccessoryType)checkInputContent:(NSString*)text
@@ -377,6 +408,9 @@
 }
 -(void)turnOnSearchMode
 {
+    NSNumber *setype = [[NSUserDefaults standardUserDefaults]objectForKey:SE_UDKEY];
+    UIImage *image = [RCSearchEnginePop imageForSEType:setype.intValue];
+    [self.searchEngineButton setBackgroundImage:image forState:UIControlStateNormal];
     [UIView animateWithDuration:.5 
                      animations:^{
                          self.locationField.leftViewMode = UITextFieldViewModeAlways;
@@ -462,12 +496,14 @@
     if (!url.scheme.length) {
         url = [NSURL URLWithString:[@"http://" stringByAppendingString:textField.text]];
     }
-//    if ([url.host hasPrefix:@"www."]) {
-//        NSLog(@"www");
-//    }
-//    if ([url.host hasSuffix:@".com"]) {
-//        NSLog(@".com");
-//    }
+    
+    NSString * regex        = @"^http(s)?://([\\w-]+\\.)+[\\w-]+(/[\\w- ./?%&=]*)?$";
+    NSPredicate * pred      = [NSPredicate predicateWithFormat:@"SELF MATCHES %@", regex];
+    if (![pred evaluateWithObject:url.absoluteString]) {
+        NSNumber *setype = [[NSUserDefaults standardUserDefaults]objectForKey:SE_UDKEY];
+        NSURL *searchURL = [RCSearchEnginePop urlForSEType:setype.intValue WithKeyWords:textField.text];
+        url = searchURL;
+    }
     
     [self.delegate searchCompleteWithUrl:url];
     [textField resignFirstResponder];

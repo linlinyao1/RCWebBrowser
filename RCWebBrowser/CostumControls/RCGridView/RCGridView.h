@@ -26,6 +26,7 @@
 @property (nonatomic,assign) NSObject<RCGridViewDelegate> *delegate;
 
 -(void)reloadData;
+-(RCGridViewCell*)dequeueReusableCell;
 
 @end
 

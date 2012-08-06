@@ -13,4 +13,7 @@
     #import <Foundation/Foundation.h>
 
 #define RC_IMAGE(IMG) [UIImage imageNamed:IMG]
+//#define RC_IMAGE(IMG)  [UIImage imageWithContentsOfFile:[[NSBundle mainBundle] pathForResource:[NSString stringWithFormat:@"%@@2x",IMG] ofType:@"png"]]
+
+
 #endif

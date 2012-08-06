@@ -29,6 +29,14 @@
     return YES;
 }
 
+-(BOOL)textFieldShouldClear:(UITextField *)textField
+{
+    if (textField == self.urlField) {
+        self.urlField.text = @"http://";
+        return NO;
+    }
+    return YES;
+}
 
 -(id)init
 {
@@ -48,17 +56,22 @@
         [alert show];
         [alert release];
         return;
-    }
+    }    
     
-    NSString * regex        = @"^http(s)?://([\\w-]+\\.)+[\\w-]+(/[\\w- ./?%&=]*)?$";
-    NSPredicate * pred      = [NSPredicate predicateWithFormat:@"SELF MATCHES %@", regex];
-    if (![pred evaluateWithObject:self.urlField.text]) {
+//    NSString * regex        = @"^http(s)?://([\\w-]+\\.)+[\\w-]+(/[\\w- ./?%&=]*)?$";
+//    NSString * regex        = @"^([\\w-]+\\.)+[\\w-]+(/[\\w- ./?%&=]*)?$";
+//    NSPredicate * pred      = [NSPredicate predicateWithFormat:@"SELF MATCHES %@", regex];
+//    if (![pred evaluateWithObject:self.urlField.text]) {
+    if (!self.urlField.text.length) {
         UIAlertView *alert = [[UIAlertView alloc] initWithTitle:nil message:@"请输入网址" delegate:nil cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
         [alert show];
         [alert release];
         return;
     }else {
         NSURL *url = [NSURL URLWithString:self.urlField.text];
+        if (!url.scheme.length) {
+            url = [NSURL URLWithString:[@"http://" stringByAppendingString:self.urlField.text]];
+        }
         NSString *name = self.nameField.text;
         NSMutableArray *flList = [RCRecordData recordDataWithKey:RCRD_FASTLINK];
         RCFastLinkObject *obj = [[[RCFastLinkObject alloc] initWithName:name andURL:url andIcon:nil] autorelease];
@@ -69,10 +82,8 @@
         [alert show];
         [alert release];
         self.nameField.text = nil;
-        self.urlField.text = @"http://";
+        self.urlField.text = nil;
     }
-
-
 }
 
 -(void)resignKeyboard

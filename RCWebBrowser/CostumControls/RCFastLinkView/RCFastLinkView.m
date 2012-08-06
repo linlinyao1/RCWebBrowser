@@ -10,7 +10,6 @@
 #import "RCFastLinkObject.h"
 #import "RCFastLinkButton.h"
 #import "RCRecordData.h"
-#import "GMGridView.h"
 #import "RCAddNewViewController.h"
 #import "QuartzCore/QuartzCore.h"
 #import "RCGridView.h"
@@ -59,6 +58,18 @@ static RCFastLinkView *_fastLinkView;
 
 -(void)refresh
 {
+//    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+//        NSMutableArray *array = [RCRecordData recordDataWithKey:RCRD_FASTLINK];
+//        self.objectList = [NSMutableArray arrayWithArray:array];        
+//        dispatch_async(dispatch_get_main_queue(), ^{
+//            [self.gridView reloadData];
+//            self.gridView.editing = NO;
+//            NSString *path = [[NSBundle mainBundle] pathForResource:@"navigation" ofType:@"html"];
+//            [self.htmlNav loadHTMLString:[NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:nil] baseURL:nil];
+//
+//        });         
+//    });
+    
     NSMutableArray *array = [RCRecordData recordDataWithKey:RCRD_FASTLINK];
 //    if (self.objectList.count != array.count) {
 //        self.objectList = [NSMutableArray arrayWithArray:array];
@@ -79,8 +90,8 @@ static RCFastLinkView *_fastLinkView;
     
     self.gridView.editing = NO;
     
-    NSString *path = [[NSBundle mainBundle] pathForResource:@"navigation" ofType:@"html"];
-    [self.htmlNav loadHTMLString:[NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:nil] baseURL:nil];
+//    NSString *path = [[NSBundle mainBundle] pathForResource:@"navigation" ofType:@"html"];
+//    [self.htmlNav loadHTMLString:[NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:nil] baseURL:nil];
 }
 
 
@@ -123,7 +134,6 @@ static RCFastLinkView *_fastLinkView;
 
         
         self.backgroundColor = [UIColor colorWithPatternImage:RC_IMAGE(@"fastlinkBG")];
-        
 
         
 //        addNew button currently disabled
@@ -136,6 +146,7 @@ static RCFastLinkView *_fastLinkView;
         scrollView.pagingEnabled = YES;
         scrollView.bounces = NO;
         scrollView.delegate = self;
+        scrollView.showsHorizontalScrollIndicator = NO;
         [self addSubview:scrollView];
         self.scrollBoard = scrollView;
         
@@ -148,6 +159,7 @@ static RCFastLinkView *_fastLinkView;
         
         
         CGRect rect = CGRectOffset(self.bounds, frame.size.width, 0);
+//        rect.size.height = self.bounds.size.height-23;
         
         RCGridView *gridView = [[RCGridView alloc] initWithFrame:rect];
         gridView.cellSize = CGSizeMake(FL_ICON_SIZE, FL_ICON_SIZE);
@@ -164,12 +176,19 @@ static RCFastLinkView *_fastLinkView;
         scrollView.contentSize = CGSizeMake(CGRectGetMaxX(gridView.frame), frame.size.height);
         scrollView.contentOffset = CGPointMake(gridView.frame.origin.x, 0);
         
+        
+        UIImageView *indicatorBG = [[UIImageView alloc] initWithImage:RC_IMAGE(@"indicatorBG")];
+//        indicatorBG.alpha = 0.7;
+        indicatorBG.frame = CGRectMake(0, self.bounds.size.height-23, 320, 23);
+        
         UIImageView *indicator = [[UIImageView alloc] initWithImage:RC_IMAGE(@"indicator_second")];
-        indicator.frame = CGRectMake(0, 0, 23, 9);
-        indicator.center = CGPointMake(160, 5);
-        [self addSubview:indicator];
+        indicator.frame = CGRectMake(0, 0, 26, 10);
+        indicator.center = CGPointMake(160, 13);
+        [indicatorBG addSubview:indicator];
         self.indicator = indicator;
         [indicator release];
+        [self addSubview:indicatorBG];
+        [indicatorBG release];
     }
     return self;
 }
@@ -207,7 +226,12 @@ static RCFastLinkView *_fastLinkView;
 
 -(RCGridViewCell *)gridView:(RCGridView *)gridView ViewForCellAtIndex:(NSInteger)index
 {
-    RCGridViewCell* cell = [[RCGridViewCell alloc] initWithFrame:CGRectMake(0, 0, FL_ICON_SIZE, FL_ICON_SIZE)];
+//    RCGridViewCell* cell = [gridView dequeueReusableCell];
+//    if (!cell) {
+//        cell = [[[RCGridViewCell alloc] initWithFrame:CGRectMake(0, 0, FL_ICON_SIZE, FL_ICON_SIZE)] autorelease];
+//    }
+    
+    RCGridViewCell* cell = [[[RCGridViewCell alloc] initWithFrame:CGRectMake(0, 0, FL_ICON_SIZE, FL_ICON_SIZE)] autorelease];
     
     RCFastLinkObject* obj = [self.objectList objectAtIndex:index];
     UIImage *icon;
@@ -217,9 +241,13 @@ static RCFastLinkView *_fastLinkView;
         icon = obj.icon;
     }
     RCFastLinkButton *iconButton = [[RCFastLinkButton alloc] initWithFrame:CGRectMake(0, 0, FL_ICON_SIZE, FL_ICON_SIZE) Icon:icon Name:obj.name];
+    if ([obj.url.absoluteString isEqualToString:@"http://m.2345.com/"] && [obj.name isEqualToString:@"2345"] && [obj.iconName isEqualToString:@"2345Nav.png"]) {
+        cell.disableCloseButton =YES;
+    }
     [iconButton addTarget:self action:@selector(iconButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
     [cell.contentView addSubview:iconButton];
     [iconButton release];
+    
 //    cell.backgroundView.image = RC_IMAGE(@"defaultButtonBG");
     return cell;
 }
@@ -242,11 +270,13 @@ static RCFastLinkView *_fastLinkView;
 -(void)gridView:(RCGridView *)gridView CellWillBeRemovedAtIndex:(NSInteger)index
 {
     [self.objectList removeObjectAtIndex:index];
+    [RCRecordData updateRecord:self.objectList ForKey:RCRD_FASTLINK];
 }
 
 -(void)gridView:(RCGridView *)gridView CellAtIndex:(NSInteger)index1 ExchangeWithCellAtIndex:(NSInteger)index2
 {
     [self.objectList exchangeObjectAtIndex:index1 withObjectAtIndex:index2];
+    [RCRecordData updateRecord:self.objectList ForKey:RCRD_FASTLINK];
 }
 
 -(void)gridView:(RCGridView *)gridView CellTappedAtIndex:(NSInteger)index
@@ -305,6 +335,17 @@ static RCFastLinkView *_fastLinkView;
     [self refreshIndicator];
 }
 
+
+-(void)dealloc
+{
+    [_objectList release];
+    [_scrollBoard release];
+    [_addNew release];
+    [_gridView release];
+    [_htmlNav release];
+    [_indicator release];
+    [super dealloc];
+}
 //-(void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
 //{
 //    NSString *path = [[NSBundle mainBundle] pathForResource:@"navigation" ofType:@"html"];

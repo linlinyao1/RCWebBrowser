@@ -99,7 +99,15 @@
     return self;
 }
 
-
+-(void)dealloc
+{
+    [_url release];
+    [_checkMark release];
+    [_nameLabel release];
+    [_imageName release];
+    
+    [super dealloc];
+}
 
 
 @end

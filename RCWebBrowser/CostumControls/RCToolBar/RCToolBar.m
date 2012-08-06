@@ -7,6 +7,8 @@
 //
 
 #import "RCToolBar.h"
+#import "UMFeedback.h"
+#import "MobClick.h"
 
 @interface RCToolBar()
 
@@ -49,7 +51,7 @@
 }
 
 - (IBAction)suggestionButtonPressed {
-//    [self.delegate ]
+    [UMFeedback showFeedback:[[UIApplication sharedApplication] keyWindow].rootViewController withAppkey:@"501a19ab5270156736000014"];
 }
 
 - (IBAction)backButtonPressed {
@@ -184,5 +186,20 @@
     self.isBarShown = YES;
 }
 
+
+-(void)dealloc
+{
+    [super dealloc];
+    [self.backView release];
+    [self.frontView release];
+    [self.backButtonItem release];
+    [self.backButtonItem2 release];
+    [self.forwardButtonItem release];
+    [self.menuButtonItem release];
+    [self.homeButtonItem release];
+    [self.suggestionButtonItem release];
+    [self.fullScreenButtonItem release];
+    [self.fullScreenButtonItem2 release];
+}
 
 @end

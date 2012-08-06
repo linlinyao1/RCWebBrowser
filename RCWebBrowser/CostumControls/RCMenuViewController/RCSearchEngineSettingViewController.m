@@ -8,6 +8,7 @@
 
 #import "RCSearchEngineSettingViewController.h"
 #import "RCSearchEnginePop.h"
+#import "UIBarButtonItem+BackStyle.h"
 
 @interface RCSearchEngineSettingViewController ()
 
@@ -29,16 +30,22 @@
     self.tableView.frame = CGRectMake(0, 0, 320-60, self.tableView.frame.size.height);
 
 }
-
+-(void)goBack
+{
+    [self.navigationController popViewControllerAnimated:YES];
+}
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-
+    self.tableView.backgroundView = [[[UIImageView alloc] initWithImage:RC_IMAGE(@"MenuBG")] autorelease];    
     // Uncomment the following line to preserve selection between presentations.
     // self.clearsSelectionOnViewWillAppear = NO;
  
     // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
     // self.navigationItem.rightBarButtonItem = self.editButtonItem;
+    
+    UIBarButtonItem *newBackButton = [UIBarButtonItem barButtonWithCustomImage:RC_IMAGE(@"MenuItemBack@2x") HilightImage:nil Title:@"返回" Target:self Action:@selector(goBack)];
+    self.navigationItem.leftBarButtonItem = newBackButton;
 }
 -(void)viewWillAppear:(BOOL)animated
 {
@@ -73,7 +80,8 @@
     static NSString *CellIdentifier = @"Cell";
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
     if (!cell) {
-        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
+        cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier] autorelease];
+        cell.backgroundColor = [UIColor colorWithWhite:0.9 alpha:1];
     }
     cell.accessoryType = UITableViewCellAccessoryNone;
     cell.textLabel.text = [RCSearchEnginePop titleForSEType:indexPath.row];

@@ -7,7 +7,6 @@
 //
 
 #import "RCFastLinkObject.h"
-#import "EGOCache.h"
 
 @implementation RCFastLinkObject
 
@@ -35,8 +34,10 @@
     if (![[NSFileManager defaultManager] createFileAtPath:storePath contents:UIImagePNGRepresentation(icon) attributes:nil ]) {
         NSLog(@"save failed");
     }
-
 }
+
+
+
 -(UIImage*)getImageFromDiscWithURL:(NSURL*)url
 {
     NSString *pureName = [url.absoluteString stringByReplacingOccurrencesOfString:@"/" withString:@""];
@@ -50,6 +51,9 @@
 
 -(void)setIcon:(UIImage *)icon
 {
+//    if (_icon && [_icon isKindOfClass:[UIImage class]]) {
+//        [_icon release];
+//    }
     [_icon release];
     _icon = [icon retain];
     [self saveToDiscWithIcon:icon andURL:self.url];
@@ -57,7 +61,7 @@
 -(UIImage *)icon
 {
     if (!_icon) {
-      _icon = [self getImageFromDiscWithURL:self.url];
+      self.icon = [self getImageFromDiscWithURL:self.url];
     }
     return _icon;
 }

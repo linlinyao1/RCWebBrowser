@@ -90,6 +90,9 @@
     }
     self.navigationItem.titleView = header;
     [self.tableView reloadData];
+    
+    [titleLabel release];
+    [header release];
 }
 
 -(void)viewDidAppear:(BOOL)animated
@@ -99,26 +102,26 @@
 }
 
 
-
--(void)makeRightBarButtonItemWithButton:(UIBarButtonItem*)button
-{
-    UIToolbar *tools = [[UIToolbar alloc]
-                        initWithFrame:CGRectMake(0.0f, 0.0f, 103.0f, 44.01f)]; // 44.01 shifts it up 1px for some reason
-    tools.clearsContextBeforeDrawing = NO;
-    tools.clipsToBounds = NO;
-    //                tools.tintColor = [UIColor colorWithWhite:0.305f alpha:0.0f]; // closest I could get by eye to black, translucent style.
-    // anyone know how to get it perfect?
-    tools.barStyle = UIBarStyleDefault;// clear background
-    tools.translucent = YES;
-    NSMutableArray *buttons = [[NSMutableArray alloc] initWithCapacity:3];
-    UIBarButtonItem *space = [[[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFixedSpace target:nil action:nil] autorelease];
-    space.width = self.tableView.revealSideInset.right+40;
-    [buttons addObject:button];
-    [buttons addObject:space];
-    [tools setItems:buttons];
-    UIBarButtonItem *rightButton = [[[UIBarButtonItem alloc] initWithCustomView:tools] autorelease];
-    self.navigationItem.rightBarButtonItem = rightButton;
-}
+//
+//-(void)makeRightBarButtonItemWithButton:(UIBarButtonItem*)button
+//{
+//    UIToolbar *tools = [[UIToolbar alloc]
+//                        initWithFrame:CGRectMake(0.0f, 0.0f, 103.0f, 44.01f)]; // 44.01 shifts it up 1px for some reason
+//    tools.clearsContextBeforeDrawing = NO;
+//    tools.clipsToBounds = NO;
+//    //                tools.tintColor = [UIColor colorWithWhite:0.305f alpha:0.0f]; // closest I could get by eye to black, translucent style.
+//    // anyone know how to get it perfect?
+//    tools.barStyle = UIBarStyleDefault;// clear background
+//    tools.translucent = YES;
+//    NSMutableArray *buttons = [[NSMutableArray alloc] initWithCapacity:3];
+//    UIBarButtonItem *space = [[[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFixedSpace target:nil action:nil] autorelease];
+//    space.width = self.tableView.revealSideInset.right+40;
+//    [buttons addObject:button];
+//    [buttons addObject:space];
+//    [tools setItems:buttons];
+//    UIBarButtonItem *rightButton = [[[UIBarButtonItem alloc] initWithCustomView:tools] autorelease];
+//    self.navigationItem.rightBarButtonItem = rightButton;
+//}
 
 -(id)initWithSubMenuType:(RCSubMenuType)type
 {
@@ -185,16 +188,15 @@
 {
     UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"确认清空历史记录" message:@"清空后将不能找回" delegate:self cancelButtonTitle:@"取消" otherButtonTitles:@"清空", nil];
     [alert show];
+    [alert release];
 }
 -(void)clearMostViewed:(UIButton*)sender
 {
     UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"确认清空最常访问" message:@"清空后将不能找回" delegate:self cancelButtonTitle:@"取消" otherButtonTitles:@"清空", nil];
     [alert show];
+    [alert release];
 }
--(void)alertViewCancel:(UIAlertView *)alertView
-{
-    NSLog(@"cancle");
-}
+
 -(void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
 {
     if ([[alertView buttonTitleAtIndex:buttonIndex] isEqualToString:@"取消"]) {
@@ -228,8 +230,13 @@
         [cell.contentView addSubview:separator];
         cell.selectedBackgroundView = [[[UIImageView alloc] initWithImage:RC_IMAGE(@"MenuCellSelection")] autorelease];
     }
+//    cell.imageView.image = nil;
+//    if (self.menuType == RCSubMenuFavorite) {
+        cell.imageView.image = RC_IMAGE(@"subMenuIconFav");
+//    }
     BookmarkObject *obj = [self.submenuItems objectAtIndex:indexPath.row];
     NSLog(@"count:%@",obj.count);
+    cell.textLabel.font = [UIFont systemFontOfSize:14];
     cell.textLabel.textColor = [UIColor whiteColor];
     cell.textLabel.text = obj.name;
     cell.detailTextLabel.text = obj.url.absoluteString;
@@ -244,16 +251,27 @@
 }
 
 
+
 // Override to support editing the table view.
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
 {
     if (editingStyle == UITableViewCellEditingStyleDelete) {
         // Delete the row from the data source
+        [self.submenuItems removeObjectAtIndex:indexPath.row];
+        if (self.menuType == RCSubMenuFavorite) {
+            [RCRecordData updateRecord:self.submenuItems ForKey:RCRD_BOOKMARK];
+        }else {
+            [RCRecordData updateRecord:self.submenuItems ForKey:RCRD_HISTORY];
+        }
         [tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
     }   
     else if (editingStyle == UITableViewCellEditingStyleInsert) {
         // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
     }   
+}
+-(NSString*)tableView:(UITableView *)tableView titleForDeleteConfirmationButtonForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    return @"删除";  
 }
 
 /*
@@ -277,7 +295,7 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     UITableViewCell *cell = [tableView cellForRowAtIndexPath:indexPath];
-    if (self.menuType == RCSubMenuFavorite) {
+    if (self.menuType != RCSubMenuSetting) {
         if (!self.tableView.editing) {
             [self.revealSideViewController popViewControllerAnimated:YES];
             RCViewController *rcVC = (RCViewController *)self.revealSideViewController.rootViewController;
@@ -286,9 +304,16 @@
             RCBookMarkEditViewController *bmEdit = [[RCBookMarkEditViewController alloc] initWithNibName:@"RCBookMarkEditViewController" bundle:nil];
             bmEdit.index = indexPath.row;
             [self.navigationController pushViewController:bmEdit animated:YES];
+            [bmEdit release];
 
         }
     }
+}
+
+-(void)dealloc
+{
+    [_submenuItems release];
+    [super dealloc];
 }
 
 @end

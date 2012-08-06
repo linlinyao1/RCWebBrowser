@@ -10,12 +10,17 @@
 #import "RCRecordData.h"
 #import "RCSearchEnginePop.h"
 #import "RCSearchEngineSettingViewController.h"
+#import "RCProtocolViewController.h"
+#import "UMFeedback.h"
+#import "MobClick.h"
+#import "PPRevealSideViewController.h"
+#import "UIBarButtonItem+BackStyle.h"
 
 typedef enum {
     OptionSectionSearchEngine = 0,
     OptionSectionPrivate,
     OptionSectionNiteMode,    
-    OptionSectionBackground,
+//    OptionSectionBackground,
     OptionSectionUE,
     OptionSectionAbout,
 
@@ -53,7 +58,7 @@ typedef enum {
 
 typedef enum {
     OptionUEProtocol = 0,
-    OptionUEImprove,
+    OptionUEPrivate,
     OptionUESuggestion,
     
     OptionUECount
@@ -75,6 +80,7 @@ typedef enum {
 //@property (nonatomic,retain) NSArray *section2cells;
 //@property (nonatomic,retain) NSArray *section3cells;
 //@property (nonatomic,retain) NSArray *section4cells;
+@property (nonatomic)CGFloat brightness;
 @end
 
 @implementation RCSettingMenuViewController
@@ -83,7 +89,7 @@ typedef enum {
 //@synthesize section3cells = _section3cells;
 //@synthesize section4cells = _section4cells;
 //@synthesize sectionTitles = _sectionTitles;
-
+@synthesize brightness = _brightness;
 
 - (id)initWithStyle:(UITableViewStyle)style
 {
@@ -107,6 +113,12 @@ typedef enum {
     self.tableView.frame = CGRectMake(0, 0, 320-60, self.tableView.frame.size.height);
 }
 
+-(void)goBack
+{
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+
 - (void)viewDidLoad
 {
     [super viewDidLoad];
@@ -118,6 +130,13 @@ typedef enum {
     // self.navigationItem.rightBarButtonItem = self.editButtonItem;
     
     self.tableView.backgroundView = [[[UIImageView alloc] initWithImage:RC_IMAGE(@"MenuBG")] autorelease];   
+    
+    UIBarButtonItem *newBackButton = [UIBarButtonItem barButtonWithCustomImage:RC_IMAGE(@"MenuItemBack@2x") HilightImage:nil Title:@"返回" Target:self Action:@selector(goBack)];
+    self.navigationItem.leftBarButtonItem = newBackButton;
+    
+    if ([[UIScreen mainScreen] respondsToSelector:@selector(brightness)]) {
+        self.brightness = [[UIScreen mainScreen] brightness];
+    }
 }
 
 - (void)viewDidUnload
@@ -137,13 +156,12 @@ typedef enum {
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
     // Return the number of sections.
-    NSLog(@"%@",[[UIDevice currentDevice] systemVersion]);
-    if ([[UIScreen mainScreen] respondsToSelector:@selector(setBrightness:)]) {
-        return OptionSectionsCount;
-    }else {
-        return OptionSectionsCount-1;
-    }
-//    return OptionSectionsCount;
+//    if ([[UIScreen mainScreen] respondsToSelector:@selector(setBrightness:)]) {
+//        return OptionSectionsCount;
+//    }else {
+//        return OptionSectionsCount-1;
+//    }
+    return OptionSectionsCount;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
@@ -164,9 +182,9 @@ typedef enum {
                 rows = 0;
             }
             break;
-        case OptionSectionBackground:
-            rows = OptionBackgroundCount;
-            break;
+//        case OptionSectionBackground:
+//            rows = OptionBackgroundCount;
+//            break;
         case OptionSectionUE:
             rows = OptionUECount;
             break;
@@ -177,26 +195,26 @@ typedef enum {
     return rows;
 }
 
--(NSString*)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
-{
-    NSString *title = @"";
-    if (section == OptionSectionSearchEngine) {
-        title = @"搜索引擎设置";
-    }else if (section == OptionSectionPrivate) {
-        title = @"隐私信息保护";
-    }else if (section == OptionSectionBackground) {
-        title = @"选择背景";
-    }else if (section == OptionSectionUE) {
-        title = @"个人体验";
-    }
-    return title;
-}
+//-(NSString*)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
+//{
+//    NSString *title = nil;
+//    if (section == OptionSectionSearchEngine) {
+//        title = @"搜索引擎设置";
+//    }else if (section == OptionSectionPrivate) {
+//        title = @"隐私信息保护";
+////    }else if (section == OptionSectionBackground) {
+////        title = @"选择背景";
+//    }else if (section == OptionSectionUE) {
+//        title = @"个人体验";
+//    }
+//    return title;
+//}
 
 -(CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
 {
     if (section == OptionSectionSearchEngine||
         section == OptionSectionPrivate||
-        section == OptionSectionBackground||
+//        section == OptionSectionBackground||
         section == OptionSectionUE) {
         return 44;
     }
@@ -206,13 +224,13 @@ typedef enum {
 {
     NSString *title = @"";
     if (section == OptionSectionSearchEngine) {
-        title = @"搜索引擎设置";
+        title = @"   搜索引擎设置";
     }else if (section == OptionSectionPrivate) {
-        title = @"隐私信息保护";
-    }else if (section == OptionSectionBackground) {
-        title = @"选择背景";
+        title = @"   隐私信息保护";
+//    }else if (section == OptionSectionBackground) {
+//        title = @"选择背景";
     }else if (section == OptionSectionUE) {
-        title = @"个人体验";
+        title = @"   个人体验";
     }
     UILabel *titleLebel = [[[UILabel alloc] initWithFrame:CGRectMake(0, 0, tableView.frame.size.width, 44)] autorelease];
 //    titleLebel.font = [UIFont systemFontOfSize:12];
@@ -224,16 +242,20 @@ typedef enum {
 }
 
 
+
+
+
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     static NSString *CellIdentifier = @"Cell";
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
     if (!cell) {
-        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
+        cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier] autorelease];
     }
     cell.accessoryView = nil;
-//    cell.backgroundColor = [UIColor colorWithRed:251/255 green:251/255 blue:251/255 alpha:1];
-    cell.backgroundColor = [UIColor colorWithHue:0 saturation:0 brightness:0.98 alpha:1];
+//    cell.backgroundColor = [UIColor colorWithRed:235/255 green:235/255 blue:235/255 alpha:0];
+    cell.backgroundColor = [UIColor colorWithWhite:0.9 alpha:1];
+//    cell.backgroundColor = [UIColor colorWithHue:0 saturation:0 brightness:0.98 alpha:1];
     
     if ([indexPath section] == OptionSectionSearchEngine)
     {
@@ -284,33 +306,39 @@ typedef enum {
                 {
                     cell.textLabel.text = @"夜间模式";
                     UISwitch *editingSwitch = [[UISwitch alloc] initWithFrame:CGRectMake(0, 0, 100, 30)];
-    //                [editingSwitch addTarget:self action:@selector(editingSwitchChanged:) forControlEvents:UIControlEventValueChanged];                
+                    editingSwitch.on = [[NSUserDefaults standardUserDefaults] boolForKey:@"niteMode"];
+                    
+                    [editingSwitch addTarget:self action:@selector(editingSwitchChanged:) forControlEvents:UIControlEventValueChanged];                
                     cell.accessoryView = editingSwitch;
-                    [[UIScreen mainScreen]setBrightness:1.0];
+                    [editingSwitch release];
                 }
                 break;
         }
-    }
-    else if ([indexPath section] == OptionSectionBackground) {
-        switch ([indexPath row]) 
-        {
-            case OptionBackgroundSelect:
-                {
-                    cell.textLabel.text = @"背景"; // to be continue
-                }
-                break;
-        }
+//    }else if ([indexPath section] == OptionSectionBackground) {
+//        switch ([indexPath row]) 
+//        {
+//            case OptionBackgroundSelect:
+//                {
+//                    cell.textLabel.text = @"背景"; // to be continue
+//                }
+//                break;
+//        }
     }else if ([indexPath section] == OptionSectionUE) {
         switch ([indexPath row]) 
         {
             case OptionUEProtocol:
                 {
                     cell.textLabel.text = @"产品使用许可协议"; // to be continue
+                    
+                    UIImageView *indicator = [[[UIImageView alloc] initWithImage:RC_IMAGE(@"MenuDetailIndicate")] autorelease];
+                    cell.accessoryView = indicator;                
                 }
                 break;
-            case OptionUEImprove:
+            case OptionUEPrivate:
                 {
-                    cell.textLabel.text = @"用户体验改进计划"; // to be continue
+                    cell.textLabel.text = @"隐私保护声明"; // to be continue
+                    UIImageView *indicator = [[[UIImageView alloc] initWithImage:RC_IMAGE(@"MenuDetailIndicate")] autorelease];
+                    cell.accessoryView = indicator;  
                 }
                 break;
             case OptionUESuggestion:
@@ -325,6 +353,8 @@ typedef enum {
             case OptionAbout2345:
             {
                 cell.textLabel.text = @"关于2345"; // to be continue
+                UIImageView *indicator = [[[UIImageView alloc] initWithImage:RC_IMAGE(@"MenuDetailIndicate")] autorelease];
+                cell.accessoryView = indicator;  
             }
                 break;
             case OptionAboutRating:
@@ -369,24 +399,25 @@ typedef enum {
             {
                 UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"确认清空历史记录" message:@"清空后将不能找回" delegate:self cancelButtonTitle:@"取消" otherButtonTitles:@"清空", nil];
                 [alert show];
+                [alert release];
             }
                 break;
             case OptionPrivateCookies:
             {
                 UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"确认清空Cookies" message:@"清空后将不能找回" delegate:self cancelButtonTitle:@"取消" otherButtonTitles:@"清空", nil];
                 [alert show];
+                [alert release];
             }
                 break;
             case OptionPrivateCache:
             {
                 UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"确认清空缓存" message:@"清空后将不能找回" delegate:self cancelButtonTitle:@"取消" otherButtonTitles:@"清空", nil];
                 [alert show];
+                [alert release];
             }
                 break;
         }
-    }
-#if defined (__GNUC__) && (__GNUC__ >= 5)
-else if ([indexPath section] == OptionSectionNiteMode) {
+    }else if ([indexPath section] == OptionSectionNiteMode) {
         switch ([indexPath row]) 
         {
             case OptionNiteModeOnOff:
@@ -398,33 +429,38 @@ else if ([indexPath section] == OptionSectionNiteMode) {
             }
                 break;
         }
-    }
-#endif
-else if ([indexPath section] == OptionSectionBackground) {
-        switch ([indexPath row]) 
-        {
-            case OptionBackgroundSelect:
-            {
-//                cell.textLabel.text = @"背景"; // to be continue
-            }
-                break;
-        }
+//    }else if ([indexPath section] == OptionSectionBackground) {
+//        switch ([indexPath row]) 
+//        {
+//            case OptionBackgroundSelect:
+//            {
+////                cell.textLabel.text = @"背景"; // to be continue
+//            }
+//                break;
+//        }
     }else if ([indexPath section] == OptionSectionUE) {
         switch ([indexPath row]) 
         {
             case OptionUEProtocol:
-            {
-//                cell.textLabel.text = @"产品使用许可协议"; // to be continue
+            {                
+                RCProtocolViewController *aVC = [[RCProtocolViewController alloc] initWithNibName:nil bundle:nil];
+                [self.navigationController pushViewController:aVC animated:YES];
+                aVC.textView.text = [NSString stringWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"iPhone版产品使用许可协议" ofType:@"txt"] encoding:NSUTF8StringEncoding error:nil];
+                [aVC release];
             }
                 break;
-            case OptionUEImprove:
+            case OptionUEPrivate:
             {
-//                cell.textLabel.text = @"用户体验改进计划"; // to be continue
+                RCProtocolViewController *aVC = [[RCProtocolViewController alloc] initWithNibName:nil bundle:nil];
+                [self.navigationController pushViewController:aVC animated:YES];
+                aVC.textView.text = [NSString stringWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"隐私保护声明" ofType:@"txt"] encoding:NSUTF8StringEncoding error:nil];
+                [aVC release];
             }
                 break;
             case OptionUESuggestion:
             {
-//                cell.textLabel.text = @"意见反馈"; // to be continue
+                [self.revealSideViewController popViewControllerAnimated:YES];
+                [UMFeedback showFeedback:[[UIApplication sharedApplication] keyWindow].rootViewController withAppkey:@"501a19ab5270156736000014"];
             }
                 break;
         }
@@ -433,17 +469,27 @@ else if ([indexPath section] == OptionSectionBackground) {
         {
             case OptionAbout2345:
             {
+                RCProtocolViewController *aVC = [[RCProtocolViewController alloc] initWithNibName:nil bundle:nil];
+                [self.navigationController pushViewController:aVC animated:YES];
+                [aVC.textView removeFromSuperview];
+                aVC.view.backgroundColor = [UIColor whiteColor];
+                UIImageView *about = [[UIImageView alloc] initWithImage:RC_IMAGE(@"about2345")];
+                about.frame = CGRectMake(25, 30, 202, 290);
+                [aVC.view addSubview:about];
+                [about release];                
+                [aVC release];
 //                cell.textLabel.text = @"关于2345"; // to be continue
             }
                 break;
             case OptionAboutRating:
             {
-//                cell.textLabel.text = @"给2345浏览器打分"; // to be continue
+//                [[UIApplication sharedApplication] openURL:[NSURL URLWithString:[NSString stringWithFormat:@"https://userpub.itunes.apple.com/WebObjects/MZUserPublishing.woa/wa/addUserReview?id=%@", appId]]]
             }
                 break;
             case OptionAboutUpdate:
             {
-//                cell.textLabel.text = @"检查更新"; // to be continue
+                [MobClick checkUpdate];
+//                + (void)checkUpdate:(NSString *)title cancelButtonTitle:(NSString *)cancelTitle otherButtonTitles:(NSString *)otherTitle;
             }
                 break;
         }
@@ -482,14 +528,22 @@ else if ([indexPath section] == OptionSectionBackground) {
             [[NSURLCache sharedURLCache] removeAllCachedResponses];
         }
     }
-    
     [alertView dismissWithClickedButtonIndex:buttonIndex animated:YES];
 }
 
 
 
+-(void)editingSwitchChanged:(UISwitch*)sender
+{
+    [[UIScreen mainScreen]setBrightness:sender.on? 0.2:self.brightness];
+    [[NSUserDefaults standardUserDefaults] setBool:sender.on forKey:@"niteMode"];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
 
-
+-(void)dealloc
+{
+    [super dealloc];
+}
 
 
 @end

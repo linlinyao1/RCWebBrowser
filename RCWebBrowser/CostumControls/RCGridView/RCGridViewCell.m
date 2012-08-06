@@ -20,13 +20,16 @@
 @synthesize editing = _editing;
 @synthesize delegate = _delegate;
 @synthesize index = _index;
-@synthesize contentButton = _contentButton;
-//@synthesize title = _title;
+//@synthesize contentButton = _contentButton;
+@synthesize disableCloseButton = _disableCloseButton;
+
 -(void)setEditing:(BOOL)editing
 {
     if (_editing != editing) {
         _editing = editing;
-        self.closeButton.hidden = !_editing;
+        if (!self.disableCloseButton) {
+            self.closeButton.hidden = !_editing;
+        }
     }
 }
 
@@ -85,4 +88,17 @@
 {
     [self.delegate cellTappedWhenEditing:self];
 }
+
+
+-(void)dealloc
+{
+    [_contentView release];
+    [_backgroundView release];
+    [_closeButton release];
+
+    [super dealloc];
+    
+
+}
+
 @end

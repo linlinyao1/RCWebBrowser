@@ -17,6 +17,7 @@
 @property (nonatomic,retain) UIView *addButton;
 @property (nonatomic,retain) RCGridViewCell *movingCell;
 @property (nonatomic) CGPoint movingPosition;
+@property (nonatomic,retain) NSMutableSet *resuePool;
 
 @property (nonatomic,retain) UILongPressGestureRecognizer *longPress;
 @property (nonatomic,retain) UITapGestureRecognizer *tap;
@@ -26,6 +27,8 @@
 -(RCGridViewCell*)cellAtPoint:(CGPoint)point;
 
 -(void)checkMovingCellPosition:(RCGridViewCell*)movingCell;
+
+-(void)queueReusableCell:(RCGridViewCell*)cell;
 @end
 
 
@@ -47,7 +50,7 @@
 @synthesize pan = _pan;
 @synthesize movingCell = _movingCell;
 @synthesize movingPosition = _movingPosition;
-
+@synthesize resuePool = _resuePool;
 #pragma mark - setter & getter
 -(void)setDataSource:(NSObject<RCGridViewDataSource> *)dataSource
 {
@@ -93,7 +96,7 @@
         // Initialization code
         self.scrollView = [[[UIScrollView alloc] initWithFrame:self.bounds] autorelease];
 //        self.scrollView.canCancelContentTouches = NO;
-        self.scrollView.bounces = NO;
+//        self.scrollView.bounces = NO;
         [self addSubview:self.scrollView];
         
         UILongPressGestureRecognizer *longPress = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleLongPressed:)];
@@ -127,11 +130,23 @@
 
 -(void)reloadData
 {
+//    for (int i=0; i<[self.scrollView subviews].count; i++) {
+//        RCGridViewCell* cell = [[self.scrollView subviews] objectAtIndex:i];
+//        if (![cell isKindOfClass:[RCGridViewCell class]]) {
+//            continue;
+//        }
+//        [self queueReusableCell:cell];
+//        [cell removeFromSuperview];
+//    }
+//    [self.addButton removeFromSuperview];
+    
     [[self.scrollView subviews] makeObjectsPerformSelector:@selector(removeFromSuperview)];
+    
+    
     
     NSInteger numberOfCells = [self.dataSource numberOfCellsInGridView:self];
     CGRect rect = CGRectMake(self.minEdgeInsets.left, self.minEdgeInsets.top, self.cellSize.width, self.cellSize.height);
-    CGRect newRect;
+    CGRect newRect = CGRectZero;
     
     for (int i=0; i<numberOfCells; i++) {
         RCGridViewCell* cell = [self.dataSource gridView:self ViewForCellAtIndex:i];
@@ -151,6 +166,9 @@
     if ([self.dataSource respondsToSelector:@selector(ViewForAddButton:)]) {
         UIView *addButton = [self.dataSource ViewForAddButton:self];
         addButton.frame = rect;
+        if (self.isEditing) {
+            addButton.hidden = YES;
+        }
         [self.scrollView addSubview:addButton];
         self.addButton = addButton;
         self.scrollView.contentSize = CGSizeMake(self.frame.size.width, CGRectGetMaxY(rect)+self.minEdgeInsets.bottom);
@@ -159,18 +177,40 @@
     }
 }
 
+
+-(void)queueReusableCell:(RCGridViewCell *)cell
+{
+    if (!cell) {
+        return;
+    }
+    if (!self.resuePool) {
+        self.resuePool = [NSMutableSet setWithCapacity:1];
+    }
+    [self.resuePool addObject:cell];
+}
+
+-(RCGridViewCell *)dequeueReusableCell
+{
+    RCGridViewCell* cell = [self.resuePool anyObject];
+    if (cell) {
+        [self.resuePool removeObject:cell];
+    }
+    return cell;
+}
+
+
 #pragma mark - RCGridViewCellDelegate
 -(void)cellNeedToBeRemoved:(RCGridViewCell *)closeCell
 {
     for (int i=0; i<[self.scrollView subviews].count; i++) {
         RCGridViewCell *cell = [[self.scrollView subviews] objectAtIndex:i];
-        if (![cell isKindOfClass:[RCGridViewCell class]]) {
-            continue;
+        if ([cell isKindOfClass:[RCGridViewCell class]]) {
+            if (CGRectEqualToRect(cell.frame, closeCell.frame)) {
+                [self.delegate  gridView:self CellWillBeRemovedAtIndex:i];
+                break;
+            }
         }
-        if (CGRectEqualToRect(cell.frame, closeCell.frame)) {
-            [self.delegate  gridView:self CellWillBeRemovedAtIndex:i];
-            break;
-        }
+
     }
     
     [self reloadData];
@@ -343,13 +383,13 @@
         if (cell == self.addButton && CGRectContainsPoint(cell.frame, point)) {
             return RCGRIDVIEW_ADDBUTTON_INDEX;
         }
-        if (![cell isKindOfClass:[RCGridViewCell class]]) {
-            continue;
+        if ([cell isKindOfClass:[RCGridViewCell class]]) {
+            if (CGRectContainsPoint(cell.frame, point) || CGRectContainsPoint(cell.closeButton.frame, [cell convertPoint:point fromView:self.scrollView])) {//|| CGRectContainsPoint(, point)
+                return cell.index;
+            }
         }
 //        NSLog(@"point : %@",NSStringFromCGPoint([cell convertPoint:point fromView:self.scrollView]));
-        if (CGRectContainsPoint(cell.frame, point) || CGRectContainsPoint(cell.closeButton.frame, [cell convertPoint:point fromView:self.scrollView])) {//|| CGRectContainsPoint(, point)
-            return cell.index;
-        }
+
     }
     return RCGRIDVIEW_INVALID_INDEX;
 }
@@ -357,14 +397,25 @@
 -(RCGridViewCell *)cellAtPoint:(CGPoint)point
 {
     for (RCGridViewCell *cell in [self.scrollView subviews]) {
-        if (![cell isKindOfClass:[RCGridViewCell class]]) {
-            continue;
-        }
-        if (CGRectContainsPoint(cell.frame, point)) {
-            return cell;
+        if ([cell isKindOfClass:[RCGridViewCell class]]) {
+            if (CGRectContainsPoint(cell.frame, point)) {
+                return cell;
+            }
         }
     }
     return nil;
+}
+
+-(void)dealloc
+{
+    [_scrollView release];
+    [_addButton release];
+    [_longPress release];
+    [_tap release];
+    [_pan release];
+    [_movingCell release];
+    [_resuePool release];
+    [super dealloc];
 }
 
 @end

@@ -18,8 +18,9 @@
 @property (nonatomic,retain) UIImageView *backgroundView;
 @property (nonatomic) NSInteger index;
 @property (nonatomic,getter = isEditing) BOOL editing;
-@property (nonatomic,retain) UIButton *contentButton;
+//@property (nonatomic,retain) UIButton *contentButton;
 @property (nonatomic,retain) UIButton *closeButton;
+@property (nonatomic) BOOL disableCloseButton;
 
 @property (nonatomic,assign) NSObject<RCGridViewCellDelegate> *delegate;
 @end

@@ -18,5 +18,4 @@
 @property (nonatomic) BOOL isDefault;
 - (id) initWithName:(NSString *)name andURL:(NSURL *)url andIcon:(UIImage*)icon;
 
-
 @end
