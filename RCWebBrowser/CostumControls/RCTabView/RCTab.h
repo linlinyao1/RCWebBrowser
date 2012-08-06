@@ -15,6 +15,7 @@
 @interface RCTab : UITableViewCell
 @property (nonatomic,assign) NSObject<RCTabDelegate> *delegate;
 //+(RCTab*)tabWithDelegate:(NSObject<RCTabDelegate>*)delegate;
+@property (nonatomic,retain) UILabel *titleLabel;
 @end
 
 @protocol RCTabDelegate <NSObject>

@@ -21,7 +21,7 @@
 @implementation RCTab
 @synthesize delegate = _delegate;
 @synthesize closeButton = _closeButton;
-
+@synthesize titleLabel = _titleLabel;
 -(void)closeButtonPressed:(UIButton*)sender
 {
     if ([self.delegate respondsToSelector:@selector(tabNeedsToClose:)]) {
@@ -52,8 +52,16 @@
         [self.closeButton setHidden:YES];
         
 //        self.textLabel.textAlignment = UITextAlignmentCenter;
-        self.textLabel.backgroundColor = [UIColor clearColor];
-        self.textLabel.textColor = [UIColor blackColor];
+        UILabel *titleLabel = [[UILabel alloc] initWithFrame:CGRectMake(20, 0, 95, 42)];
+        titleLabel.backgroundColor = [UIColor clearColor];
+        titleLabel.textColor = [UIColor blackColor];
+        titleLabel.font = [UIFont systemFontOfSize:14];
+        [self.contentView addSubview:titleLabel];
+        self.titleLabel = titleLabel;
+        [titleLabel release];
+        
+//        self.textLabel.backgroundColor = [UIColor clearColor];
+//        self.textLabel.textColor = [UIColor blackColor];
     }
     
     return self;
@@ -80,5 +88,11 @@
 //    self.imageView.frame = CGRectMake(7,10,20,20);
 //    self.imageView.bounds = CGRectMake(0,0,20,20);
 //}
+-(void)dealloc
+{
+    [_titleLabel release];
+    [_closeButton release];
+    [super dealloc];
+}
 
 @end

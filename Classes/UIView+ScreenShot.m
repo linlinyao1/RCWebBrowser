@@ -12,10 +12,10 @@
 @implementation UIView (ScreenShot)
 +(UIImage*)captureView:(UIView *)theView
 {
-    if ([[UIScreen mainScreen] respondsToSelector:@selector(scale)])
-        UIGraphicsBeginImageContextWithOptions(theView.bounds.size, NO, [UIScreen mainScreen].scale);
-    else
-        UIGraphicsBeginImageContext(theView.bounds.size);
+//    if ([[UIScreen mainScreen] respondsToSelector:@selector(scale)])
+//        UIGraphicsBeginImageContextWithOptions(theView.bounds.size, NO, [UIScreen mainScreen].scale);
+//    else
+        UIGraphicsBeginImageContext(CGSizeMake(64, 64)); //theView.bounds.size
 //    CGRect rect = theView.frame;
 //    UIGraphicsBeginImageContext(rect.size);
     CGContextRef context =UIGraphicsGetCurrentContext();

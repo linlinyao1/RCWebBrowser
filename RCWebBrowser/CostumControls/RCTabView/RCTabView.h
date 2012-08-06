@@ -7,6 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "RCTab.h"
 
 @protocol RCTabViewDelegate <NSObject>
 

@@ -1333,15 +1333,15 @@
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];
-    @try {
-        [_rootViewController removeObserver:self forKeyPath:@"view.frame"];
-    }
-    @catch (NSException *exception) {
-        
-    }
-    @finally {
-        
-    }
+//    @try {
+//        [_rootViewController removeObserver:self forKeyPath:@"view.frame"];
+//    }
+//    @catch (NSException *exception) {
+//        
+//    }
+//    @finally {
+//        
+//    }
 }
 
 - (void)viewDidUnload

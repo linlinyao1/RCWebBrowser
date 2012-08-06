@@ -32,6 +32,7 @@
         [self stopLoading];
     }
     [[RCFastLinkView defaultPage] refresh];
+    [[RCFastLinkView defaultPage] removeFromSuperview];
     [self addSubview:[RCFastLinkView defaultPage]];
     self.isDefaultPage = YES;
 }

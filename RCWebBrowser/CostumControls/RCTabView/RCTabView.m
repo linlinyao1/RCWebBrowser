@@ -7,7 +7,6 @@
 //
 
 #import "RCTabView.h"
-#import "RCTab.h"
 
 /////////////////////////////////////////////////////////////
 @interface UIImage (Thumbnail)
@@ -75,7 +74,7 @@
     self.tabItems = [NSMutableArray arrayWithObjects:@"new",nil];
 //    UIImageView *bgImageView = [[[UIImageView alloc] initWithImage:RC_IMAGE(@"TabViewBG@2x")] autorelease];
 //    [self addSubview:bgImageView];
-    [self setBackgroundColor: [UIColor colorWithPatternImage:RC_IMAGE(@"TabViewBG@2x")]];//[UIColor orangeColor]];
+    [self setBackgroundColor: [UIColor colorWithPatternImage:RC_IMAGE(@"TabViewBG")]];//[UIColor orangeColor]];
 //    [self setBackgroundColor: [UIColor orangeColor]];
     
     UITableView *table = [[UITableView alloc] initWithFrame:frame style:UITableViewStylePlain];
@@ -97,10 +96,10 @@
     [table release];
     [self addSubview:table];
     
-    UIImageView *mask = [[UIImageView alloc] initWithImage:RC_IMAGE(@"tabViewMask")];
-    mask.frame = CGRectMake(320-11, 0, 11, 38);
-    [self addSubview:mask];
-    [mask release];
+//    UIImageView *mask = [[UIImageView alloc] initWithImage:RC_IMAGE(@"tabViewMask")];
+//    mask.frame = CGRectMake(320-11, 0, 11, 38);
+//    [self addSubview:mask];
+//    [mask release];
 
 
 //    UIButton *addButton = [UIButton buttonWithType:UIButtonTypeCustom];
@@ -190,7 +189,8 @@
         cell.transform = CGAffineTransformMakeRotation(M_PI * 0.5);
         cell.selectionStyle = UITableViewCellSelectionStyleNone;
     }
-    cell.textLabel.text = [self.delegate titleForTabAtIndex:indexPath.row];
+//    cell.textLabel.text = [self.delegate titleForTabAtIndex:indexPath.row];
+    cell.titleLabel.text = [self.delegate titleForTabAtIndex:indexPath.row];
     cell.imageView.image = [[self.delegate faviconForTabAtIndex:indexPath.row] makeThumbnailOfSize:CGSizeMake(20, 20)];
     return cell;
 }
@@ -222,7 +222,6 @@
         [self.tabTable selectRowAtIndexPath:[NSIndexPath indexPathForRow:index.row inSection:0 ] animated:YES scrollPosition:UITableViewScrollPositionNone];
         [self.delegate didSelectedTabAtIndex:index.row]; // selectRowAtIndexPath wont call the delegate, so call it manually
     }
-    
 }
 
 -(BOOL)canCloseCell
@@ -242,4 +241,15 @@
 {
     self.disablePPSlide = NO;
 }
+
+
+-(void)dealloc
+{
+    [_tabTable release];
+    [_addButton release];
+    [_tabItems release];
+
+    [super dealloc];
+}
+
 @end

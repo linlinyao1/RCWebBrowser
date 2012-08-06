@@ -7,6 +7,8 @@
 //
 
 #import "RCRecordData.h"
+#import "JSONKit.h"
+#import "RCFastLinkObject.h"
 
 @implementation RCRecordData
 
@@ -27,9 +29,22 @@ static inline NSString* cachePathForKey(NSString* key) {
     NSString *path = cachePathForKey(key);
     NSData* data = [NSData dataWithContentsOfFile:path];
     if (data) {
-        result = [[NSMutableArray alloc] initWithArray:[NSKeyedUnarchiver unarchiveObjectWithData:data]];
+        result = [[[NSMutableArray alloc] initWithArray:[NSKeyedUnarchiver unarchiveObjectWithData:data]] autorelease];
     }else {
-        result = [[NSMutableArray alloc] initWithCapacity:1];
+        result = [[[NSMutableArray alloc] initWithCapacity:1] autorelease];
+        if ([key isEqualToString:RCRD_FASTLINK]) {
+            NSString *path = [[NSBundle mainBundle]pathForResource:@"defaultFastlinks" ofType:@"json"];
+            NSString *jsonData = [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:nil];
+            NSArray *array = [jsonData objectFromJSONString];//[array mutableCopy];
+            for (NSDictionary* dic in array) {
+                RCFastLinkObject *newObj = [[RCFastLinkObject alloc] initWithName:[dic objectForKey:@"urltitle"] andURL:[NSURL URLWithString:[dic objectForKey:@"urllink"]] andIcon:nil];
+                newObj.isDefault = YES;
+                newObj.iconName = [dic objectForKey:@"urlico"];
+                [result addObject:newObj];
+                [newObj release];
+            } 
+            [self updateRecord:result ForKey:RCRD_FASTLINK];
+        }
     }
     return result;
 }
