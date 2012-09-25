@@ -142,6 +142,7 @@
 		887BF1F415B8FD85004366D1 /* navigation.html in Resources */ = {isa = PBXBuildFile; fileRef = 887BF1F315B8FD85004366D1 /* navigation.html */; };
 		887BF1F815B906B1004366D1 /* RCAddNewViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 887BF1F715B906B1004366D1 /* RCAddNewViewController.m */; };
 		887BF20E15B9299E004366D1 /* PPRevealSideViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 887BF20D15B9299E004366D1 /* PPRevealSideViewController.m */; };
+		887C40E2161145E900DB2146 /* UIColor+HexValue.m in Sources */ = {isa = PBXBuildFile; fileRef = 887C40E1161145E900DB2146 /* UIColor+HexValue.m */; };
 		887CA7A2160C542F004E617A /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 887CA7A1160C542F004E617A /* Default-568h@2x.png */; };
 		887D6BDF15A6839B00400244 /* BookmarkObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 887D6BD015A6839B00400244 /* BookmarkObject.m */; };
 		887D6BE815A6853A00400244 /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 887D6BE715A6853A00400244 /* MessageUI.framework */; };
@@ -364,6 +365,8 @@
 		887BF1F715B906B1004366D1 /* RCAddNewViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCAddNewViewController.m; path = RCAddNewViewController/RCAddNewViewController.m; sourceTree = "<group>"; };
 		887BF20C15B9299E004366D1 /* PPRevealSideViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PPRevealSideViewController.h; sourceTree = "<group>"; };
 		887BF20D15B9299E004366D1 /* PPRevealSideViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PPRevealSideViewController.m; sourceTree = "<group>"; };
+		887C40E0161145E900DB2146 /* UIColor+HexValue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIColor+HexValue.h"; sourceTree = "<group>"; };
+		887C40E1161145E900DB2146 /* UIColor+HexValue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIColor+HexValue.m"; sourceTree = "<group>"; };
 		887CA7A1160C542F004E617A /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
 		887D6BCF15A6839B00400244 /* BookmarkObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BookmarkObject.h; path = ../CIALBrowser/BookmarkObject.h; sourceTree = "<group>"; };
 		887D6BD015A6839B00400244 /* BookmarkObject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = BookmarkObject.m; path = ../CIALBrowser/BookmarkObject.m; sourceTree = "<group>"; };
@@ -734,6 +737,15 @@
 			name = RCAddNewViewController;
 			sourceTree = "<group>";
 		};
+		887C40DF161145E900DB2146 /* HexValue+UIColor */ = {
+			isa = PBXGroup;
+			children = (
+				887C40E0161145E900DB2146 /* UIColor+HexValue.h */,
+				887C40E1161145E900DB2146 /* UIColor+HexValue.m */,
+			);
+			path = "HexValue+UIColor";
+			sourceTree = "<group>";
+		};
 		887D6BEC15A6892100400244 /* RCSearchBar */ = {
 			isa = PBXGroup;
 			children = (
@@ -846,6 +858,7 @@
 		88807CE415ABF63B00FC8773 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				887C40DF161145E900DB2146 /* HexValue+UIColor */,
 				887D6BCF15A6839B00400244 /* BookmarkObject.h */,
 				887D6BD015A6839B00400244 /* BookmarkObject.m */,
 				8884B30815C65EFF0050E45D /* UIBarButtonItem+BackStyle.h */,
@@ -1188,6 +1201,7 @@
 				886A3FA415DB669900D9A56B /* JSONKit.m in Sources */,
 				88440F8715DE400D0058192D /* RCGridView.m in Sources */,
 				88440F8815DE400D0058192D /* RCGridViewCell.m in Sources */,
+				887C40E2161145E900DB2146 /* UIColor+HexValue.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

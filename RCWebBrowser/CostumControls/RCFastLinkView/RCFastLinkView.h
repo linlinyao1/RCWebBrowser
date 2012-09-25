@@ -11,6 +11,8 @@
 @protocol RCFastLinkViewDelegate <NSObject>
 
 -(void)openLink:(NSURL *)URL;
+-(void)fastLinkStartEdting;
+-(void)fastLinkEndEdting;
 
 @end
 

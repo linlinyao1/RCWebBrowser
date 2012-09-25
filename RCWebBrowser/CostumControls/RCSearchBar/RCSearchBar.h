@@ -9,6 +9,7 @@
 #import <UIKit/UIKit.h>
 #import "CMPopTipView.h"
 #import "RCBookMarkPop.h"
+#import "RCUrlInputField.h"
 
 
 enum {
@@ -31,7 +32,7 @@ typedef NSInteger RCKeyBoardAccessoryType ;
 @end
 
 @interface RCSearchBar : UIView
-@property (nonatomic,retain) UITextField *locationField;
+@property (nonatomic,retain) RCUrlInputField *locationField;
 @property (nonatomic,assign) IBOutlet NSObject<RCSearchBarDelegate,RCBookMarkPopDelegate> *delegate;
 @property (nonatomic,retain) UIButton *bookMarkButton;
 @property (nonatomic,retain) CMPopTipView *bookMarkPop;

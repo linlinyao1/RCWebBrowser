@@ -21,6 +21,9 @@
 @property (nonatomic) BOOL isSliding;
 @property (nonatomic,retain) UINavigationController *menuViewController;
 @property (nonatomic,retain) NSMutableArray* webPool;
+
+@property (nonatomic,retain) UIButton* editingDoneButton;
+
 -(void)updateBackForwordState:(RCWebView*)web;
 @end
 
@@ -63,13 +66,6 @@
     [nav release];
 }
 
-
--(void)openLink:(NSURL *)URL
-{
-    if (URL) {
-        [self loadURLWithCurrentTab:URL];
-    }
-}
 
 
 -(void)viewWillAppear:(BOOL)animated
@@ -481,7 +477,6 @@
         return NO;
     }
     
-    
     if (![request.URL.absoluteString isEqualToString:@"about:blank"]) {
         self.searchBar.locationField.text = request.mainDocumentURL.absoluteString;
         if (!self.bottomToolBar.isBarShown && CGAffineTransformIsIdentity(self.tabView.transform)) {
@@ -489,10 +484,7 @@
         }
         
     }
-//    if (navigationType == UIWebViewNavigationTypeLinkClicked) {
-//       NSString *string =  [webView stringByEvaluatingJavaScriptFromString:@"window.open = function (open) { return function  (url, name, features) { window.location.href = url; return window; }; } (window.open);"];
-//        NSLog(@"string : %@",string);
-//    }
+
     return YES;
 }
 -(void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error
@@ -553,13 +545,6 @@
     });   
     
     return nil;
-//    NSData *data = [NSData dataWithContentsOfURL:url];
-//    if (data) {
-//        UIImage *image = [UIImage imageWithData:data];
-//        return image;
-//    }else {
-//        return nil;
-//    }
 }
 
 -(void)didSelectedTabAtIndex:(NSInteger)index
@@ -731,7 +716,7 @@
     BookmarkObject *object = [[[BookmarkObject alloc] initWithName:name andURL:url] autorelease];
     return object;
 }
--(UIWebView *)currentWeb
+-(RCWebView *)currentWeb
 {
     NSIndexPath *index = [self.tabView.tabTable indexPathForSelectedRow];
     return [self.openedWebs objectAtIndex:index.row];
@@ -757,5 +742,39 @@
         self.searchBar.searchEnginePop = nil;
     }
 }
+
+
+#pragma mark - RCFastLinkViewDelegate
+-(void)openLink:(NSURL *)URL
+{
+    if (URL) {
+        [self loadURLWithCurrentTab:URL];
+    }
+}
+
+-(void)fastLinkStartEdting
+{
+    if (!self.editingDoneButton) {
+        self.editingDoneButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
+        self.editingDoneButton.frame = self.bottomToolBar.bounds;
+        [self.editingDoneButton setTitle:@"完成" forState:UIControlStateNormal];
+        [self.editingDoneButton addTarget:self action:@selector(handleEditingDoneButton) forControlEvents:UIControlEventTouchUpInside];
+    }
+    [self.bottomToolBar addSubview:self.editingDoneButton];
+}
+
+-(void)fastLinkEndEdting
+{
+    if (self.editingDoneButton) {
+        [self.editingDoneButton removeFromSuperview];
+        self.editingDoneButton = nil;
+    }
+}
+
+//-(void)handleEditingDoneButton
+//{
+//    RCWebView* web = [self currentWeb];
+//    web.
+//}
 
 @end

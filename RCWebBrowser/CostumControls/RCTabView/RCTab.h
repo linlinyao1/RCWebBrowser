@@ -22,5 +22,8 @@
 @required
 -(BOOL)canCloseCell;
 @optional
+
 -(void)tabNeedsToClose:(RCTab*)tab;
+
+
 @end

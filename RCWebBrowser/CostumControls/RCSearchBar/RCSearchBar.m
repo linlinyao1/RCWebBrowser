@@ -11,7 +11,6 @@
 #import "RCRecordData.h"
 #import "RCSearchEnginePop.h"
 #import "QuartzCore/QuartzCore.h"
-#import "RCUrlInputField.h"
 
 @interface RCSearchBar ()<UITextFieldDelegate,UITableViewDataSource,UITableViewDelegate,RCSearchEnginePopDelegate>
 @property (nonatomic,retain) UIButton *searchEngineButton;
@@ -22,6 +21,7 @@
 @property (nonatomic,retain) NSMutableArray *listContent;			// The master content.
 @property (nonatomic,retain) NSMutableArray *historys;
 @property (nonatomic,retain) UIImageView *progressBar;
+@property (nonatomic,assign) NSTimer *progressTimer;
 @end
 
 @implementation RCSearchBar
@@ -57,48 +57,84 @@
 }
 
 
+-(void)handleProgressTimer:(NSTimer*)sender
+{
+    if (!self.progressTimer) {
+        [sender invalidate];
+        return;
+    }
+    
+    CGFloat progress = floorf(self.locationField.loadingProgress.floatValue*1000)/1000;
+    if (progress <=0) {
+        self.locationField.loadingProgress = @0;
+        [sender invalidate];
+        self.progressTimer = nil;
+        return;
+    }else if (progress > 1){
+        self.locationField.loadingProgress = @1;
+    }else if (progress == 1){
+        self.locationField.loadingProgress = @0;
+    }else if (progress < 0.5) {
+        self.locationField.loadingProgress = @(0.012 + self.locationField.loadingProgress.floatValue);
+    }else if (progress == 0.51){
+        [sender invalidate];
+        self.locationField.loadingProgress = @(0.01 + self.locationField.loadingProgress.floatValue);
+        self.progressTimer = [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(handleProgressTimer:) userInfo:nil repeats:NO];
+    }else if (progress < 0.82){
+        self.locationField.loadingProgress = @(0.01 + self.locationField.loadingProgress.floatValue);
+        self.progressTimer = [NSTimer scheduledTimerWithTimeInterval:.1 target:self selector:@selector(handleProgressTimer:) userInfo:nil repeats:YES];
+    }
+    
+}
+
 
 -(void)startLoadingProgress
 {
-    if (!self.progressBar) {
-        self.progressBar = [[[UIImageView alloc] initWithImage:RC_IMAGE(@"search_progressbar")] autorelease];
-        self.progressBar.frame = CGRectOffset(self.locationField.bounds, -self.locationField.bounds.size.width, 0);
-        self.progressBar.userInteractionEnabled= NO;
+    if(self.progressTimer) {
+        self.progressTimer = nil;
     }
-    [self.locationField addSubview:self.progressBar];
-
-    self.progressBar.transform = CGAffineTransformMakeTranslation(self.progressBar.frame.size.width*0.15, 0);
+    self.locationField.loadingProgress = @0.15;
+    self.progressTimer = [NSTimer scheduledTimerWithTimeInterval:.1 target:self selector:@selector(handleProgressTimer:) userInfo:nil repeats:YES];
     
-    [UIView animateWithDuration:3
-                          delay:0
-                        options:0//UIViewAnimationOptionBeginFromCurrentState|UIViewAnimationOptionAllowUserInteraction
-                     animations:^{
-                         self.progressBar.transform = CGAffineTransformMakeTranslation(self.progressBar.frame.size.width*0.5, 0);
-                     } completion:^(BOOL finished) {
-                         if (finished) {
-                             [UIView animateWithDuration:3
-                                                   delay:1
-                                                 options:0//UIViewAnimationOptionBeginFromCurrentState|UIViewAnimationOptionAllowUserInteraction
-                                              animations:^{
-                                                  self.progressBar.transform = CGAffineTransformMakeTranslation(self.progressBar.frame.size.width*0.9, 0);
-                                              } completion:^(BOOL finished) {
-
-                                              }];
-                         }
-                     }];
+//    if (!self.progressBar) {
+//        self.progressBar = [[[UIImageView alloc] initWithImage:RC_IMAGE(@"search_progressbar")] autorelease];
+//        self.progressBar.frame = CGRectOffset(self.locationField.bounds, -self.locationField.bounds.size.width, 0);
+//        self.progressBar.userInteractionEnabled= NO;
+//    }
+//    [self.locationField addSubview:self.progressBar];
+//
+//    self.progressBar.transform = CGAffineTransformMakeTranslation(self.progressBar.frame.size.width*0.15, 0);
+//    
+//    [UIView animateWithDuration:3
+//                          delay:0
+//                        options:0//UIViewAnimationOptionBeginFromCurrentState|UIViewAnimationOptionAllowUserInteraction
+//                     animations:^{
+//                         self.progressBar.transform = CGAffineTransformMakeTranslation(self.progressBar.frame.size.width*0.5, 0);
+//                     } completion:^(BOOL finished) {
+//                         if (finished) {
+//                             [UIView animateWithDuration:3
+//                                                   delay:1
+//                                                 options:0//UIViewAnimationOptionBeginFromCurrentState|UIViewAnimationOptionAllowUserInteraction
+//                                              animations:^{
+//                                                  self.progressBar.transform = CGAffineTransformMakeTranslation(self.progressBar.frame.size.width*0.9, 0);
+//                                              } completion:^(BOOL finished) {
+//
+//                                              }];
+//                         }
+//                     }];
     
 }
 -(void)stopLoadProgress
 {
-    [UIView animateWithDuration:.1
-                          delay:0
-                        options:UIViewAnimationOptionBeginFromCurrentState|UIViewAnimationOptionAllowUserInteraction
-                     animations:^{
-                         self.progressBar.transform = CGAffineTransformMakeTranslation(self.progressBar.frame.size.width, 0);
-                     } completion:^(BOOL finished) {
-                         self.progressBar.transform = CGAffineTransformIdentity;
-                         [self.progressBar removeFromSuperview];
-                     }];
+//    [UIView animateWithDuration:.1
+//                          delay:0
+//                        options:UIViewAnimationOptionBeginFromCurrentState|UIViewAnimationOptionAllowUserInteraction
+//                     animations:^{
+//                         self.progressBar.transform = CGAffineTransformMakeTranslation(self.progressBar.frame.size.width, 0);
+//                     } completion:^(BOOL finished) {
+//                         self.progressBar.transform = CGAffineTransformIdentity;
+//                         [self.progressBar removeFromSuperview];
+//                     }];
 }
 
 

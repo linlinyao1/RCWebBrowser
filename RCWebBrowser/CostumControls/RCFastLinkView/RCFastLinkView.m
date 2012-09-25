@@ -150,6 +150,8 @@ static RCFastLinkView *_fastLinkView;
         [html loadHTMLString:[NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:nil] baseURL:nil];
         [self.scrollBoard addSubview:html];
         html.delegate = self;
+        html.backgroundColor = [UIColor clearColor];
+        html.opaque = NO;
         self.htmlNav = html;
         
         
@@ -307,10 +309,12 @@ static RCFastLinkView *_fastLinkView;
 -(void)gridViewStartEditing:(RCGridView *)gridView
 {
     self.scrollBoard.scrollEnabled = NO;
+    [self.delegate fastLinkStartEdting];
 }
 -(void)gridViewEndEditing:(RCGridView *)gridView
 {
     self.scrollBoard.scrollEnabled = YES;
+    [self.delegate fastLinkEndEdting];
 }
 
 

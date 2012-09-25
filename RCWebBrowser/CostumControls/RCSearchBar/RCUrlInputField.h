@@ -9,9 +9,6 @@
 #import <UIKit/UIKit.h>
 
 @interface RCUrlInputField : UITextField
-
-
-
-
+@property (nonatomic,strong) NSNumber *loadingProgress;
 
 @end
