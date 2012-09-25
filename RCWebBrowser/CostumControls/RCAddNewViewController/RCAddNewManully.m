@@ -38,7 +38,7 @@
     return YES;
 }
 
--(id)init
+-(id)initWithNib
 {
     self = [[[[NSBundle mainBundle] loadNibNamed:@"RCAddNewManully" owner:self options:nil] objectAtIndex:0] retain];
     if (self) {

@@ -72,13 +72,9 @@
 -(void)setUpViews:(CGRect)frame
 {
     self.tabItems = [NSMutableArray arrayWithObjects:@"new",nil];
-//    UIImageView *bgImageView = [[[UIImageView alloc] initWithImage:RC_IMAGE(@"TabViewBG@2x")] autorelease];
-//    [self addSubview:bgImageView];
+
     [self setBackgroundColor: [UIColor colorWithPatternImage:RC_IMAGE(@"TabViewBG")]];//[UIColor orangeColor]];
-//    [self setBackgroundColor: [UIColor orangeColor]];
-    
     UITableView *table = [[UITableView alloc] initWithFrame:frame style:UITableViewStylePlain];
-//    table.backgroundColor = [UIColor colorWithPatternImage:RC_IMAGE(@"TabViewBG@2x")];
     table.backgroundColor = [UIColor clearColor];
     table.separatorStyle = UITableViewCellSelectionStyleNone;
     table.showsHorizontalScrollIndicator = NO;
@@ -88,28 +84,14 @@
     table.delegate = self;
     table.transform = CGAffineTransformMakeRotation(-M_PI * 0.5);  
     table.frame = frame;
-//    table.bounces = NO;
-//    table.scrollEnabled = NO;
-//    table.backgroundColor = [UIColor blackColor];
-//    table.backgroundColor = [UIColor colorWithPatternImage:RC_IMAGE(@"TabViewBG")];
+    
+    table.scrollsToTop = NO;
+    
     self.tabTable = table;
     [table release];
     [self addSubview:table];
     
-//    UIImageView *mask = [[UIImageView alloc] initWithImage:RC_IMAGE(@"tabViewMask")];
-//    mask.frame = CGRectMake(320-11, 0, 11, 38);
-//    [self addSubview:mask];
-//    [mask release];
 
-
-//    UIButton *addButton = [UIButton buttonWithType:UIButtonTypeCustom];
-//    [addButton setImage:RC_IMAGE(@"tab_add") forState:UIControlStateNormal];
-////    [addButton setImage:RC_IMAGE(@"add_label_press") forState:UIControlStateHighlighted];
-//    addButton.frame = CGRectMake(4, 4, ADDBUTTON_WIDTH,ADDBUTTON_HEIGHT);
-//    [addButton addTarget:self action:@selector(addButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
-//    addButton.transform = CGAffineTransformMakeRotation(M_PI * 0.5);
-////    [self addSubview:addButton];
-//    self.addButton = addButton;
 }
 
 
@@ -135,11 +117,10 @@
 
 -(UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section
 {
-    UIImageView *footer = [[[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 55, 38)] autorelease];
+    UIImageView *footer = [[[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 55, 39)] autorelease];
 //    footer.backgroundColor = [UIColor orangeColor];
     footer.image = RC_IMAGE(@"tab_add_mask");
     footer.userInteractionEnabled = YES;
-    
     UIButton *addButton = [UIButton buttonWithType:UIButtonTypeCustom];
     [addButton setImage:RC_IMAGE(@"tab_add") forState:UIControlStateNormal];
     addButton.frame = CGRectMake(14, 4, ADDBUTTON_WIDTH,ADDBUTTON_HEIGHT);
@@ -187,12 +168,19 @@
         cell.textLabel.textColor = [UIColor blackColor];
         cell.delegate = self;
         cell.transform = CGAffineTransformMakeRotation(M_PI * 0.5);
-        cell.selectionStyle = UITableViewCellSelectionStyleNone;
+//        cell.selectionStyle = UITableViewCellSelectionStyleNone;
     }
 //    cell.textLabel.text = [self.delegate titleForTabAtIndex:indexPath.row];
     cell.titleLabel.text = [self.delegate titleForTabAtIndex:indexPath.row];
     cell.imageView.image = [[self.delegate faviconForTabAtIndex:indexPath.row] makeThumbnailOfSize:CGSizeMake(20, 20)];
     return cell;
+}
+
+-(void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    NSLog(@"cell: %@",NSStringFromCGRect(cell.frame));
+    NSLog(@"cell bg : %@",NSStringFromCGRect(cell.backgroundView.frame));
+
 }
 
 -(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
@@ -214,7 +202,7 @@
     }
 
     [self.tabTable deleteRowsAtIndexPaths:[NSArray arrayWithObject:index] withRowAnimation:UITableViewRowAnimationLeft];
-    
+
     if (index.row >= [self.delegate numberOfTabs]) {
         [self.tabTable selectRowAtIndexPath:[NSIndexPath indexPathForRow:index.row-1 inSection:0 ] animated:YES scrollPosition:UITableViewScrollPositionNone];
         [self.delegate didSelectedTabAtIndex:index.row-1]; // selectRowAtIndexPath wont call the delegate, so call it manually
@@ -236,11 +224,15 @@
 -(void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
     self.disablePPSlide = YES;
+    [super touchesBegan:touches withEvent:event];
 }
 -(void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
 {
     self.disablePPSlide = NO;
+    [super touchesEnded:touches withEvent:event];
 }
+
+
 
 
 -(void)dealloc

@@ -74,10 +74,13 @@
         [header addSubview:clear];
     }else if (self.menuType == RCSubMenuMostViewed) {
         NSMutableArray *historyArray = [RCRecordData recordDataWithKey:RCRD_HISTORY];
-        [historyArray sortedArrayUsingComparator:^NSComparisonResult(BookmarkObject* obj1, BookmarkObject* obj2) {
-            return [obj1.count compare:obj2.count];
-        }];
-        self.submenuItems = historyArray;
+        self.submenuItems = [[historyArray sortedArrayUsingComparator:^NSComparisonResult(BookmarkObject* obj1, BookmarkObject* obj2) {
+            return [obj2.count compare:obj1.count];
+        }] mutableCopy];
+        
+        if (self.submenuItems.count>=15) {
+            self.submenuItems = [[self.submenuItems subarrayWithRange:NSMakeRange(0, 15)] mutableCopy];
+        }
         
         titleLabel.text = @"最常访问";
         UIButton *clear = [UIButton buttonWithType:UIButtonTypeCustom];

@@ -119,10 +119,10 @@ typedef enum {
 }
 
 
+
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-
     // Uncomment the following line to preserve selection between presentations.
     // self.clearsSelectionOnViewWillAppear = NO;
  
@@ -251,11 +251,12 @@ typedef enum {
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
     if (!cell) {
         cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier] autorelease];
+
     }
     cell.accessoryView = nil;
 //    cell.backgroundColor = [UIColor colorWithRed:235/255 green:235/255 blue:235/255 alpha:0];
     cell.backgroundColor = [UIColor colorWithWhite:0.9 alpha:1];
-//    cell.backgroundColor = [UIColor colorWithHue:0 saturation:0 brightness:0.98 alpha:1];
+//    cell.backgroundColor = [UIColor colorWithHue:0 saturation:0 brightness:0.98 alpha:1];;
     
     if ([indexPath section] == OptionSectionSearchEngine)
     {
@@ -483,7 +484,9 @@ typedef enum {
                 break;
             case OptionAboutRating:
             {
-//                [[UIApplication sharedApplication] openURL:[NSURL URLWithString:[NSString stringWithFormat:@"https://userpub.itunes.apple.com/WebObjects/MZUserPublishing.woa/wa/addUserReview?id=%@", appId]]]
+                NSString *appId = @"550416381";
+                NSString* url = [NSString stringWithFormat: @"itms-apps://ax.itunes.apple.com/WebObjects/MZStore.woa/wa/viewContentsUserReviews?type=Purple+Software&id=%@", appId];
+                [[UIApplication sharedApplication] openURL: [NSURL URLWithString: url]];
             }
                 break;
             case OptionAboutUpdate:

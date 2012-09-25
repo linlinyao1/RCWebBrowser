@@ -33,9 +33,15 @@
 {
     self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
     if (self) {
+        self.clipsToBounds = NO;
         // Initialization code
+        self.contentView.backgroundColor = [UIColor clearColor];
         UIImageView *bgImage_selected = [[UIImageView alloc] initWithImage:RC_IMAGE(@"tab_active")];
+        
         UIImageView *bgImage = [[UIImageView alloc] initWithImage:RC_IMAGE(@"tab_inactive")];
+//        UIView* bgImage = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 136, 39)];
+//        bgImage.backgroundColor = [UIColor redColor];
+//        self.backgroundColor = [UIColor colorWithPatternImage:RC_IMAGE(@"tab_inactive")];
         [self setBackgroundView:bgImage];
         [self setSelectedBackgroundView:bgImage_selected];
         [bgImage release];
@@ -71,6 +77,7 @@
 {
     [super setSelected:selected animated:animated];
     if (selected) {
+//        [self insertSubview:self.selectedBackgroundView aboveSubview:self.backgroundView];
         [self.backgroundView addSubview:self.selectedBackgroundView];
         if ([self.delegate canCloseCell]) {
 //            self.accessoryView.hidden = NO;
@@ -85,8 +92,9 @@
 
 //- (void)layoutSubviews {
 //    [super layoutSubviews];
-//    self.imageView.frame = CGRectMake(7,10,20,20);
-//    self.imageView.bounds = CGRectMake(0,0,20,20);
+//    self.backgroundView.frame = self.bounds;
+////    self.imageView.frame = CGRectMake(7,10,20,20);
+////    self.imageView.bounds = CGRectMake(0,0,20,20);
 //}
 -(void)dealloc
 {

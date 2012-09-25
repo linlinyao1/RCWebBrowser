@@ -189,17 +189,18 @@
 
 -(void)dealloc
 {
+    [_backView release];
+    [_frontView release];
+    [_backButtonItem release];
+    [_backButtonItem2 release];
+    [_forwardButtonItem release];
+    [_menuButtonItem release];
+    [_homeButtonItem release];
+    [_suggestionButtonItem release];
+    [_fullScreenButtonItem release];
+    [_fullScreenButtonItem2 release];
     [super dealloc];
-    [self.backView release];
-    [self.frontView release];
-    [self.backButtonItem release];
-    [self.backButtonItem2 release];
-    [self.forwardButtonItem release];
-    [self.menuButtonItem release];
-    [self.homeButtonItem release];
-    [self.suggestionButtonItem release];
-    [self.fullScreenButtonItem release];
-    [self.fullScreenButtonItem2 release];
+
 }
 
 @end

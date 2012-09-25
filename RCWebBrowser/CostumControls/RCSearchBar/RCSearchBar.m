@@ -11,6 +11,7 @@
 #import "RCRecordData.h"
 #import "RCSearchEnginePop.h"
 #import "QuartzCore/QuartzCore.h"
+#import "RCUrlInputField.h"
 
 @interface RCSearchBar ()<UITextFieldDelegate,UITableViewDataSource,UITableViewDelegate,RCSearchEnginePopDelegate>
 @property (nonatomic,retain) UIButton *searchEngineButton;
@@ -168,7 +169,7 @@
     
     //bookmark button
     UIButton *bookMarkButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    bookMarkButton.frame =CGRectMake(10, 5, 38, 34);
+    bookMarkButton.frame =CGRectMake(5, 5, 38, 34);
     [bookMarkButton setImage:RC_IMAGE(@"search_addfav_nomal") forState:UIControlStateNormal];
     [bookMarkButton setImage:RC_IMAGE(@"search_addfav_disable") forState:UIControlStateDisabled];
     [bookMarkButton addTarget:self action:@selector(bookMarkButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
@@ -177,14 +178,17 @@
     self.bookMarkButton = bookMarkButton;
     
     // url input
-    UITextField *locationField = [[UITextField alloc] initWithFrame:CGRectMake(54,5,260,33)];
-    locationField.layer.cornerRadius = 8;
+//    UITextField *locationField = [[UITextField alloc] initWithFrame:CGRectMake(48,5,266,33)];
+    RCUrlInputField *locationField = [[RCUrlInputField alloc] initWithFrame:CGRectMake(48,5,266,33)];
+
+    locationField.borderStyle = UITextBorderStyleNone;
+
+    locationField.layer.cornerRadius = 5;
     locationField.background = RC_IMAGE(@"searchBG@2x");
     locationField.delegate = self;
     locationField.autoresizingMask = UIViewAutoresizingFlexibleWidth;
     locationField.textColor = [UIColor colorWithRed:102.0/255 green:102.0/255 blue:102.0/255 alpha:1.0];
     locationField.textAlignment = UITextAlignmentLeft;
-    locationField.borderStyle = UITextBorderStyleRoundedRect;
     locationField.font = [UIFont fontWithName:@"Helvetica" size:15];
     locationField.autocorrectionType = UITextAutocorrectionTypeNo;
     locationField.contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
@@ -195,7 +199,8 @@
     locationField.clearButtonMode = UITextFieldViewModeWhileEditing;
     [self addSubview:locationField];
     self.locationField = locationField;
-    [locationField release];
+
+    
     
     // progressBar
 //    YLProgressBar *progressBar = [[YLProgressBar alloc] initWithFrame:locationField.bounds];
@@ -281,21 +286,22 @@
 
 -(void)dealloc
 {
+    [_locationField release];
+    [_searchEngineButton release];
+    [_cancelButton release];
+    [_keyBoardAccessory release];
+    [_keyBoardButtons release];
+    [_searchResultTable release];
+    [_listContent release];
+    [_historys release];
+    [_progressBar release];
+    [_stopReloadButton release];
+    [_bookMarkPop release];
+    [_searchEnginePop release];
+    [_searchResultTable release];
+    [_historys release];
     [super dealloc];
-    [self.locationField release];
-    [self.searchEngineButton release];
-    [self.cancelButton release];
-    [self.keyBoardAccessory release];
-    [self.keyBoardButtons release];
-    [self.searchResultTable release];
-    [self.listContent release];
-    [self.historys release];
-    [self.progressBar release];
-    [self.stopReloadButton release];
-    [self.bookMarkPop release];
-    [self.searchEnginePop release];
-    [self.searchResultTable release];
-    [self.historys release];    
+   
 }
 
 
@@ -416,7 +422,7 @@
                          self.locationField.leftViewMode = UITextFieldViewModeAlways;
                          self.locationField.rightViewMode = UITextFieldViewModeNever;
                          self.bookMarkButton.transform = CGAffineTransformMakeTranslation(-CGRectGetMaxX(self.bookMarkButton.frame), 0);
-                         self.locationField.transform = CGAffineTransformMakeTranslation(-52, 0);
+                         self.locationField.transform = CGAffineTransformMakeTranslation(-45, 0);
                          self.cancelButton.transform = CGAffineTransformMakeTranslation(-self.cancelButton.frame.size.width, 0);
                          self.searchResultTable.transform = CGAffineTransformMakeTranslation(0, -self.searchResultTable.frame.size.height);
                          [self.delegate searchModeOn];
@@ -490,20 +496,42 @@
 
 -(BOOL)textFieldShouldReturn:(UITextField *)textField
 {
-    NSURL *url = [NSURL URLWithString:textField.text];
+    NSString* string = textField.text;
+    string = [string stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+    
+    NSURL *url = [NSURL URLWithString:string];
     NSLog(@"url:%@",textField.text);
     // if user didn't enter "http", add it the the url
     if (!url.scheme.length) {
         url = [NSURL URLWithString:[@"http://" stringByAppendingString:textField.text]];
     }
     
-    NSString * regex        = @"^http(s)?://([\\w-]+\\.)+[\\w-]+(/[\\w- ./?%&=]*)?$";
-    NSPredicate * pred      = [NSPredicate predicateWithFormat:@"SELF MATCHES %@", regex];
-    if (![pred evaluateWithObject:url.absoluteString]) {
+    BOOL valid = NO;
+    if (url.host.length) {
+        NSString * regex        =  @"^([\\w-]+\\.)+[\\w-]+(/[\\w- ./?%&=]*)?$";//@"^(\\w)+(\\.)+(\\w)+$";//
+        NSPredicate * pred      = [NSPredicate predicateWithFormat:@"SELF MATCHES %@", regex];
+        if ([pred evaluateWithObject:url.host]) {
+            NSLog(@"valid url");
+            valid = YES;
+        }else{
+            NSLog(@"invalid url");
+        }
+    }
+    if (valid) {
+        
+    }else{
         NSNumber *setype = [[NSUserDefaults standardUserDefaults]objectForKey:SE_UDKEY];
         NSURL *searchURL = [RCSearchEnginePop urlForSEType:setype.intValue WithKeyWords:textField.text];
         url = searchURL;
     }
+    
+//    NSString * regex        = @"^http(s)?://([\\w-]+\\.)+[\\w-]+(/[\\w- ./?%&=]*)?$";
+//    NSPredicate * pred      = [NSPredicate predicateWithFormat:@"SELF MATCHES %@", regex];
+//    if (![pred evaluateWithObject:url.absoluteString]) {
+//        NSNumber *setype = [[NSUserDefaults standardUserDefaults]objectForKey:SE_UDKEY];
+//        NSURL *searchURL = [RCSearchEnginePop urlForSEType:setype.intValue WithKeyWords:textField.text];
+//        url = searchURL;
+//    }
     
     [self.delegate searchCompleteWithUrl:url];
     [textField resignFirstResponder];

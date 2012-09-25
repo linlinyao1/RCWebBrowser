@@ -15,13 +15,15 @@
 
 
 
+
 - (id)initWithFrame:(CGRect)frame
 {
     self = [super initWithFrame:frame];
     if (self) {
         // Initialization code
         [self turnOnDefaultPage];
-        self.scalesPageToFit = YES;
+//        self.scalesPageToFit = YES;
+//        self.scrollView.scrollsToTop = YES;
     }
     return self;
 }

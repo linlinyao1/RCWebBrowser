@@ -124,6 +124,7 @@ static RCFastLinkView *_fastLinkView;
     
     [[[UIApplication sharedApplication] keyWindow].rootViewController presentModalViewController:addnewVC animated:YES];
     [addnewVC release];
+
 }
 
 - (id)initWithFrame:(CGRect)frame
@@ -135,12 +136,6 @@ static RCFastLinkView *_fastLinkView;
         
         self.backgroundColor = [UIColor colorWithPatternImage:RC_IMAGE(@"fastlinkBG")];
 
-        
-//        addNew button currently disabled
-//        self.addNew = [UIButton buttonWithType:UIButtonTypeCustom];
-//        [self.addNew setBackgroundImage:RC_IMAGE(@"fastlink_addNew") forState:UIControlStateNormal];
-//        [self.addNew addTarget:self action:@selector(addNewTapped) forControlEvents:UIControlEventTouchUpInside];
-//        
 //        
         UIScrollView *scrollView = [[[UIScrollView alloc] initWithFrame:self.bounds] autorelease];
         scrollView.pagingEnabled = YES;
@@ -226,29 +221,35 @@ static RCFastLinkView *_fastLinkView;
 
 -(RCGridViewCell *)gridView:(RCGridView *)gridView ViewForCellAtIndex:(NSInteger)index
 {
-//    RCGridViewCell* cell = [gridView dequeueReusableCell];
-//    if (!cell) {
-//        cell = [[[RCGridViewCell alloc] initWithFrame:CGRectMake(0, 0, FL_ICON_SIZE, FL_ICON_SIZE)] autorelease];
-//    }
     
     RCGridViewCell* cell = [[[RCGridViewCell alloc] initWithFrame:CGRectMake(0, 0, FL_ICON_SIZE, FL_ICON_SIZE)] autorelease];
     
     RCFastLinkObject* obj = [self.objectList objectAtIndex:index];
-    UIImage *icon;
+    UIImage *icon = nil;
     if (obj.isDefault) {
         icon = RC_IMAGE(obj.iconName);
     }else {
         icon = obj.icon;
     }
+
     RCFastLinkButton *iconButton = [[RCFastLinkButton alloc] initWithFrame:CGRectMake(0, 0, FL_ICON_SIZE, FL_ICON_SIZE) Icon:icon Name:obj.name];
     if ([obj.url.absoluteString isEqualToString:@"http://m.2345.com/"] && [obj.name isEqualToString:@"2345"] && [obj.iconName isEqualToString:@"2345Nav.png"]) {
         cell.disableCloseButton =YES;
     }
+    
     [iconButton addTarget:self action:@selector(iconButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
     [cell.contentView addSubview:iconButton];
-    [iconButton release];
     
-//    cell.backgroundView.image = RC_IMAGE(@"defaultButtonBG");
+
+    UILabel *nameLabel = [[[UILabel alloc] initWithFrame:CGRectMake(5, 47, 54, 15)] autorelease];
+    nameLabel.backgroundColor = [UIColor colorWithPatternImage:RC_IMAGE(@"fastlink_textBG")];
+    nameLabel.opaque = NO;
+    nameLabel.textAlignment = UITextAlignmentCenter;
+    nameLabel.text = obj.name;
+    nameLabel.textColor = [UIColor whiteColor];
+    nameLabel.font = [UIFont systemFontOfSize:10];
+    [cell.contentView addSubview:nameLabel];
+    [iconButton release];
     return cell;
 }
 
@@ -288,13 +289,14 @@ static RCFastLinkView *_fastLinkView;
 
 -(void)gridView:(RCGridView *)gridView CellWillBeMoved:(RCGridViewCell *)cell
 {
-//    [cell.contentButton setHighlighted:YES];
-//    [cell.contentButton performSelector:@selector(setHighlighted:) withObject:[NSNumber numberWithBool:YES] afterDelay:0.0];
+    cell.layer.shadowOpacity = 0.3;
+    cell.layer.shadowOffset = CGSizeMake(0, 8);
 }
 
 -(void)gridView:(RCGridView *)gridView CellWillEndMoving:(RCGridViewCell *)cell
 {
-//    [cell.contentButton setHighlighted:NO];
+    cell.layer.shadowOpacity = 0.3;
+    cell.layer.shadowOffset = CGSizeMake(0, 1);
 }
 
 -(void)addButtonTapped:(RCGridView *)gridView
@@ -335,6 +337,11 @@ static RCFastLinkView *_fastLinkView;
     [self refreshIndicator];
 }
 
+- (BOOL)scrollViewShouldScrollToTop:(UIScrollView *)scrollView
+{
+    NSLog(@"scrollView");
+    return YES;
+}
 
 -(void)dealloc
 {

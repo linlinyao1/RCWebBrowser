@@ -20,6 +20,7 @@
 @property (nonatomic,retain) CMPopTipView *bookMarkPop;
 @property (nonatomic) BOOL isSliding;
 @property (nonatomic,retain) UINavigationController *menuViewController;
+@property (nonatomic,retain) NSMutableArray* webPool;
 -(void)updateBackForwordState:(RCWebView*)web;
 @end
 
@@ -32,6 +33,7 @@
 @synthesize bookMarkPop = _bookMarkPop;
 @synthesize isSliding = _isSliding;
 @synthesize menuViewController = _menuViewController;
+@synthesize webPool = _webPool;
 
 -(NSMutableArray *)openedWebs
 {
@@ -61,6 +63,7 @@
     [nav release];
 }
 
+
 -(void)openLink:(NSURL *)URL
 {
     if (URL) {
@@ -71,6 +74,7 @@
 
 -(void)viewWillAppear:(BOOL)animated
 {
+    [super viewWillAppear:animated];
     if ([self.openedWebs count] == 1) {
         [self.tabView.tabTable selectRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0] animated:NO scrollPosition:UITableViewScrollPositionNone];
         [self didSelectedTabAtIndex:0];
@@ -81,15 +85,25 @@
 
 -(void)viewDidAppear:(BOOL)animated
 {
+    [super viewDidAppear:animated];
 //    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(preloadLeft) object:nil];
 //    [self performSelector:@selector(preloadLeft) withObject:nil afterDelay:0.3];
     [self performSelector:@selector(preloadLeft)];
+//    [self becomeFirstResponder];
+    
+
 }
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];  
     [RCFastLinkView defaultPage].delegate = self;
+    
+    
+//    UIWebView* webView = [[UIWebView alloc] initWithFrame:self.broswerView.bounds];
+//    [webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"http://m.2345.com"]]];
+//    [self.broswerView addSubview:webView];
+    
 }
 
 - (void)viewDidUnload
@@ -111,7 +125,11 @@
 {
     return (interfaceOrientation == UIInterfaceOrientationPortrait);
 }
-
+-(void)didReceiveMemoryWarning
+{
+    [self.webPool removeAllObjects];
+    [super didReceiveMemoryWarning];
+}
 - (void)dealloc {
     [_tabView release];
     [_broswerView release];
@@ -147,8 +165,11 @@
     
     BOOL result = YES;
 
+//    NSLog(@"broswer :%@",[self.broswerView subviews]);
+    
     NSIndexPath *index = [self.tabView.tabTable indexPathForSelectedRow];
     RCWebView *web = [self.openedWebs objectAtIndex:index.row];
+//    RCWebView *web = [[self.broswerView subviews] objectAtIndex:0];
     if ([web canBeSlided]) {
         result = NO;
     }
@@ -347,7 +368,7 @@
             if ([urlString hasSuffix:@"/"]) {
                 urlString = [urlString substringToIndex:urlString.length-1];
             }
-            if ([bookmark.url.absoluteString isEqual:curObj.url.absoluteString]) {
+            if ([urlString isEqual:curObj.url.absoluteString]) {
                 [self.searchBar.bookMarkButton setImage:RC_IMAGE(@"search_addfav_hilite") forState:UIControlStateNormal];
                 return;
             }
@@ -355,7 +376,6 @@
         [self.searchBar.bookMarkButton setImage:RC_IMAGE(@"search_addfav_nomal") forState:UIControlStateNormal];
     }
 }
-
 
 
 
@@ -370,7 +390,6 @@
     if (web.isDefaultPage) {
         [web turnOffDefaultPage];
     }
-    
     [web loadRequest:[NSURLRequest requestWithURL:url]];
     [self.broswerView addSubview:web];
 //    [web loadRequest:[NSURLRequest requestWithURL:url]];
@@ -453,8 +472,18 @@
 -(BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType
 {
     NSLog(@"request : %@",request.URL);
+    
+//    NSMutableURLRequest *request = (NSMutableURLRequest *)req;
+
+    if( [request.URL.host hasSuffix:@"itunes.apple.com"])
+    {
+        [[UIApplication sharedApplication] openURL:request.URL];
+        return NO;
+    }
+    
+    
     if (![request.URL.absoluteString isEqualToString:@"about:blank"]) {
-        self.searchBar.locationField.text = request.URL.absoluteString;
+        self.searchBar.locationField.text = request.mainDocumentURL.absoluteString;
         if (!self.bottomToolBar.isBarShown && CGAffineTransformIsIdentity(self.tabView.transform)) {
             [self fullScreenButtonPressed:YES];
         }
@@ -468,8 +497,9 @@
 }
 -(void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error
 {
-    if([error code] != NSURLErrorCancelled) { 
-        NSLog(@"fail to load, error: %@",error);
+    NSLog(@"fail to load, error: %@",error);
+
+    if([error code] != NSURLErrorCancelled && [error code]!= 204) {
         UIAlertView *alert = [[UIAlertView alloc] initWithTitle:nil message:@"网络连接不正常，请检查网络" delegate:nil cancelButtonTitle:@"好" otherButtonTitles:nil];
         [alert show];
         [alert release];
@@ -481,12 +511,7 @@
     
 }
 
-//#pragma mark - – alertView:clickedButtonAtIndex:
-//- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
-//{
-//    NSLog(@"index %d",buttonIndex);
-//    [alertView dismissWithClickedButtonIndex:buttonIndex animated:YES];
-//}
+
 
 
 #pragma mark - RCTabViewDelegate
@@ -570,8 +595,60 @@
 
 -(BOOL)tabShouldCloseAtIndex:(NSInteger)index
 {
+    RCWebView *web = [self.openedWebs objectAtIndex:index];
+//    if (!self.webPool) {
+//        self.webPool = [NSMutableArray arrayWithCapacity:1];
+//    }
+//    [self.webPool addObject:web];
+    [web removeFromSuperview];
     [self.openedWebs removeObjectAtIndex:index];
-    
+    return YES;
+}
+
+-(void)resumeTabWithWebview:(RCWebView*)webview
+{
+    [self.openedWebs addObject:webview];
+    [self.tabView.tabTable insertRowsAtIndexPaths:[NSArray arrayWithObject:[NSIndexPath indexPathForRow:self.openedWebs.count-2 inSection:0]] withRowAnimation:UITableViewRowAnimationMiddle];
+//    [self.tabView.tabTable reloadRowsAtIndexPaths:[NSArray arrayWithObject:[NSIndexPath indexPathForRow:self.openedWebs.count-1 inSection:0]] withRowAnimation:UITableViewRowAnimationNone];
+    [self.tabView.tabTable reloadData];
+    [self.tabView.tabTable selectRowAtIndexPath:[NSIndexPath indexPathForRow:self.openedWebs.count-1 inSection:0] animated:NO scrollPosition:UITableViewScrollPositionMiddle];
+    [self didSelectedTabAtIndex:self.openedWebs.count-1];
+}
+- (void)motionEnded:(UIEventSubtype)motion withEvent:(UIEvent *)event
+{
+    if ( event.subtype == UIEventSubtypeMotionShake )
+    {
+        // Put in code here to handle shake
+        NSLog(@"shake");
+        if (self.webPool.count>0) {
+            if (self.openedWebs.count >=12) {
+                UIAlertView *alert = [[UIAlertView  alloc] initWithTitle:nil message:@"已达到最大标签数" delegate:nil cancelButtonTitle:@"确定" otherButtonTitles: nil];
+                [alert show];
+                [alert release];
+                return;
+            }else{
+                UIAlertView *alert = [[UIAlertView  alloc] initWithTitle:nil message:@"恢复关闭标签" delegate:nil cancelButtonTitle:@"确定" otherButtonTitles:@"取消",nil];
+                alert.delegate = self;
+                [alert show];
+                [alert release];
+
+            }
+        }
+    }
+    if ( [super respondsToSelector:@selector(motionEnded:withEvent:)] )
+        [super motionEnded:motion withEvent:event];
+}
+
+-(void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
+{
+    if ([[alertView buttonTitleAtIndex:buttonIndex] isEqualToString:@"确定"]) {
+        [self resumeTabWithWebview:[self.webPool lastObject]];
+        [self.webPool removeLastObject];
+    }
+}
+
+- (BOOL)canBecomeFirstResponder
+{
     return YES;
 }
 
@@ -579,7 +656,7 @@
 #pragma mark - RCSearchBar delegate
 -(void)searchModeOn
 {
-    self.view.transform = CGAffineTransformMakeTranslation(0, -38);
+    self.view.transform = CGAffineTransformMakeTranslation(0, -39);
 }
 -(void)searchModeOff
 {

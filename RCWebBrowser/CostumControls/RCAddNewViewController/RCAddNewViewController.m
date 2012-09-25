@@ -73,7 +73,6 @@ typedef enum {
     
     NSMutableArray *muArray = [RCRecordData recordDataWithKey:RCRD_FASTLINK];
     self.fastLinks = muArray;
-    
 }
 
 -(void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
@@ -254,7 +253,7 @@ typedef enum {
     if (tableView == self.channelTable) {
         if (indexPath.row == self.listSites.count) {
             if (!self.manulView) {
-                RCAddNewManully *view = [[RCAddNewManully alloc] init];
+                RCAddNewManully *view = [[RCAddNewManully alloc] initWithNib];
                 view.frame = self.siteTable.frame;
                 self.manulView = view;
                 [view release];

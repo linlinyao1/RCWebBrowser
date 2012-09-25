@@ -10,6 +10,7 @@
 
 @interface RCAddNewManully : UIView
 
+-(id)initWithNib;
 
 -(void)resignKeyboard;
 @end

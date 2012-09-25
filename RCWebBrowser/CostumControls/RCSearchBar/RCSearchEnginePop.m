@@ -147,8 +147,8 @@
 
 -(void)dealloc
 {
+    [_listContent release];
     [super dealloc];
-    [self.listContent release];
 }
 
 @end
