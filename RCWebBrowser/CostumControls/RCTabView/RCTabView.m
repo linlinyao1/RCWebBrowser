@@ -30,10 +30,6 @@
 /////////////////////////////////////////////////////////////
 
 
-
-
-
-
 #define ADDBUTTON_WIDTH 30
 #define ADDBUTTON_HEIGHT 30
 #define TAB_GAP 0
@@ -90,8 +86,6 @@
     self.tabTable = table;
     [table release];
     [self addSubview:table];
-    
-
 }
 
 

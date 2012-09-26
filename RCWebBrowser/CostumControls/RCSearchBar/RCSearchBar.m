@@ -63,6 +63,7 @@
         [sender invalidate];
         return;
     }
+    NSLog(@"self.locationField.loadingProgress: %@",self.locationField.loadingProgress);
     
     CGFloat progress = floorf(self.locationField.loadingProgress.floatValue*1000)/1000;
     if (progress <=0) {
@@ -83,6 +84,9 @@
     }else if (progress < 0.82){
         self.locationField.loadingProgress = @(0.01 + self.locationField.loadingProgress.floatValue);
         self.progressTimer = [NSTimer scheduledTimerWithTimeInterval:.1 target:self selector:@selector(handleProgressTimer:) userInfo:nil repeats:YES];
+    }else if (progress>=0.82){
+        [sender invalidate];
+        self.progressTimer = nil;
     }
     
 }
@@ -91,6 +95,7 @@
 -(void)startLoadingProgress
 {
     if(self.progressTimer) {
+        [self.progressTimer invalidate];
         self.progressTimer = nil;
     }
     self.locationField.loadingProgress = @0.15;
@@ -122,10 +127,14 @@
 //                                              }];
 //                         }
 //                     }];
-    
 }
 -(void)stopLoadProgress
 {
+    self.locationField.loadingProgress = @1.1;
+    if(self.progressTimer) {
+        [self.progressTimer invalidate];
+        self.progressTimer = nil;
+    }
 //    [UIView animateWithDuration:.1
 //                          delay:0
 //                        options:UIViewAnimationOptionBeginFromCurrentState|UIViewAnimationOptionAllowUserInteraction

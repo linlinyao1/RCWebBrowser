@@ -341,11 +341,6 @@ static RCFastLinkView *_fastLinkView;
     [self refreshIndicator];
 }
 
-- (BOOL)scrollViewShouldScrollToTop:(UIScrollView *)scrollView
-{
-    NSLog(@"scrollView");
-    return YES;
-}
 
 -(void)dealloc
 {

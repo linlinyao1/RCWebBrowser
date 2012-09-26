@@ -716,7 +716,7 @@
     BookmarkObject *object = [[[BookmarkObject alloc] initWithName:name andURL:url] autorelease];
     return object;
 }
--(RCWebView *)currentWeb
+-(UIWebView *)currentWeb
 {
     NSIndexPath *index = [self.tabView.tabTable indexPathForSelectedRow];
     return [self.openedWebs objectAtIndex:index.row];
@@ -771,10 +771,10 @@
     }
 }
 
-//-(void)handleEditingDoneButton
-//{
-//    RCWebView* web = [self currentWeb];
-//    web.
-//}
+-(void)handleEditingDoneButton
+{
+    RCWebView* web = (RCWebView*)[self currentWeb];
+    [web turnOnDefaultPage];
+}
 
 @end
